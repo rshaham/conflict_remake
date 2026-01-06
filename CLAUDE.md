@@ -18,11 +18,11 @@ Read these documents in order of relevance to your task:
 
 | Document | Purpose | Read When |
 |----------|---------|-----------|
-| `conflict-remake-gdd-v2.md` | Complete game design, all systems in YAML | Implementing any game mechanic |
-| `conflict-remake-tech-spec.md` | Technical architecture, types, milestones | Setting up project, writing code |
-| `conflict-remake-weapons-detail.md` | 26 real weapons, 3D specs, Wikipedia links | Working on military/purchase screens |
-| `conflict-remake-art-assets.md` | All visual/audio asset requirements | Creating UI, sourcing assets |
-| `conflict-remake-research.md` | Original game research, design decisions | Understanding "why" behind choices |
+| `docs\conflict-remake-gdd-v2.md` | Complete game design, all systems in YAML | Implementing any game mechanic |
+| `docs\conflict-remake-tech-spec.md` | Technical architecture, types, milestones | Setting up project, writing code |
+| `docs\conflict-remake-weapons-detail.md` | 26 real weapons, 3D specs, Wikipedia links | Working on military/purchase screens |
+| `docs\conflict-remake-art-assets.md` | All visual/audio asset requirements | Creating UI, sourcing assets |
+| `docs\conflict-remake-research.md` | Original game research, design decisions | Understanding "why" behind choices |
 
 ---
 
@@ -339,7 +339,7 @@ For local development without API key, set `VITE_AI_PROVIDER=mock`.
 | 5 | Polish | Mobile UI, animations, sound |
 | 6 | Testing & Launch | Tests, balance, deploy |
 
-See `conflict-remake-tech-spec.md` for detailed milestone tasks.
+See `docs\conflict-remake-tech-spec.md` for detailed milestone tasks.
 
 ---
 

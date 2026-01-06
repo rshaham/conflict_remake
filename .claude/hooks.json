@@ -1,0 +1,56 @@
+{
+  "hooks": {
+    "post-edit": [
+      {
+        "description": "Type check engine files after edit",
+        "pattern": "src/engine/**/*.ts",
+        "command": "npm run typecheck -- --noEmit"
+      },
+      {
+        "description": "Verify engine purity (no React imports)",
+        "pattern": "src/engine/**/*.ts",
+        "command": "! grep -q \"from 'react'\\|from \\\"react\\\"\\|useGameStore\" $FILE || (echo 'ERROR: React dependency in engine file!' && exit 1)"
+      },
+      {
+        "description": "Lint components after edit",
+        "pattern": "src/components/**/*.tsx",
+        "command": "npm run lint -- $FILE"
+      },
+      {
+        "description": "Validate YAML syntax after edit",
+        "pattern": "data/*.yaml",
+        "command": "npx yaml-lint $FILE"
+      }
+    ],
+    "pre-commit": [
+      {
+        "description": "Run full type check",
+        "command": "npm run typecheck"
+      },
+      {
+        "description": "Run linter",
+        "command": "npm run lint"
+      },
+      {
+        "description": "Run tests",
+        "command": "npm run test -- --passWithNoTests"
+      },
+      {
+        "description": "Verify no console.log in engine",
+        "command": "! grep -r 'console\\.' src/engine/ || (echo 'WARNING: console statements in engine' && exit 0)"
+      }
+    ],
+    "post-create": [
+      {
+        "description": "Add boilerplate test file for new engine",
+        "pattern": "src/engine/*.ts",
+        "command": "[ -f ${FILE%.ts}.test.ts ] || echo '// TODO: Add tests for ${FILE}' > ${FILE%.ts}.test.ts"
+      }
+    ]
+  },
+  "settings": {
+    "auto-run-hooks": true,
+    "fail-on-hook-error": false,
+    "hook-timeout": 30000
+  }
+}
