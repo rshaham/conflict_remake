@@ -1,0 +1,120 @@
+# data/scoring.yaml
+# End-game scoring, violence tracking, and leadership styles
+
+endGameScoring:
+  neighborStatus:
+    allFourDefeated: 100
+    egyptOrSyriaOnly: 50
+    notControlLebanon: -5
+    notControlJordan: -10
+    notControlSyria: -25
+
+  knessetDisapproval:
+    pointsPerLevel: -8
+
+  prestige:
+    levels:
+      - { id: "none", name: "None", points: 0, threshold: 0 }
+      - { id: "weak", name: "Weak", points: 16, threshold: 1 }
+      - { id: "low", name: "Low", points: 32, threshold: 2 }
+      - { id: "moderate", name: "Moderate", points: 64, threshold: 4 }
+      - { id: "rising", name: "Rising", points: 80, threshold: 5 }
+      - { id: "high", name: "High", points: 96, threshold: 6 }
+      - { id: "very_high", name: "Very High", points: 112, threshold: 7 }
+      - { id: "dynamic", name: "Dynamic", points: 128, threshold: 8 }
+      - { id: "dominant", name: "Dominant", points: 144, threshold: 9 }
+      - { id: "unrivalled", name: "Unrivalled", points: 160, threshold: 10 }
+
+  monthsPlayed:
+    pointsPerMonth: 4
+    minimumMonthsPenalty: -20
+    minimumMonths: 4
+
+  usAttitude:
+    events:
+      fullDeployment: -5
+      skippedSummit: -5
+      invasion: -15
+      hardTactics: -15
+      nuclearStrike: -100
+      palestinianHomeland: 25
+      armyLimitAgreement: 15
+      defenseReduction: 5
+
+violenceTracking:
+  actions:
+    airstrikeNuclear: 4
+    airstrikeMilitary: 2
+    airstrikeCivilian: 2
+    airstrikeIndustrial: 2
+    invasion: 6
+    nuclearStrike: 10
+    enableHardTactics: 3
+
+leadershipStyles:
+  - id: "dull"
+    name: "Dull"
+    description: "Unremarkable leadership"
+    conditions: []
+
+  - id: "violent"
+    name: "Violent"
+    description: "Rule through force"
+    conditions:
+      - { field: "violencePoints", operator: ">=", value: 11 }
+
+  - id: "fascist"
+    name: "Fascist"
+    description: "Authoritarian extremist"
+    conditions:
+      - { field: "violencePoints", operator: ">=", value: 21 }
+
+  - id: "extreme"
+    name: "Extreme"
+    description: "Hardline nationalist"
+    conditions:
+      - { field: "palestinianHomeland", operator: "==", value: false }
+      - { field: "armyLimitAgreement", operator: "==", value: false }
+      - { field: "hardTacticsActive", operator: "==", value: true }
+      - { field: "violencePoints", operator: ">=", value: 9 }
+      - { field: "knessetDisapproval", operator: ">=", value: 5 }
+      - { field: "gdpDefensePercent", operator: ">=", value: 35 }
+      - { field: "usAttitude", operator: "<=", value: -41 }
+
+  - id: "soft"
+    name: "Soft"
+    description: "Peaceful moderate"
+    conditions:
+      - { field: "violencePoints", operator: "==", value: 0 }
+      - { field: "usAttitude", operator: ">=", value: -9 }
+
+  - id: "liberal"
+    name: "Liberal"
+    description: "Progressive reformer"
+    conditions:
+      - { field: "violencePoints", operator: "<=", value: 5 }
+      - { field: "usAttitude", operator: ">=", value: -29 }
+      - { field: "knessetDisapproval", operator: "<=", value: 3 }
+      - { field: "gdpDefensePercent", operator: "<=", value: 35 }
+      - anyOf:
+          - { field: "palestinianHomeland", operator: "==", value: true }
+          - { field: "armyLimitAgreement", operator: "==", value: true }
+
+  - id: "popular"
+    name: "Popular"
+    description: "Beloved by the people"
+    conditions:
+      - { field: "violencePoints", operator: ">=", value: 1 }
+      - { field: "violencePoints", operator: "<=", value: 7 }
+      - { field: "palestinianHomeland", operator: "==", value: false }
+      - { field: "armyLimitAgreement", operator: "==", value: false }
+      - { field: "prestige", operator: ">=", value: "rising" }
+
+  - id: "diplomatic"
+    name: "Diplomatic"
+    description: "Master negotiator"
+    conditions:
+      - { field: "violencePoints", operator: "<=", value: 3 }
+      - { field: "palestinianHomeland", operator: "==", value: true }
+      - { field: "armyLimitAgreement", operator: "==", value: true }
+      - { field: "usAttitude", operator: ">=", value: -29 }

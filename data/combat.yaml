@@ -1,0 +1,126 @@
+# data/combat.yaml
+# Combat and war resolution rules
+
+warDeclaration:
+  playerRequirements:
+    - relationshipLevel: "hostile"
+    - troopsOnBorder: true
+
+  aiDecisionFactors:
+    - factor: "militaryAdvantage"
+      weight: 0.3
+      calculation: "(myForces - theirForces) / myForces"
+
+    - factor: "relationshipLevel"
+      weight: 0.2
+      calculation: "Maps hostile=0.8, lamentable=0.4, cool=0.1, etc"
+
+    - factor: "opportunism"
+      weight: 0.2
+      calculation: "1.0 if target at war with others, 0.5 if target unstable"
+
+    - factor: "leaderAggression"
+      weight: 0.2
+      calculation: "hawkish=0.8, pragmatic=0.5, dovish=0.2"
+
+    - factor: "randomness"
+      weight: 0.1
+      calculation: "random() * riskTolerance.wildcardChance"
+
+combatResolution:
+  phases:
+    - name: "Air Superiority"
+      attackers: ["fighter_aircraft"]
+      defenders: ["fighter_aircraft", "sam_battery"]
+
+    - name: "Air Defense Suppression"
+      attackers: ["anti_sam_helicopter"]
+      defenders: ["sam_battery", "fighter_aircraft"]
+
+    - name: "Close Air Support"
+      attackers: ["anti_tank_helicopter", "fighter_aircraft"]
+      defenders: ["sam_battery", "main_battle_tank", "light_tank"]
+
+    - name: "Ground Battle"
+      attackers: ["main_battle_tank", "light_tank", "infantry_brigade"]
+      defenders: ["main_battle_tank", "light_tank", "infantry_brigade"]
+
+  combatFormula:
+    effectiveness:
+      counters: 1.5
+      countered: 0.5
+      neutral: 1.0
+
+  warProgress:
+    progressChange:
+      decisiveVictory: 3
+      victory: 2
+      pyrrhic: 1
+      stalemate: 0
+      setback: -1
+      defeat: -2
+      rout: -3
+
+    victoryCondition: 10
+    defeatCondition: -10
+
+  warEnd:
+    victory:
+      enemyDefeated: true
+      prestigeGain: 2
+      enemyStabilitySet: "critical"
+
+    defeat:
+      playerStabilityDrop: 2
+      knessetDisapprovalGain: 3
+
+    ceasefire:
+      relationshipReset: "satisfactory"
+      stanceReset: "aggressive"
+      advantageSideStability: "very_solid"
+      disadvantageSideStability: "weak"
+
+airstrikes:
+  types:
+    military:
+      id: "military"
+      name: "Military Targets"
+      requiresRelation: "hostile"
+      violencePoints: 2
+      effect: "Destroy 5-15 random enemy units"
+      relationshipPenalty: 1
+
+    civilian:
+      id: "civilian"
+      name: "Civilian Targets"
+      requiresRelation: "hostile"
+      violencePoints: 2
+      effect: "Reduce enemy stability by 1"
+      relationshipPenalty: 2
+      usAttitudePenalty: -10
+      internationalCondemnation: true
+
+    industrial:
+      id: "industrial"
+      name: "Industrial Targets"
+      requiresRelation: "hostile"
+      violencePoints: 2
+      effect: "Reduce enemy budget by 20% for 3 months"
+      relationshipPenalty: 1
+
+    nuclear:
+      id: "nuclear"
+      name: "Nuclear Installation"
+      requiresRelation: "any"
+      violencePoints: 4
+      effect: "Attempt to destroy nuclear program"
+      successChance: 0.65
+      relationshipPenalty: 1
+      relationshipPenaltyFailure: 2
+
+  requirements:
+    minimumFighters: 5
+
+  losses:
+    baseChance: 0.1
+    samModifier: 0.05

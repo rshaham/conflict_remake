@@ -1,0 +1,75 @@
+# data/leaders.yaml
+# Leader personality traits configuration
+
+leaderTraits:
+  strength:
+    description: "Policy consistency under pressure"
+    levels:
+      weak:
+        id: "weak"
+        name: "Weak"
+        policyFlipChance: 0.40
+        coupVulnerability: 1.5
+        description: "Erratic, reactive to public opinion"
+      moderate:
+        id: "moderate"
+        name: "Moderate"
+        policyFlipChance: 0.15
+        coupVulnerability: 1.0
+        description: "Balances conviction with pragmatism"
+      strong:
+        id: "strong"
+        name: "Strong"
+        policyFlipChance: 0.05
+        coupVulnerability: 0.7
+        description: "Unwavering, possibly to a fault"
+
+  aggression:
+    description: "Preference for military solutions"
+    levels:
+      dovish:
+        id: "dovish"
+        name: "Dovish"
+        warDeclarationThreshold: 0.8
+        nuclearPriority: 0.2
+        alliancePreference: 0.7
+        description: "Seeks peace, avoids conflict"
+      pragmatic:
+        id: "pragmatic"
+        name: "Pragmatic"
+        warDeclarationThreshold: 0.5
+        nuclearPriority: 0.5
+        alliancePreference: 0.5
+        description: "Uses force when advantageous"
+      hawkish:
+        id: "hawkish"
+        name: "Hawkish"
+        warDeclarationThreshold: 0.3
+        nuclearPriority: 0.8
+        alliancePreference: 0.3
+        description: "Aggressive, expansionist"
+
+  riskTolerance:
+    description: "Willingness to gamble"
+    levels:
+      cautious:
+        id: "cautious"
+        name: "Cautious"
+        wildcardChance: 0.05
+        extremeMeasureChance: 0.1
+        firstStrikeChance: 0.1
+        description: "Predictable, conservative"
+      calculated:
+        id: "calculated"
+        name: "Calculated"
+        wildcardChance: 0.15
+        extremeMeasureChance: 0.3
+        firstStrikeChance: 0.3
+        description: "Takes measured risks"
+      reckless:
+        id: "reckless"
+        name: "Reckless"
+        wildcardChance: 0.30
+        extremeMeasureChance: 0.6
+        firstStrikeChance: 0.5
+        description: "Unpredictable, dangerous"

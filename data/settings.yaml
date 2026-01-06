@@ -1,0 +1,52 @@
+# data/settings.yaml
+# Game difficulty levels and scenario configurations
+
+difficulties:
+  easy:
+    id: "easy"
+    name: "Advisor"
+    description: "Forgiving start, less aggressive neighbors"
+    startingBudget: 150000000
+    usAttitudeStart: 20
+    aiAggressionModifier: 0.7
+    successChanceModifier: 1.2
+    relationshipModifier: 1
+
+  normal:
+    id: "normal"
+    name: "Prime Minister"
+    description: "The classic experience"
+    startingBudget: 100000000
+    usAttitudeStart: 0
+    aiAggressionModifier: 1.0
+    successChanceModifier: 1.0
+    relationshipModifier: 0
+
+  hard:
+    id: "hard"
+    name: "Survivalist"
+    description: "Hostile region, limited resources"
+    startingBudget: 75000000
+    usAttitudeStart: -20
+    aiAggressionModifier: 1.3
+    successChanceModifier: 0.8
+    relationshipModifier: -1
+
+  impossible:
+    id: "impossible"
+    name: "Masada"
+    description: "The world wants you gone"
+    startingBudget: 50000000
+    usAttitudeStart: -40
+    aiAggressionModifier: 1.5
+    successChanceModifier: 0.6
+    relationshipModifier: -2
+
+scenarios:
+  classic_1997:
+    id: "classic_1997"
+    name: "1997 - Classic"
+    description: "The original scenario. Your predecessor was just assassinated."
+    startYear: 1997
+    startMonth: 1
+    dataFile: "scenarios/classic_1997.yaml"

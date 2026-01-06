@@ -1,0 +1,74 @@
+# data/palestinian.yaml
+# Palestinian problem configuration
+
+palestinianProblem:
+  levels:
+    - id: "calm"
+      name: "Calm"
+      order: 0
+      requiresPolicing: false
+      monthlyKnessetPressure: 0
+
+    - id: "unrest"
+      name: "Unrest"
+      order: 1
+      requiresPolicing: false
+      monthlyKnessetPressure: 0.5
+
+    - id: "protests"
+      name: "Protests"
+      order: 2
+      requiresPolicing: true
+      monthlyKnessetPressure: 1
+
+    - id: "violence"
+      name: "Violence"
+      order: 3
+      requiresPolicing: true
+      monthlyKnessetPressure: 2
+
+    - id: "intifada"
+      name: "Intifada"
+      order: 4
+      requiresPolicing: true
+      monthlyKnessetPressure: 3
+      canCauseAssassination: true
+
+  externalInfluence:
+    hostileNeighborBonus: 0.1
+    atWarBonus: 0.2
+
+  policingOptions:
+    none:
+      id: "none"
+      name: "No Deployment"
+      effectiveness: 0
+      usAttitudePenalty: 0
+      violencePoints: 0
+      brigadesRequired: 0
+
+    soft:
+      id: "soft"
+      name: "Soft Tactics"
+      description: "Minimal force, community engagement"
+      effectiveness: 0.5
+      usAttitudePenalty: 0
+      violencePoints: 0
+      brigadesRequired: 1
+
+    hard:
+      id: "hard"
+      name: "Hard Tactics"
+      description: "Aggressive enforcement, curfews"
+      effectiveness: 1.0
+      usAttitudePenalty: -15
+      violencePoints: 3
+      brigadesRequired: 1
+      internationalCondemnationChance: 0.3
+
+  homelandResolution:
+    availableAt: "un_summit"
+    usAttitudeBonus: 25
+    prestigeBonus: 1
+    permanentlyResolves: true
+    warTerritoryPenalty: 2

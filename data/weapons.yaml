@@ -1,0 +1,139 @@
+# data/weapons.yaml
+# Arms vendors and weapons catalog
+
+vendors:
+  usa:
+    id: "usa"
+    name: "United States"
+    flag: "us"
+    willEmbargo: true
+    embargoTriggers:
+      - "unprovoked_invasion"
+      - "nuclear_strike"
+      - "civilian_airstrike"
+    embargoLiftCondition: "next_un_summit"
+    exclusivityConflict: "black_market"
+
+  uk:
+    id: "uk"
+    name: "United Kingdom"
+    flag: "gb"
+    willEmbargo: true
+    embargoTriggers:
+      - "unprovoked_invasion"
+      - "nuclear_strike"
+    embargoLiftCondition: "next_un_summit"
+
+  france:
+    id: "france"
+    name: "France"
+    flag: "fr"
+    willEmbargo: false
+
+  black_market:
+    id: "black_market"
+    name: "Black Market"
+    flag: "pirate"
+    description: "South African dealer with Soviet equipment"
+    willEmbargo: false
+    deliveryDelay: 2
+    priceModifier: 1.2
+    alwaysAvailable: true
+
+weapons:
+  light_tank:
+    id: "light_tank"
+    name: "Light Tank"
+    category: "armor"
+    description: "Fast, cheap, expendable"
+    costPerUnit: 1000000
+    combatValue: 1
+    counteredBy: ["anti_tank_helicopter", "main_battle_tank"]
+    availability:
+      usa: { minPurchases: 0, price: 1000000 }
+      uk: { minPurchases: 0, price: 1000000 }
+      france: { minPurchases: 0, price: 1100000 }
+      black_market: { minPurchases: 0, price: 1200000 }
+
+  main_battle_tank:
+    id: "main_battle_tank"
+    name: "Main Battle Tank"
+    category: "armor"
+    description: "Heavy armor, high firepower"
+    costPerUnit: 2000000
+    combatValue: 3
+    counters: ["light_tank"]
+    counteredBy: ["anti_tank_helicopter"]
+    availability:
+      usa: { minPurchases: 5, price: 2000000 }
+      uk: { minPurchases: 5, price: 2100000 }
+      france: { minPurchases: 3, price: 2200000 }
+      black_market: { minPurchases: 0, price: 2400000 }
+
+  anti_tank_helicopter:
+    id: "anti_tank_helicopter"
+    name: "Anti-Tank Helicopter"
+    category: "aircraft"
+    description: "Tank killer, vulnerable to AA"
+    costPerUnit: 5000000
+    combatValue: 4
+    counters: ["light_tank", "main_battle_tank"]
+    counteredBy: ["sam_battery", "fighter_aircraft"]
+    availability:
+      usa: { minPurchases: 10, price: 5000000 }
+      black_market: { minPurchases: 5, price: 6000000 }
+
+  sam_battery:
+    id: "sam_battery"
+    name: "SAM Battery"
+    category: "air_defense"
+    description: "Surface-to-air missiles"
+    costPerUnit: 3000000
+    combatValue: 2
+    counters: ["anti_tank_helicopter", "fighter_aircraft"]
+    counteredBy: ["anti_sam_helicopter"]
+    availability:
+      usa: { minPurchases: 8, price: 3000000 }
+      uk: { minPurchases: 8, price: 3200000 }
+      black_market: { minPurchases: 0, price: 3600000 }
+
+  fighter_aircraft:
+    id: "fighter_aircraft"
+    name: "Fighter Aircraft"
+    category: "aircraft"
+    description: "Air superiority and strikes"
+    costPerUnit: 10000000
+    combatValue: 5
+    counters: ["anti_tank_helicopter"]
+    counteredBy: ["sam_battery", "fighter_aircraft"]
+    canAirstrike: true
+    availability:
+      usa: { minPurchases: 15, price: 10000000 }
+      uk: { minPurchases: 12, price: 10500000 }
+      france: { minPurchases: 10, price: 11000000 }
+      black_market: { minPurchases: 8, price: 12000000 }
+
+  anti_sam_helicopter:
+    id: "anti_sam_helicopter"
+    name: "SEAD Helicopter"
+    category: "aircraft"
+    description: "Suppression of enemy air defense"
+    costPerUnit: 8000000
+    combatValue: 3
+    counters: ["sam_battery"]
+    counteredBy: ["fighter_aircraft"]
+    availability:
+      usa: { minPurchases: 20, price: 8000000 }
+      black_market: { minPurchases: 15, price: 9600000 }
+
+  infantry_brigade:
+    id: "infantry_brigade"
+    name: "Infantry Brigade"
+    category: "infantry"
+    description: "Ground troops for occupation"
+    costPerUnit: 0
+    combatValue: 2
+    canOccupy: true
+    canPolice: true
+    availability:
+      usa: { minPurchases: 0, price: 0 }

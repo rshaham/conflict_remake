@@ -1,0 +1,78 @@
+# data/events.yaml
+# Event categories and trigger conditions
+
+eventCategories:
+  crisis:
+    description: "Urgent problems requiring immediate response"
+    frequencyPerMonth: 0.4
+    examples:
+      - "Terrorist attack"
+      - "Border incident"
+      - "Hostage situation"
+      - "Assassination attempt"
+      - "Military coup in neighbor"
+    triggerConditions:
+      - "palestinianLevel >= violence"
+      - "anyNeighborRelation <= lamentable"
+      - "atWarWithAnyone"
+
+  opportunity:
+    description: "Chances to gain advantage"
+    frequencyPerMonth: 0.2
+    examples:
+      - "Intelligence windfall"
+      - "Defector with secrets"
+      - "Enemy internal strife"
+      - "Arms deal opportunity"
+    triggerConditions:
+      - "anyNeighborStability <= weak"
+      - "prestige >= rising"
+
+  diplomatic:
+    description: "International relations events"
+    frequencyPerMonth: 0.3
+    examples:
+      - "Summit invitation"
+      - "Treaty proposal"
+      - "International criticism"
+      - "Alliance offer"
+    triggerConditions:
+      - "usAttitude changed significantly"
+      - "recentAirstrike OR recentInvasion"
+
+  military:
+    description: "Armed forces matters"
+    frequencyPerMonth: 0.2
+    examples:
+      - "Equipment malfunction"
+      - "Training accident"
+      - "Intel on enemy positions"
+      - "Defecting general"
+    triggerConditions:
+      - "atWar"
+      - "recentMilitaryPurchase"
+
+  internal:
+    description: "Domestic Israeli politics"
+    frequencyPerMonth: 0.3
+    examples:
+      - "Knesset challenge"
+      - "Public protests"
+      - "Economic crisis"
+      - "Cabinet resignation"
+    triggerConditions:
+      - "knessetDisapproval >= 5"
+      - "palestinianLevel >= protests"
+      - "prolongedWar"
+
+  international:
+    description: "World events affecting the region"
+    frequencyPerMonth: 0.15
+    examples:
+      - "Superpower intervention"
+      - "Oil crisis"
+      - "UN resolution"
+      - "Global arms embargo"
+    triggerConditions:
+      - "nuclearStrike anywhere"
+      - "majorWar ongoing"

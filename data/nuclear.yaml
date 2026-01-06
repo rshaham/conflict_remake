@@ -1,0 +1,77 @@
+# data/nuclear.yaml
+# Nuclear program configuration
+
+nuclearProgram:
+  monthlyFundingCost: 20000000
+
+  progressChances:
+    high:
+      minRemainingBudget: 15000000
+      advanceChance: 0.40
+    medium:
+      minRemainingBudget: 6000000
+      advanceChance: 0.30
+    low:
+      minRemainingBudget: 1000000
+      advanceChance: 0.20
+    none:
+      minRemainingBudget: 0
+      advanceChance: 0.00
+
+  stages:
+    - id: "none"
+      name: "No Program"
+      order: 0
+      icon: "circle-off"
+
+    - id: "research"
+      name: "Research"
+      order: 1
+      monthsRequired: 6
+      canBeDestroyed: true
+      icon: "flask"
+
+    - id: "development"
+      name: "Development"
+      order: 2
+      monthsRequired: 8
+      canBeDestroyed: true
+      icon: "atom"
+
+    - id: "testing"
+      name: "Testing"
+      order: 3
+      monthsRequired: 4
+      canBeDestroyed: true
+      icon: "radiation"
+
+    - id: "operational"
+      name: "Operational"
+      order: 4
+      monthsRequired: 0
+      canBeDestroyed: false
+      icon: "bomb"
+      displayIcon: "mushroom_cloud"
+
+  airstrikeOnInstallation:
+    baseSuccessChance: 0.65
+    onSuccess:
+      stagesSetBack: 99
+      relationshipPenalty: 1
+    onFailure:
+      stagesSetBack: 0
+      relationshipPenalty: 2
+
+  nuclearStrikeOutcomes:
+    victory:
+      condition: "target_has_no_nukes AND no_nuclear_allies"
+      result: "instant_war_victory"
+      consequences:
+        usAttitude: -100
+        prestige: -3
+        armsEmbargo: "all_except_black_market"
+
+    holocaust:
+      condition: "target_has_nukes OR nuclear_ally_retaliates"
+      result: "game_over"
+      endingType: "nuclear_holocaust"

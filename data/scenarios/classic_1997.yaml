@@ -1,0 +1,167 @@
+# data/scenarios/classic_1997.yaml
+# Classic 1997 scenario - the original game starting state
+
+scenario:
+  id: "classic_1997"
+  name: "1997 - Classic"
+  description: "The original scenario. Your predecessor was just assassinated."
+  startYear: 1997
+  startMonth: 1
+
+# Israel starting state
+player:
+  budget: 100000000
+  gdpDefensePercent: 35
+  usAttitude: 0
+  prestige: 3
+  knessetDisapproval: 0
+  violencePoints: 0
+  palestinianHomeland: false
+  armyLimitAgreement: false
+  palestinianLevel: "scattered"
+  policingTactic: "none"
+  nuclearStage: "none"
+  nuclearProgress: 0
+
+  arsenal:
+    light_tank: 20
+    main_battle_tank: 15
+    anti_tank_helicopter: 5
+    sam_battery: 10
+    fighter_aircraft: 25
+    anti_sam_helicopter: 3
+    infantry_brigade: 8
+
+  deployedTroops:
+    egypt: 0
+    syria: 0
+    jordan: 0
+    lebanon: 0
+
+  vendorPurchases:
+    usa: 0
+    uk: 0
+    france: 0
+    black_market: 0
+
+  embargoedBy: []
+  pendingDeliveries: []
+
+# AI country starting states
+countries:
+  egypt:
+    leader:
+      name: "Hosni Mubarak"
+      strength: "moderate"
+      aggression: "pragmatic"
+      riskTolerance: "cautious"
+    militaryStrength: 150
+    relationship: "cool"
+    stance: "neutral"
+    stability: "good"
+    insurgency: "none"
+    nuclearStage: "none"
+    nuclearProgress: 0
+    isDefeated: false
+
+  syria:
+    leader:
+      name: "Hafez al-Assad"
+      strength: "strong"
+      aggression: "hawkish"
+      riskTolerance: "calculated"
+    militaryStrength: 180
+    relationship: "lamentable"
+    stance: "aggressive"
+    stability: "solid"
+    insurgency: "none"
+    nuclearStage: "research"
+    nuclearProgress: 2
+    isDefeated: false
+
+  jordan:
+    leader:
+      name: "Hussein bin Talal"
+      strength: "moderate"
+      aggression: "dovish"
+      riskTolerance: "cautious"
+    militaryStrength: 80
+    relationship: "satisfactory"
+    stance: "neutral"
+    stability: "good"
+    insurgency: "scattered"
+    nuclearStage: "none"
+    nuclearProgress: 0
+    isDefeated: false
+
+  lebanon:
+    leader:
+      name: "Elias Hrawi"
+      strength: "weak"
+      aggression: "dovish"
+      riskTolerance: "cautious"
+    militaryStrength: 30
+    relationship: "cool"
+    stance: "neutral"
+    stability: "weak"
+    insurgency: "organized"
+    nuclearStage: "none"
+    nuclearProgress: 0
+    isDefeated: false
+
+  iraq:
+    leader:
+      name: "Saddam Hussein"
+      strength: "strong"
+      aggression: "hawkish"
+      riskTolerance: "reckless"
+    militaryStrength: 200
+    relationship: "hostile"
+    stance: "aggressive"
+    stability: "solid"
+    insurgency: "none"
+    nuclearStage: "development"
+    nuclearProgress: 4
+    isDefeated: false
+
+  iran:
+    leader:
+      name: "Ali Khamenei"
+      strength: "strong"
+      aggression: "hawkish"
+      riskTolerance: "calculated"
+    militaryStrength: 220
+    relationship: "hostile"
+    stance: "aggressive"
+    stability: "solid"
+    insurgency: "scattered"
+    nuclearStage: "research"
+    nuclearProgress: 3
+    isDefeated: false
+
+  libya:
+    leader:
+      name: "Muammar Gaddafi"
+      strength: "moderate"
+      aggression: "hawkish"
+      riskTolerance: "reckless"
+    militaryStrength: 100
+    relationship: "lamentable"
+    stance: "aggressive"
+    stability: "good"
+    insurgency: "none"
+    nuclearStage: "none"
+    nuclearProgress: 0
+    isDefeated: false
+
+# Opening narrative
+openingNarrative: |
+  January 1997. Your predecessor has been assassinated by a Palestinian extremist.
+
+  You have been thrust into the role of Prime Minister at the worst possible time.
+  Syria masses troops on the Golan. Iraq's nuclear program advances despite sanctions.
+  Iran funds Hezbollah attacks from Lebanon. Egypt's intentions remain unclear.
+
+  The Knesset has given you one mandate: ensure Israel's survival.
+
+  How you achieve this is up to you.

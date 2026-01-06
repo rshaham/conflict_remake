@@ -1,0 +1,218 @@
+# data/enums.yaml
+# All game enums and constants
+
+relationshipLevels:
+  - id: "military_pact"
+    name: "Military Pact"
+    order: 0
+    canRequestPact: false
+    canInvade: false
+    willJoinWars: true
+    color: "#22c55e"
+
+  - id: "profitable"
+    name: "Profitable"
+    order: 1
+    canRequestPact: true
+    canInvade: false
+    color: "#86efac"
+
+  - id: "beneficial"
+    name: "Beneficial"
+    order: 2
+    canRequestPact: false
+    canInvade: false
+    color: "#bbf7d0"
+
+  - id: "favourable"
+    name: "Favourable"
+    order: 3
+    canRequestPact: false
+    canInvade: false
+    improvementCost: 100000000
+    color: "#fef9c3"
+
+  - id: "satisfactory"
+    name: "Satisfactory"
+    order: 4
+    canRequestPact: false
+    canInvade: false
+    color: "#fef08a"
+
+  - id: "cool"
+    name: "Cool"
+    order: 5
+    canRequestPact: false
+    canInvade: false
+    color: "#fed7aa"
+
+  - id: "lamentable"
+    name: "Lamentable"
+    order: 6
+    canRequestPact: false
+    canInvade: false
+    color: "#fdba74"
+
+  - id: "hostile"
+    name: "Hostile"
+    order: 7
+    canRequestPact: false
+    canInvade: true
+    canAirstrike: true
+    color: "#fca5a5"
+
+  - id: "war"
+    name: "War"
+    order: 8
+    canRequestPact: false
+    isAtWar: true
+    color: "#ef4444"
+
+stabilityLevels:
+  - id: "very_solid"
+    name: "Very Solid"
+    order: 0
+    collapseChance: 0
+    icon: "shield-check"
+
+  - id: "solid"
+    name: "Solid"
+    order: 1
+    collapseChance: 0
+    icon: "shield"
+
+  - id: "good"
+    name: "Good"
+    order: 2
+    collapseChance: 0
+    icon: "shield-half"
+
+  - id: "weak"
+    name: "Weak"
+    order: 3
+    collapseChance: 0.05
+    allowsExtremeMeasures: true
+    icon: "shield-alert"
+
+  - id: "critical"
+    name: "Critical"
+    order: 4
+    collapseChance: 0.15
+    allowsExtremeMeasures: true
+    icon: "shield-x"
+
+  - id: "collapse"
+    name: "Collapse"
+    order: 5
+    isDefeated: true
+    icon: "skull"
+
+insurgencyLevels:
+  - id: "none"
+    name: "None"
+    order: 0
+    monthlyDestabilization: 0
+
+  - id: "scattered"
+    name: "Scattered"
+    order: 1
+    monthlyDestabilization: 0.02
+
+  - id: "organized"
+    name: "Organized"
+    order: 2
+    monthlyDestabilization: 0.05
+
+  - id: "armed"
+    name: "Armed"
+    order: 3
+    monthlyDestabilization: 0.10
+
+  - id: "guerilla_force"
+    name: "Guerilla Force"
+    order: 4
+    monthlyDestabilization: 0.20
+    allowsExtremeMeasures: true
+
+  - id: "open_revolt"
+    name: "Open Revolt"
+    order: 5
+    monthlyDestabilization: 0.35
+    allowsExtremeMeasures: true
+
+diplomaticStances:
+  - id: "friendly"
+    name: "Friendly"
+    monthlyDrift: 1
+    icon: "heart"
+
+  - id: "neutral"
+    name: "Neutral"
+    monthlyDrift: 0
+    icon: "minus"
+
+  - id: "aggressive"
+    name: "Aggressive"
+    monthlyDrift: -1
+    icon: "sword"
+
+playerDiplomaticActions:
+  - id: "improve"
+    name: "Improve Relations"
+    effect: 1
+
+  - id: "maintain"
+    name: "Maintain Relations"
+    effect: 0
+
+  - id: "worsen"
+    name: "Worsen Relations"
+    effect: -1
+
+intelligenceActions:
+  - id: "support_insurgents"
+    name: "Support Insurgents"
+    description: "Fund and arm opposition groups"
+    monthlyInsurgencyGrowth: 1
+    costPerMonth: 5000000
+
+  - id: "disrupt_insurgents"
+    name: "Disrupt Insurgents"
+    description: "Counter-intelligence operations"
+    monthlyInsurgencyReduction: 1
+    costPerMonth: 5000000
+
+  - id: "do_nothing"
+    name: "Do Nothing"
+    description: "No covert operations"
+    costPerMonth: 0
+
+extremeMeasures:
+  - id: "assassination"
+    name: "Attempt Assassination"
+    description: "Eliminate the country's leader"
+    baseSuccessChance: 0.25
+    insurgencyBonus: 0.15
+    stabilityBonus: 0.10
+    onSuccess:
+      result: "country_collapse_delayed"
+      headline: "{{country}} leader killed in explosion"
+    onFailure:
+      result: "international_condemnation"
+      usAttitudePenalty: -20
+      insurgencyReset: 2
+      headline: "Israel condemned for assassination plot"
+
+  - id: "coup"
+    name: "Trigger Coup"
+    description: "Military overthrow of government"
+    baseSuccessChance: 0.30
+    insurgencyBonus: 0.20
+    stabilityBonus: 0.15
+    onSuccess:
+      result: "country_collapse_immediate"
+      headline: "Military coup topples {{country}} government"
+    onFailure:
+      result: "insurgent_crackdown"
+      insurgencyReset: 3
+      headline: "Failed coup attempt in {{country}}"

@@ -1,0 +1,75 @@
+# data/ai_decisions.yaml
+# AI opponent decision trees and budget allocation
+
+aiDecisionTree:
+  - name: "Survival Check"
+    condition: "stability <= weak AND atWar"
+    actions:
+      - "seekCeasefire"
+      - "requestAlliance_withStrongest"
+
+  - name: "War Management"
+    condition: "atWar"
+    actions:
+      - "allocateAllBudgetToMilitary"
+      - "considerNuclearStrike_ifDesperate"
+
+  - name: "Opportunistic Attack"
+    condition: "NOT atWar AND targetIsVulnerable"
+    evaluation: "warDeclarationFactors"
+    actions:
+      - "worsenRelations"
+      - "declareWar_ifThresholdMet"
+
+  - name: "Nuclear Development"
+    condition: "canDevelopNukes AND nuclearStage != operational"
+    actions:
+      - "fundNuclearProgram"
+      - { probability: "aggression.nuclearPriority" }
+
+  - name: "Seek Allies"
+    condition: "threatened OR leaderAggression == dovish"
+    actions:
+      - "improveRelations_withPotentialAllies"
+      - "requestMilitaryPact_ifProfitable"
+
+  - name: "Support Insurgents"
+    condition: "hasHostileNeighbor AND NOT atWar"
+    actions:
+      - "supportInsurgents_inHostileCountry"
+
+  - name: "Military Buildup"
+    condition: "budget > minimumReserve"
+    actions:
+      - "purchaseWeapons_balancedPortfolio"
+
+  - name: "Wildcard"
+    condition: "random() < riskTolerance.wildcardChance"
+    actions:
+      - "generateAIWildcardAction"
+
+aiBudgetAllocation:
+  priorities:
+    atWar:
+      military: 0.9
+      nuclear: 0.1
+      reserve: 0.0
+
+    threatened:
+      military: 0.6
+      nuclear: 0.3
+      reserve: 0.1
+
+    peaceful:
+      military: 0.3
+      nuclear: 0.4
+      reserve: 0.3
+
+  weaponPurchasePriorities:
+    targetRatios:
+      main_battle_tank: 0.3
+      light_tank: 0.2
+      fighter_aircraft: 0.2
+      sam_battery: 0.15
+      anti_tank_helicopter: 0.1
+      anti_sam_helicopter: 0.05

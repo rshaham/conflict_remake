@@ -1,0 +1,170 @@
+# data/countries.yaml
+# All country definitions with starting states
+
+countries:
+  israel:
+    id: "israel"
+    name: "Israel"
+    displayName: "Israel"
+    isPlayer: true
+    canDevelopNukes: true
+    borders:
+      - egypt
+      - jordan
+      - syria
+      - lebanon
+    startingState:
+      budget: 100000000
+      gdpDefensePercent: 35
+      stability: "solid"
+      insurgency: "scattered"
+      nuclearStage: "none"
+
+  egypt:
+    id: "egypt"
+    name: "Egypt"
+    displayName: "Egypt"
+    isPlayer: false
+    canDevelopNukes: true
+    canBeInvadedByPlayer: true
+    borders:
+      - israel
+      - libya
+    startingState:
+      stability: "good"
+      insurgency: "none"
+      nuclearStage: "none"
+      relationWithPlayer: "cool"
+      diplomaticStance: "neutral"
+    leaderTemplate:
+      strengthRange: ["moderate", "strong"]
+      aggressionRange: ["pragmatic", "hawkish"]
+      riskRange: ["cautious", "calculated"]
+
+  syria:
+    id: "syria"
+    name: "Syria"
+    displayName: "Syria"
+    isPlayer: false
+    canDevelopNukes: true
+    canBeInvadedByPlayer: true
+    borders:
+      - israel
+      - lebanon
+      - jordan
+      - iraq
+    startingState:
+      stability: "solid"
+      insurgency: "none"
+      nuclearStage: "research"
+      relationWithPlayer: "lamentable"
+      diplomaticStance: "aggressive"
+    leaderTemplate:
+      strengthRange: ["strong"]
+      aggressionRange: ["hawkish"]
+      riskRange: ["calculated", "reckless"]
+
+  jordan:
+    id: "jordan"
+    name: "Jordan"
+    displayName: "Jordan"
+    isPlayer: false
+    canDevelopNukes: false
+    canBeInvadedByPlayer: true
+    borders:
+      - israel
+      - syria
+      - iraq
+    startingState:
+      stability: "good"
+      insurgency: "scattered"
+      nuclearStage: "none"
+      relationWithPlayer: "satisfactory"
+      diplomaticStance: "neutral"
+    leaderTemplate:
+      strengthRange: ["weak", "moderate"]
+      aggressionRange: ["dovish", "pragmatic"]
+      riskRange: ["cautious"]
+
+  lebanon:
+    id: "lebanon"
+    name: "Lebanon"
+    displayName: "Lebanon"
+    isPlayer: false
+    canDevelopNukes: false
+    canBeInvadedByPlayer: true
+    borders:
+      - israel
+      - syria
+    startingState:
+      stability: "weak"
+      insurgency: "organized"
+      nuclearStage: "none"
+      relationWithPlayer: "cool"
+      diplomaticStance: "neutral"
+    leaderTemplate:
+      strengthRange: ["weak"]
+      aggressionRange: ["dovish", "pragmatic"]
+      riskRange: ["cautious"]
+
+  iraq:
+    id: "iraq"
+    name: "Iraq"
+    displayName: "Iraq"
+    isPlayer: false
+    canDevelopNukes: true
+    canBeInvadedByPlayer: false
+    borders:
+      - syria
+      - jordan
+      - iran
+    startingState:
+      stability: "solid"
+      insurgency: "none"
+      nuclearStage: "development"
+      relationWithPlayer: "hostile"
+      diplomaticStance: "aggressive"
+    leaderTemplate:
+      strengthRange: ["strong"]
+      aggressionRange: ["hawkish"]
+      riskRange: ["reckless"]
+
+  iran:
+    id: "iran"
+    name: "Iran"
+    displayName: "Iran"
+    isPlayer: false
+    canDevelopNukes: true
+    canBeInvadedByPlayer: false
+    borders:
+      - iraq
+    startingState:
+      stability: "solid"
+      insurgency: "scattered"
+      nuclearStage: "research"
+      relationWithPlayer: "hostile"
+      diplomaticStance: "aggressive"
+    leaderTemplate:
+      strengthRange: ["strong"]
+      aggressionRange: ["hawkish"]
+      riskRange: ["calculated"]
+
+  libya:
+    id: "libya"
+    name: "Libya"
+    displayName: "Libya"
+    isPlayer: false
+    canDevelopNukes: true
+    canBeInvadedByPlayer: false
+    borders:
+      - egypt
+    startingState:
+      stability: "good"
+      insurgency: "none"
+      nuclearStage: "none"
+      relationWithPlayer: "lamentable"
+      diplomaticStance: "aggressive"
+    leaderTemplate:
+      strengthRange: ["moderate", "strong"]
+      aggressionRange: ["hawkish"]
+      riskRange: ["reckless"]
