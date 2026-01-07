@@ -2,13 +2,14 @@
 // Military Screen - Arms and Combat
 // ============================================
 
+import { useState } from 'react';
 import { GameLayout } from '../components/layout/GameLayout';
 import { WeaponCard } from '../components/game/WeaponCard';
 import { useGameStore } from '../store/gameStore';
 import { useUIStore } from '../store/uiStore';
 import { EconomyEngine } from '../engine/EconomyEngine';
 import { COUNTRY_NAMES } from '../utils/countryData';
-import type { VendorId, WeaponId, CountryId } from '../types/game';
+import type { VendorId, WeaponId, CountryId, AirstrikeTarget } from '../types/game';
 
 const VENDORS: { id: VendorId; name: string; flag: string }[] = [
   { id: 'usa', name: 'USA', flag: '\u{1F1FA}\u{1F1F8}' },
@@ -18,6 +19,16 @@ const VENDORS: { id: VendorId; name: string; flag: string }[] = [
 ];
 
 const NEIGHBOR_BORDERS: CountryId[] = ['egypt', 'syria', 'jordan', 'lebanon'];
+
+// All countries that can be targeted by airstrikes (excludes Israel)
+const AIRSTRIKE_TARGETS: CountryId[] = ['egypt', 'syria', 'jordan', 'lebanon', 'iraq', 'iran', 'libya'];
+
+const AIRSTRIKE_TARGET_TYPES: { id: AirstrikeTarget; name: string; desc: string; warning?: string }[] = [
+  { id: 'military', name: 'Military', desc: 'Target enemy military installations' },
+  { id: 'civilian', name: 'Civilian', desc: 'Target civilian infrastructure', warning: 'Reduces stability, US attitude impact' },
+  { id: 'industrial', name: 'Industrial', desc: 'Target industrial capacity' },
+  { id: 'nuclear', name: 'Nuclear', desc: 'Target nuclear facilities', warning: 'Severe diplomatic consequences' },
+];
 
 const NUCLEAR_STAGE_NAMES = {
   none: 'No Program',
@@ -38,9 +49,13 @@ function formatCurrency(amount: number): string {
 }
 
 export function MilitaryScreen() {
-  const { game, purchaseWeapon, fundNuclear, deployTroops } = useGameStore();
+  const { game, purchaseWeapon, fundNuclear, deployTroops, orderAirstrike, cancelAirstrike } = useGameStore();
   const selectedVendor = useUIStore((state) => state.selectedVendor);
   const selectVendor = useUIStore((state) => state.selectVendor);
+
+  // Airstrike state
+  const [selectedAirstrikeCountry, setSelectedAirstrikeCountry] = useState<CountryId>('syria');
+  const [selectedAirstrikeType, setSelectedAirstrikeType] = useState<AirstrikeTarget>('military');
 
   // If no game is loaded, show placeholder
   if (!game) {
@@ -246,6 +261,137 @@ export function MilitaryScreen() {
             Deploy troops to borders to enable war declaration
           </p>
         </div>
+
+        {/* Airstrike Operations */}
+        <div className="card mt-6">
+          <h3 className="font-bold text-game-text-primary mb-3">Airstrike Operations</h3>
+
+          {/* Available Fighters */}
+          <div className="flex justify-between items-center mb-3 text-sm">
+            <span className="text-game-text-secondary">Available Fighters</span>
+            <span className={`font-medium ${
+              (game.player.arsenal.fighter_aircraft || 0) > 0 ? 'text-blue-400' : 'text-red-400'
+            }`}>
+              {game.player.arsenal.fighter_aircraft || 0}
+            </span>
+          </div>
+
+          {/* Target Selection */}
+          <div className="mb-3">
+            <label className="text-xs text-game-text-secondary uppercase tracking-wide block mb-2">
+              Target Country
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {AIRSTRIKE_TARGETS.filter(c => !game.countries[c].isDefeated).map((country) => (
+                <button
+                  key={country}
+                  type="button"
+                  onClick={() => setSelectedAirstrikeCountry(country)}
+                  className={`px-3 py-1.5 rounded text-sm transition-colors ${
+                    selectedAirstrikeCountry === country
+                      ? 'bg-game-accent text-white'
+                      : 'bg-game-bg-dark text-game-text-secondary hover:bg-gray-700'
+                  }`}
+                >
+                  {COUNTRY_NAMES[country]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Strike Type Selection */}
+          <div className="mb-4">
+            <label className="text-xs text-game-text-secondary uppercase tracking-wide block mb-2">
+              Strike Type
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {AIRSTRIKE_TARGET_TYPES.map((type) => (
+                <button
+                  key={type.id}
+                  type="button"
+                  onClick={() => setSelectedAirstrikeType(type.id)}
+                  className={`p-2 rounded text-left transition-colors ${
+                    selectedAirstrikeType === type.id
+                      ? type.id === 'nuclear' || type.id === 'civilian'
+                        ? 'bg-red-900/50 border border-red-700'
+                        : 'bg-game-accent'
+                      : 'bg-game-bg-dark hover:bg-gray-700'
+                  }`}
+                >
+                  <div className={`font-medium text-sm ${
+                    selectedAirstrikeType === type.id ? 'text-white' : 'text-game-text-primary'
+                  }`}>
+                    {type.name}
+                  </div>
+                  <div className={`text-xs ${
+                    selectedAirstrikeType === type.id ? 'text-white/70' : 'text-game-text-secondary'
+                  }`}>
+                    {type.desc}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Warning for risky strikes */}
+          {(selectedAirstrikeType === 'nuclear' || selectedAirstrikeType === 'civilian') && (
+            <div className="mb-3 p-2 bg-red-900/20 border border-red-800 rounded text-xs text-red-400">
+              {AIRSTRIKE_TARGET_TYPES.find(t => t.id === selectedAirstrikeType)?.warning}
+            </div>
+          )}
+
+          {/* Order Button */}
+          <button
+            type="button"
+            onClick={() => orderAirstrike(selectedAirstrikeCountry, selectedAirstrikeType)}
+            disabled={(game.player.arsenal.fighter_aircraft || 0) === 0}
+            className="w-full py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-medium transition-colors"
+          >
+            {(game.player.arsenal.fighter_aircraft || 0) === 0
+              ? 'No Fighters Available'
+              : `Order Airstrike on ${COUNTRY_NAMES[selectedAirstrikeCountry]}`
+            }
+          </button>
+        </div>
+
+        {/* Queued Airstrikes */}
+        {game.player.turnActions.airstrikes.length > 0 && (
+          <div className="card mt-4 border border-red-900/50">
+            <h3 className="font-bold text-red-400 mb-2">
+              Queued Airstrikes ({game.player.turnActions.airstrikes.length})
+            </h3>
+            <div className="space-y-2">
+              {game.player.turnActions.airstrikes.map((strike, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-2 bg-red-900/20 rounded"
+                >
+                  <div>
+                    <span className="text-game-text-primary font-medium">
+                      {COUNTRY_NAMES[strike.target]}
+                    </span>
+                    <span className="text-game-text-secondary text-sm ml-2">
+                      ({strike.type})
+                    </span>
+                    <span className="text-blue-400 text-xs ml-2">
+                      {strike.fightersUsed} fighters
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => cancelAirstrike(index)}
+                    className="text-red-400 hover:text-red-300 text-sm px-2"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-game-text-secondary mt-2 italic">
+              Airstrikes will be executed at end of turn
+            </p>
+          </div>
+        )}
 
         {/* Pending Deliveries */}
         {game.player.pendingDeliveries.length > 0 && (

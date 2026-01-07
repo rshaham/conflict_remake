@@ -8,12 +8,43 @@ import { useGameStore } from '../store/gameStore';
 import { loadAllGameData } from '../data/loader';
 import type { GameData } from '../types/data';
 
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+
+interface SaveInfo {
+  turn: number;
+  month: number;
+  year: number;
+}
+
+function getSaveInfo(): SaveInfo | null {
+  try {
+    const saved = localStorage.getItem('conflict-save');
+    if (!saved) return null;
+
+    const data = JSON.parse(saved);
+    if (data?.state?.game) {
+      const { turn, month, year } = data.state.game;
+      return { turn, month, year };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export function TitleScreen() {
   const navigate = useNavigate();
   const newGame = useGameStore((state) => state.newGame);
+  const existingGame = useGameStore((state) => state.game);
   const [isLoading, setIsLoading] = useState(true);
   const [gameData, setGameData] = useState<GameData | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Initialize save info synchronously (reading from localStorage is sync)
+  const saveInfo = getSaveInfo();
 
   useEffect(() => {
     // Load game data on mount
@@ -33,6 +64,13 @@ export function TitleScreen() {
   const handleNewGame = async () => {
     await newGame('normal', 'classic_1997');
     navigate('/game/news');
+  };
+
+  const handleContinue = () => {
+    // Zustand persist automatically restores state, so just navigate
+    if (existingGame) {
+      navigate('/game/news');
+    }
   };
 
   if (isLoading) {
@@ -81,8 +119,15 @@ export function TitleScreen() {
           New Game
         </button>
 
-        <button className="btn-secondary" disabled>
-          Continue (No save found)
+        <button
+          onClick={handleContinue}
+          className="btn-secondary"
+          disabled={!saveInfo || !existingGame}
+        >
+          {saveInfo
+            ? `Continue (Turn ${saveInfo.turn}, ${MONTH_NAMES[saveInfo.month - 1]} ${saveInfo.year})`
+            : 'Continue (No save found)'
+          }
         </button>
 
         <button className="btn-secondary" disabled>
@@ -103,7 +148,7 @@ export function TitleScreen() {
 
       {/* Footer */}
       <p className="text-xs text-game-text-secondary mt-8 text-center">
-        Phase 1 Foundation - Scaffolding Complete
+        Phase 3 - Full Gameplay Implementation
       </p>
     </div>
   );

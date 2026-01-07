@@ -35,23 +35,28 @@ export function ActionBar({ primaryAction, secondaryAction }: ActionBarProps) {
     switch (game.phase) {
       case 'news':
         return {
-          primary: { label: 'Continue', onClick: advancePhase },
+          primary: { label: 'Continue', onClick: () => { advancePhase(); navigate('/game/diplomatic'); } },
           secondary: null,
         };
       case 'diplomatic':
         return {
-          primary: { label: 'Intelligence →', onClick: advancePhase },
+          primary: { label: 'Intelligence →', onClick: () => { advancePhase(); navigate('/game/intelligence'); } },
           secondary: { label: '← News', onClick: () => navigate('/game/news') },
         };
       case 'intelligence':
         return {
-          primary: { label: 'Military →', onClick: advancePhase },
+          primary: { label: 'Military →', onClick: () => { advancePhase(); navigate('/game/military'); } },
           secondary: { label: '← Diplomatic', onClick: () => navigate('/game/diplomatic') },
         };
       case 'military':
         return {
-          primary: { label: 'End Turn', onClick: () => endTurn(), variant: 'danger' as const },
+          primary: { label: 'Palestinian →', onClick: () => { advancePhase(); navigate('/game/palestinian'); } },
           secondary: { label: '← Intelligence', onClick: () => navigate('/game/intelligence') },
+        };
+      case 'palestinian':
+        return {
+          primary: { label: 'End Turn', onClick: () => { endTurn(); navigate('/game/news'); }, variant: 'danger' as const },
+          secondary: { label: '← Military', onClick: () => navigate('/game/military') },
         };
       default:
         return { primary: null, secondary: null };

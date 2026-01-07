@@ -46,9 +46,11 @@ interface GameStore {
   fundNuclear: (fund: boolean) => void;
   deployTroops: (country: CountryId, brigades: number) => void;
   orderAirstrike: (country: CountryId, target: AirstrikeTarget) => void;
+  cancelAirstrike: (index: number) => void;
 
   // Palestinian Actions
   setPolicingTactic: (tactic: PolicingTactic) => void;
+  acceptPalestinianHomeland: () => void;
 
   // Event Handling
   respondToEvent: (eventId: string, optionId: string) => void;
@@ -268,6 +270,27 @@ export const useGameStore = create<GameStore>()(
         });
       },
 
+      cancelAirstrike: (index) => {
+        const { game } = get();
+        if (!game) return;
+
+        const airstrikes = [...game.player.turnActions.airstrikes];
+        airstrikes.splice(index, 1);
+
+        set({
+          game: {
+            ...game,
+            player: {
+              ...game.player,
+              turnActions: {
+                ...game.player.turnActions,
+                airstrikes,
+              },
+            },
+          },
+        });
+      },
+
       // Palestinian Actions
       setPolicingTactic: (tactic) => {
         const { game } = get();
@@ -279,6 +302,34 @@ export const useGameStore = create<GameStore>()(
             player: {
               ...game.player,
               policingTactic: tactic,
+            },
+          },
+        });
+      },
+
+      acceptPalestinianHomeland: () => {
+        const { game } = get();
+        if (!game) return;
+
+        // Must be at UN Summit phase
+        if (game.phase !== 'un_summit') return;
+
+        // Must have sufficient US attitude (25+)
+        if (game.player.usAttitude < 25) return;
+
+        // Already accepted
+        if (game.player.palestinianHomeland) return;
+
+        set({
+          game: {
+            ...game,
+            player: {
+              ...game.player,
+              palestinianHomeland: true,
+              palestinianLevel: 'calm',
+              policingTactic: 'none',
+              prestige: game.player.prestige + 1,
+              usAttitude: game.player.usAttitude + 25,
             },
           },
         });

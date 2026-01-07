@@ -9,6 +9,7 @@ import { useGameStore } from '../store/gameStore';
 export function UNSummitScreen() {
   const game = useGameStore((state) => state.game);
   const advancePhase = useGameStore((state) => state.advancePhase);
+  const acceptPalestinianHomeland = useGameStore((state) => state.acceptPalestinianHomeland);
   const navigate = useNavigate();
 
   if (!game) {
@@ -72,12 +73,24 @@ export function UNSummitScreen() {
               <h4 className="font-medium text-game-text-primary mb-1">
                 Palestinian Homeland
               </h4>
-              <p className="text-sm text-game-text-secondary mb-3">
+              <p className="text-sm text-game-text-secondary mb-2">
                 Recognize Palestinian autonomy. +25 US attitude, +1 prestige.
-                Permanent resolution but weakens position in future wars.
+                Permanently resolves the Palestinian situation.
               </p>
+              {game.player.usAttitude < 25 && (
+                <p className="text-xs text-yellow-400 mb-3">
+                  Requires US attitude of 25+ (current: {game.player.usAttitude})
+                </p>
+              )}
               <div className="flex gap-2">
-                <button type="button" className="btn-primary flex-1">Accept</button>
+                <button
+                  type="button"
+                  onClick={acceptPalestinianHomeland}
+                  disabled={game.player.usAttitude < 25}
+                  className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Accept
+                </button>
                 <button type="button" className="btn-secondary flex-1">Reject</button>
               </div>
             </div>

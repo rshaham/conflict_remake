@@ -24,6 +24,7 @@ import { DiplomacyEngine } from './DiplomacyEngine';
 import { EconomyEngine } from './EconomyEngine';
 import { CombatEngine } from './CombatEngine';
 import { IntelligenceEngine } from './IntelligenceEngine';
+import { PalestinianEngine } from './PalestinianEngine';
 import { ScoringEngine } from './ScoringEngine';
 
 // Phase order for normal turn flow
@@ -32,6 +33,7 @@ const PHASE_ORDER: GamePhase[] = [
   'diplomatic',
   'intelligence',
   'military',
+  'palestinian',
   'resolution',
 ];
 
@@ -75,10 +77,13 @@ export const GameEngine = {
     // 9. Add monthly income
     newState = EconomyEngine.addMonthlyIncome(newState);
 
-    // 10. Progress nuclear programs (simplified)
+    // 10. Resolve Palestinian situation
+    newState = PalestinianEngine.resolvePalestinianPhase(newState);
+
+    // 11. Progress nuclear programs (simplified)
     newState = GameEngine.progressNuclearPrograms(newState);
 
-    // 11. Check win/lose conditions
+    // 12. Check win/lose conditions
     const endCondition = ScoringEngine.checkEndConditions(newState);
     if (endCondition) {
       newState = {
@@ -89,7 +94,7 @@ export const GameEngine = {
       return newState;
     }
 
-    // 12. Advance turn counter and reset turn actions
+    // 13. Advance turn counter and reset turn actions
     newState = {
       ...newState,
       turn: newState.turn + 1,
@@ -102,7 +107,7 @@ export const GameEngine = {
       },
     };
 
-    // 13. Check for UN Summit (December)
+    // 14. Check for UN Summit (December)
     if (newState.month === 12) {
       newState = {
         ...newState,
@@ -119,8 +124,8 @@ export const GameEngine = {
   advancePhase: (state: GameState): GameState => {
     const currentIndex = PHASE_ORDER.indexOf(state.phase);
 
-    // If at military phase, resolve the turn
-    if (state.phase === 'military') {
+    // If at palestinian phase, resolve the turn
+    if (state.phase === 'palestinian') {
       return GameEngine.resolveTurn(state);
     }
 
