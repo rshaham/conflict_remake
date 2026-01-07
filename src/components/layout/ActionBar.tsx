@@ -1,5 +1,5 @@
 // ============================================
-// Action Bar - Contextual Actions
+// Action Bar - End Turn Button
 // ============================================
 
 import { useNavigate } from 'react-router-dom';
@@ -22,54 +22,21 @@ interface ActionBarProps {
 export function ActionBar({ primaryAction, secondaryAction }: ActionBarProps) {
   const navigate = useNavigate();
   const game = useGameStore((state) => state.game);
-  const advancePhase = useGameStore((state) => state.advancePhase);
   const endTurn = useGameStore((state) => state.endTurn);
 
-  // Default actions based on game phase
-  const getDefaultActions = (): {
-    primary: ActionBarProps['primaryAction'] | null;
-    secondary: ActionBarProps['secondaryAction'] | null;
-  } => {
-    if (!game) return { primary: null, secondary: null };
-
-    switch (game.phase) {
-      case 'news':
-        return {
-          primary: { label: 'Continue', onClick: () => { advancePhase(); navigate('/game/diplomatic'); } },
-          secondary: null,
-        };
-      case 'diplomatic':
-        return {
-          primary: { label: 'Intelligence →', onClick: () => { advancePhase(); navigate('/game/intelligence'); } },
-          secondary: { label: '← News', onClick: () => navigate('/game/news') },
-        };
-      case 'intelligence':
-        return {
-          primary: { label: 'Military →', onClick: () => { advancePhase(); navigate('/game/military'); } },
-          secondary: { label: '← Diplomatic', onClick: () => navigate('/game/diplomatic') },
-        };
-      case 'military':
-        return {
-          primary: { label: 'Palestinian →', onClick: () => { advancePhase(); navigate('/game/palestinian'); } },
-          secondary: { label: '← Intelligence', onClick: () => navigate('/game/intelligence') },
-        };
-      case 'palestinian':
-        return {
-          primary: { label: 'End Turn', onClick: () => { endTurn(); navigate('/game/news'); }, variant: 'danger' as const },
-          secondary: { label: '← Military', onClick: () => navigate('/game/military') },
-        };
-      default:
-        return { primary: null, secondary: null };
-    }
-  };
-
-  const defaults = getDefaultActions();
-  const primary = primaryAction || defaults.primary;
-  const secondary = secondaryAction || defaults.secondary;
-
-  if (!primary && !secondary) {
+  // Don't show on special phases or when no game
+  if (!game || game.phase === 'un_summit' || game.phase === 'game_over') {
     return null;
   }
+
+  // Default action: End Turn (can be overridden by props)
+  const primary = primaryAction || {
+    label: 'End Turn',
+    onClick: () => { endTurn(); navigate('/game/news'); },
+    variant: 'danger' as const,
+  };
+
+  const secondary = secondaryAction || null;
 
   return (
     <div className="fixed bottom-16 left-0 right-0 p-4 bg-gradient-to-t from-game-bg-dark to-transparent">
@@ -83,19 +50,18 @@ export function ActionBar({ primaryAction, secondaryAction }: ActionBarProps) {
             {secondary.label}
           </button>
         )}
-        {primary && (
-          <button
-            onClick={primary.onClick}
-            disabled={primary.disabled}
-            className={`flex-1 ${
-              primary.variant === 'danger'
-                ? 'btn-primary bg-red-600 hover:bg-red-700'
-                : 'btn-primary'
-            }`}
-          >
-            {primary.label}
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={primary.onClick}
+          disabled={primary.disabled}
+          className={`flex-1 ${
+            primary.variant === 'danger'
+              ? 'btn-primary bg-red-600 hover:bg-red-700'
+              : 'btn-primary'
+          }`}
+        >
+          {primary.label}
+        </button>
       </div>
     </div>
   );

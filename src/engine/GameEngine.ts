@@ -27,16 +27,6 @@ import { IntelligenceEngine } from './IntelligenceEngine';
 import { PalestinianEngine } from './PalestinianEngine';
 import { ScoringEngine } from './ScoringEngine';
 
-// Phase order for normal turn flow
-const PHASE_ORDER: GamePhase[] = [
-  'news',
-  'diplomatic',
-  'intelligence',
-  'military',
-  'palestinian',
-  'resolution',
-];
-
 /**
  * Main game engine that orchestrates turn resolution
  * All methods are pure functions: (state, action) => newState
@@ -119,17 +109,11 @@ export const GameEngine = {
   },
 
   /**
-   * Advance to the next phase
+   * Advance phase (only used for UN summit → news transition)
+   * With free navigation, this is mostly a no-op except for special phases
    */
   advancePhase: (state: GameState): GameState => {
-    const currentIndex = PHASE_ORDER.indexOf(state.phase);
-
-    // If at palestinian phase, resolve the turn
-    if (state.phase === 'palestinian') {
-      return GameEngine.resolveTurn(state);
-    }
-
-    // If at UN summit, move to news phase for new year
+    // UN summit transitions to news phase for new year
     if (state.phase === 'un_summit') {
       return {
         ...state,
@@ -137,14 +121,7 @@ export const GameEngine = {
       };
     }
 
-    // Move to next phase
-    if (currentIndex >= 0 && currentIndex < PHASE_ORDER.length - 1) {
-      return {
-        ...state,
-        phase: PHASE_ORDER[currentIndex + 1],
-      };
-    }
-
+    // All other phases: no automatic progression (free navigation)
     return state;
   },
 
