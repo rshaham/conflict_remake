@@ -13,24 +13,27 @@ export const EventEngine = {
   /**
    * Evaluate all triggers for current game state
    */
-  evaluateTriggers: (_state: GameState): EventTrigger[] => {
-    // TODO: Phase 2 - Check all trigger conditions
+  evaluateTriggers: (_: GameState): EventTrigger[] => {
+    // TODO: Phase 4 - Check all trigger conditions
+    void _; // Mark as intentionally unused
     return [];
   },
 
   /**
    * Determine if an event should be generated this turn
    */
-  shouldGenerateEvent: (_state: GameState): boolean => {
-    // TODO: Phase 2 - Calculate event probability
+  shouldGenerateEvent: (_: GameState): boolean => {
+    // TODO: Phase 4 - Calculate event probability
+    void _; // Mark as intentionally unused
     return false;
   },
 
   /**
    * Determine event category based on game state
    */
-  getEventCategory: (_state: GameState): EventCategory => {
-    // TODO: Phase 2 - Weight categories by triggers
+  getEventCategory: (_: GameState): EventCategory => {
+    // TODO: Phase 4 - Weight categories by triggers
+    void _; // Mark as intentionally unused
     return 'diplomatic';
   },
 
@@ -38,18 +41,22 @@ export const EventEngine = {
    * Check a single trigger condition
    */
   checkCondition: (
-    _state: GameState,
-    _condition: string
+    state: GameState,
+    condition: string
   ): boolean => {
-    // TODO: Phase 2 - Evaluate condition expression
+    // TODO: Phase 4 - Evaluate condition expression
+    void state;
+    void condition;
     return false;
   },
 
   /**
    * Build context for AI event generation
    */
-  buildEventContext: (_state: GameState, _category: EventCategory) => {
+  buildEventContext: (state: GameState, category: EventCategory) => {
     // TODO: Phase 4 - Build context for AI prompt
+    void state;
+    void category;
     return {};
   },
 };

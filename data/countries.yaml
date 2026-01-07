@@ -6,6 +6,7 @@ countries:
     id: "israel"
     name: "Israel"
     displayName: "Israel"
+    flag: "🇮🇱"
     isPlayer: true
     canDevelopNukes: true
     borders:
@@ -24,6 +25,7 @@ countries:
     id: "egypt"
     name: "Egypt"
     displayName: "Egypt"
+    flag: "🇪🇬"
     isPlayer: false
     canDevelopNukes: true
     canBeInvadedByPlayer: true
@@ -45,6 +47,7 @@ countries:
     id: "syria"
     name: "Syria"
     displayName: "Syria"
+    flag: "🇸🇾"
     isPlayer: false
     canDevelopNukes: true
     canBeInvadedByPlayer: true
@@ -68,6 +71,7 @@ countries:
     id: "jordan"
     name: "Jordan"
     displayName: "Jordan"
+    flag: "🇯🇴"
     isPlayer: false
     canDevelopNukes: false
     canBeInvadedByPlayer: true
@@ -90,6 +94,7 @@ countries:
     id: "lebanon"
     name: "Lebanon"
     displayName: "Lebanon"
+    flag: "🇱🇧"
     isPlayer: false
     canDevelopNukes: false
     canBeInvadedByPlayer: true
@@ -111,6 +116,7 @@ countries:
     id: "iraq"
     name: "Iraq"
     displayName: "Iraq"
+    flag: "🇮🇶"
     isPlayer: false
     canDevelopNukes: true
     canBeInvadedByPlayer: false
@@ -133,6 +139,7 @@ countries:
     id: "iran"
     name: "Iran"
     displayName: "Iran"
+    flag: "🇮🇷"
     isPlayer: false
     canDevelopNukes: true
     canBeInvadedByPlayer: false
@@ -153,6 +160,7 @@ countries:
     id: "libya"
     name: "Libya"
     displayName: "Libya"
+    flag: "🇱🇾"
     isPlayer: false
     canDevelopNukes: true
     canBeInvadedByPlayer: false

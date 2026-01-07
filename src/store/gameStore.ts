@@ -16,7 +16,12 @@ import type {
   ExtremeMeasureType,
   PolicingTactic,
   AirstrikeTarget,
+  Airstrike,
 } from '../types/game';
+import { GameEngine } from '../engine/GameEngine';
+import { EconomyEngine } from '../engine/EconomyEngine';
+import { CombatEngine } from '../engine/CombatEngine';
+import { IntelligenceEngine } from '../engine/IntelligenceEngine';
 
 interface GameStore {
   // State
@@ -53,8 +58,9 @@ interface GameStore {
   endTurn: () => Promise<void>;
 
   // War Actions
+  declareWar: (country: CountryId) => void;
   offerCeasefire: (warId: string) => void;
-  launchNuclearStrike: (warId: string) => void;
+  launchNuclearStrike: (target: CountryId) => void;
 
   // UN Summit
   acceptProposal: (proposalId: string) => void;
@@ -69,14 +75,13 @@ export const useGameStore = create<GameStore>()(
       isLoading: false,
       error: null,
 
-      // Game Lifecycle - Stubs for Phase 2
+      // Game Lifecycle
       newGame: async (difficulty, scenario) => {
         set({ isLoading: true, error: null });
         try {
-          // TODO: Phase 2 - Initialize game state from scenario data
-          console.log(`Starting new game: ${difficulty} / ${scenario}`);
-          // For now, just clear loading state
-          set({ isLoading: false });
+          // Initialize game state using GameEngine
+          const initialState = GameEngine.initializeGame(difficulty, scenario);
+          set({ game: initialState, isLoading: false });
         } catch (e) {
           set({ error: (e as Error).message, isLoading: false });
         }
@@ -97,87 +102,280 @@ export const useGameStore = create<GameStore>()(
         return JSON.stringify(game);
       },
 
-      // Diplomatic Actions - Stubs
+      // Diplomatic Actions
       setDiplomaticAction: (country, action) => {
-        console.log(`Diplomatic action: ${action} with ${country}`);
-        // TODO: Phase 2 - Update game state
+        const { game } = get();
+        if (!game) return;
+
+        set({
+          game: {
+            ...game,
+            player: {
+              ...game.player,
+              turnActions: {
+                ...game.player.turnActions,
+                diplomaticActions: {
+                  ...game.player.turnActions.diplomaticActions,
+                  [country]: action,
+                },
+              },
+            },
+          },
+        });
       },
 
-      // Intelligence Actions - Stubs
+      // Intelligence Actions
       setIntelligenceAction: (country, action) => {
-        console.log(`Intelligence action: ${action} for ${country}`);
-        // TODO: Phase 2 - Update game state
+        const { game } = get();
+        if (!game) return;
+
+        set({
+          game: {
+            ...game,
+            player: {
+              ...game.player,
+              turnActions: {
+                ...game.player.turnActions,
+                intelligenceActions: {
+                  ...game.player.turnActions.intelligenceActions,
+                  [country]: action,
+                },
+              },
+            },
+          },
+        });
       },
 
       attemptExtremeMeasure: (country, type) => {
-        console.log(`Extreme measure: ${type} on ${country}`);
-        // TODO: Phase 2 - Process extreme measure
+        const { game } = get();
+        if (!game) return;
+
+        const result = IntelligenceEngine.attemptExtremeMeasure(game, country, type);
+        set({ game: result.state });
+
+        // Log the result message for UI to display
+        console.log(result.message);
       },
 
-      // Military Actions - Stubs
+      // Military Actions
       purchaseWeapon: (vendor, weapon, quantity) => {
-        console.log(`Purchase: ${quantity}x ${weapon} from ${vendor}`);
-        // TODO: Phase 2 - Process purchase
+        const { game } = get();
+        if (!game) return;
+
+        // Validate purchase
+        const validation = EconomyEngine.canPurchase(game, vendor, weapon, quantity);
+        if (!validation.valid) {
+          console.warn(`Cannot purchase: ${validation.reason}`);
+          return;
+        }
+
+        // Create purchase order and add to turn actions
+        const purchase = EconomyEngine.createPurchaseOrder(vendor, weapon, quantity);
+
+        set({
+          game: {
+            ...game,
+            player: {
+              ...game.player,
+              turnActions: {
+                ...game.player.turnActions,
+                weaponPurchases: [
+                  ...game.player.turnActions.weaponPurchases,
+                  purchase,
+                ],
+              },
+            },
+          },
+        });
       },
 
       fundNuclear: (fund) => {
-        console.log(`Nuclear funding: ${fund}`);
-        // TODO: Phase 2 - Update nuclear funding
+        const { game } = get();
+        if (!game) return;
+
+        set({
+          game: {
+            ...game,
+            player: {
+              ...game.player,
+              turnActions: {
+                ...game.player.turnActions,
+                fundedNuclear: fund,
+              },
+            },
+          },
+        });
       },
 
       deployTroops: (country, brigades) => {
-        console.log(`Deploy: ${brigades} brigades to ${country} border`);
-        // TODO: Phase 2 - Update troop deployment
+        const { game } = get();
+        if (!game) return;
+
+        // Validate we have enough infantry brigades
+        const availableBrigades = game.player.arsenal.infantry_brigade || 0;
+        const currentlyDeployed = Object.values(game.player.deployedTroops).reduce(
+          (a, b) => a + b,
+          0
+        );
+
+        if (brigades > 0 && currentlyDeployed + brigades > availableBrigades) {
+          console.warn('Not enough brigades available');
+          return;
+        }
+
+        set({
+          game: {
+            ...game,
+            player: {
+              ...game.player,
+              deployedTroops: {
+                ...game.player.deployedTroops,
+                [country]: Math.max(0, brigades),
+              },
+            },
+          },
+        });
       },
 
       orderAirstrike: (country, target) => {
-        console.log(`Airstrike: ${target} targets in ${country}`);
-        // TODO: Phase 2 - Process airstrike
+        const { game } = get();
+        if (!game) return;
+
+        // Need at least 1 fighter aircraft
+        const fighters = game.player.arsenal.fighter_aircraft || 0;
+        if (fighters === 0) {
+          console.warn('No fighter aircraft available');
+          return;
+        }
+
+        const airstrike: Airstrike = {
+          target: country,
+          type: target,
+          fightersUsed: Math.min(5, fighters), // Use up to 5 fighters per strike
+        };
+
+        set({
+          game: {
+            ...game,
+            player: {
+              ...game.player,
+              turnActions: {
+                ...game.player.turnActions,
+                airstrikes: [...game.player.turnActions.airstrikes, airstrike],
+              },
+            },
+          },
+        });
       },
 
-      // Palestinian Actions - Stub
+      // Palestinian Actions
       setPolicingTactic: (tactic) => {
-        console.log(`Policing tactic: ${tactic}`);
-        // TODO: Phase 2 - Update policing
+        const { game } = get();
+        if (!game) return;
+
+        set({
+          game: {
+            ...game,
+            player: {
+              ...game.player,
+              policingTactic: tactic,
+            },
+          },
+        });
       },
 
-      // Event Handling - Stub
+      // Event Handling
       respondToEvent: (eventId, optionId) => {
-        console.log(`Event response: ${optionId} for ${eventId}`);
-        // TODO: Phase 2 - Process event response
+        const { game } = get();
+        if (!game) return;
+
+        // Find the event and mark it as responded
+        const updatedEvents = game.pendingEvents.map((event) => {
+          if (event.id === eventId) {
+            return { ...event, chosenOption: optionId };
+          }
+          return event;
+        });
+
+        set({
+          game: {
+            ...game,
+            pendingEvents: updatedEvents,
+          },
+        });
       },
 
-      // Turn Flow - Stubs
+      // Turn Flow
       advancePhase: () => {
-        console.log('Advancing phase');
-        // TODO: Phase 2 - Advance game phase
+        const { game } = get();
+        if (!game) return;
+
+        const newState = GameEngine.advancePhase(game);
+        set({ game: newState });
       },
 
       endTurn: async () => {
-        console.log('Ending turn');
-        // TODO: Phase 2 - Process turn resolution
+        const { game } = get();
+        if (!game) return;
+
+        set({ isLoading: true });
+
+        try {
+          // Resolve the turn using GameEngine
+          const newState = GameEngine.resolveTurn(game);
+          set({ game: newState, isLoading: false });
+        } catch (e) {
+          set({ error: (e as Error).message, isLoading: false });
+        }
       },
 
-      // War Actions - Stubs
+      // War Actions
+      declareWar: (country) => {
+        const { game } = get();
+        if (!game) return;
+
+        const newState = CombatEngine.declareWar(game, country);
+        set({ game: newState });
+      },
+
       offerCeasefire: (warId) => {
-        console.log(`Ceasefire offer: ${warId}`);
-        // TODO: Phase 2 - Process ceasefire
+        const { game } = get();
+        if (!game) return;
+
+        const result = CombatEngine.offerCeasefire(game, warId);
+        set({ game: result.state });
+
+        console.log(result.accepted ? 'Ceasefire accepted' : 'Ceasefire rejected');
       },
 
-      launchNuclearStrike: (warId) => {
-        console.log(`Nuclear strike: ${warId}`);
-        // TODO: Phase 2 - Process nuclear strike
+      launchNuclearStrike: (target) => {
+        const { game } = get();
+        if (!game) return;
+
+        if (!CombatEngine.hasNuclearCapability(game)) {
+          console.warn('No nuclear capability');
+          return;
+        }
+
+        const newState = CombatEngine.processNuclearStrike(game, target);
+        set({ game: newState });
       },
 
-      // UN Summit - Stubs
+      // UN Summit
       acceptProposal: (proposalId) => {
-        console.log(`Accept proposal: ${proposalId}`);
-        // TODO: Phase 2 - Accept UN proposal
+        const { game } = get();
+        if (!game) return;
+
+        console.log(`Accepted proposal: ${proposalId}`);
+        // TODO: Implement specific proposal handling
       },
 
       rejectProposal: (proposalId) => {
-        console.log(`Reject proposal: ${proposalId}`);
-        // TODO: Phase 2 - Reject UN proposal
+        const { game } = get();
+        if (!game) return;
+
+        console.log(`Rejected proposal: ${proposalId}`);
+        // TODO: Implement specific proposal handling
       },
     }),
     {

@@ -3,92 +3,153 @@
 // ============================================
 
 import { GameLayout } from '../components/layout/GameLayout';
+import { useGameStore } from '../store/gameStore';
+import { IntelligenceEngine } from '../engine/IntelligenceEngine';
+import type { CountryId, IntelligenceAction, ExtremeMeasureType } from '../types/game';
 
-const INTEL_TARGETS = [
-  { id: 'egypt', name: 'Egypt', insurgency: 'None', action: 'none' },
-  { id: 'syria', name: 'Syria', insurgency: 'None', action: 'support' },
-  { id: 'jordan', name: 'Jordan', insurgency: 'Scattered', action: 'none' },
-  { id: 'lebanon', name: 'Lebanon', insurgency: 'Organized', action: 'disrupt' },
-];
+// Target countries for intelligence operations
+const INTEL_TARGETS: CountryId[] = ['egypt', 'syria', 'jordan', 'lebanon', 'iraq', 'iran', 'libya'];
+
+const ACTION_LABELS: Record<IntelligenceAction, string> = {
+  support_insurgents: 'Support',
+  disrupt_insurgents: 'Disrupt',
+  do_nothing: 'None',
+};
 
 export function IntelligenceScreen() {
+  const game = useGameStore((state) => state.game);
+  const setIntelligenceAction = useGameStore((state) => state.setIntelligenceAction);
+  const attemptExtremeMeasure = useGameStore((state) => state.attemptExtremeMeasure);
+
+  if (!game) {
+    return (
+      <GameLayout>
+        <div className="p-4 flex items-center justify-center h-full">
+          <p className="text-game-text-secondary">No game in progress</p>
+        </div>
+      </GameLayout>
+    );
+  }
+
+  const intelligenceActions = game.player.turnActions.intelligenceActions;
+
+  const handleActionChange = (countryId: CountryId, action: IntelligenceAction) => {
+    setIntelligenceAction(countryId, action);
+  };
+
+  const handleExtremeMeasure = (countryId: CountryId, type: ExtremeMeasureType) => {
+    attemptExtremeMeasure(countryId, type);
+  };
+
   return (
     <GameLayout>
-      <div className="p-4">
+      <div className="p-4 pb-24">
         <h2 className="text-xl font-bold text-game-text-primary mb-4">
           Intelligence Operations
         </h2>
 
-        {/* Monthly Budget */}
-        <div className="card mb-4">
-          <div className="flex justify-between items-center">
-            <span className="text-game-text-secondary">Intel Budget</span>
-            <span className="text-green-400 font-medium">$10M/month</span>
-          </div>
-        </div>
-
         {/* Operations by Country */}
         <div className="space-y-3">
-          {INTEL_TARGETS.map((target) => (
-            <div key={target.id} className="card">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="font-medium text-game-text-primary">
-                  {target.name}
-                </h3>
-                <span className={`text-sm ${
-                  target.insurgency === 'None' ? 'text-green-400' :
-                  target.insurgency === 'Scattered' ? 'text-yellow-400' :
-                  'text-orange-400'
-                }`}>
-                  {target.insurgency}
-                </span>
+          {INTEL_TARGETS.map((countryId) => {
+            const country = game.countries[countryId];
+            if (country.isDefeated) return null;
+
+            const currentAction = intelligenceActions[countryId] || 'do_nothing';
+            const insurgencyName = IntelligenceEngine.getInsurgencyName(country.insurgency);
+
+            // Check if extreme measures are available
+            const canAssassinate = IntelligenceEngine.canAttemptExtremeMeasure(game, countryId, 'assassination');
+            const canCoup = IntelligenceEngine.canAttemptExtremeMeasure(game, countryId, 'coup');
+
+            return (
+              <div key={countryId} className="card">
+                <div className="flex justify-between items-center mb-2">
+                  <div>
+                    <h3 className="font-medium text-game-text-primary">
+                      {countryId.charAt(0).toUpperCase() + countryId.slice(1)}
+                    </h3>
+                    <p className="text-xs text-game-text-secondary">
+                      Stability: {country.stability} | Leader: {country.leader.name}
+                    </p>
+                  </div>
+                  <span className={`text-sm px-2 py-1 rounded ${
+                    country.insurgency === 'none' ? 'bg-green-900/30 text-green-400' :
+                    country.insurgency === 'scattered' ? 'bg-yellow-900/30 text-yellow-400' :
+                    country.insurgency === 'organized' ? 'bg-orange-900/30 text-orange-400' :
+                    'bg-red-900/30 text-red-400'
+                  }`}>
+                    {insurgencyName}
+                  </span>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 mb-2">
+                  {(['support_insurgents', 'do_nothing', 'disrupt_insurgents'] as IntelligenceAction[]).map((action) => (
+                    <button
+                      key={action}
+                      onClick={() => handleActionChange(countryId, action)}
+                      className={`flex-1 text-sm py-2 rounded transition-colors ${
+                        currentAction === action
+                          ? 'bg-game-accent text-white'
+                          : 'bg-game-bg-dark text-game-text-secondary hover:bg-gray-700'
+                      }`}
+                    >
+                      {ACTION_LABELS[action]}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Extreme Measures (if available) */}
+                {(canAssassinate || canCoup) && (
+                  <div className="flex gap-2 mt-2 pt-2 border-t border-gray-700">
+                    <button
+                      onClick={() => handleExtremeMeasure(countryId, 'assassination')}
+                      disabled={!canAssassinate}
+                      className={`flex-1 text-xs py-1.5 rounded ${
+                        canAssassinate
+                          ? 'bg-red-900/50 text-red-400 hover:bg-red-800/50'
+                          : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                      }`}
+                    >
+                      Assassinate
+                    </button>
+                    <button
+                      onClick={() => handleExtremeMeasure(countryId, 'coup')}
+                      disabled={!canCoup}
+                      className={`flex-1 text-xs py-1.5 rounded ${
+                        canCoup
+                          ? 'bg-red-900/50 text-red-400 hover:bg-red-800/50'
+                          : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                      }`}
+                    >
+                      Trigger Coup
+                    </button>
+                  </div>
+                )}
               </div>
-              <div className="flex gap-2">
-                <button className={`flex-1 text-sm py-2 rounded ${
-                  target.action === 'support' ? 'bg-game-accent text-white' : 'bg-game-bg-dark text-game-text-secondary'
-                }`}>
-                  Support
-                </button>
-                <button className={`flex-1 text-sm py-2 rounded ${
-                  target.action === 'none' ? 'bg-game-accent text-white' : 'bg-game-bg-dark text-game-text-secondary'
-                }`}>
-                  None
-                </button>
-                <button className={`flex-1 text-sm py-2 rounded ${
-                  target.action === 'disrupt' ? 'bg-game-accent text-white' : 'bg-game-bg-dark text-game-text-secondary'
-                }`}>
-                  Disrupt
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        {/* Extreme Measures */}
+        {/* Extreme Measures Info */}
         <div className="mt-6">
-          <h3 className="text-lg font-bold text-red-400 mb-2">
-            Extreme Measures
-          </h3>
-          <div className="card border-red-900">
-            <p className="text-sm text-game-text-secondary mb-3">
-              Available when target country is destabilized (Weak or Critical stability)
+          <div className="card border-red-900/50 bg-red-950/20">
+            <h3 className="text-sm font-semibold text-red-400 mb-2">
+              Extreme Measures
+            </h3>
+            <p className="text-xs text-game-text-secondary">
+              Assassination and coup attempts become available when a target country's
+              stability reaches "Weak" or "Critical". Success is not guaranteed and
+              failure carries severe diplomatic consequences.
             </p>
-            <div className="flex gap-2">
-              <button className="btn-secondary flex-1 opacity-50" disabled>
-                Assassination
-              </button>
-              <button className="btn-secondary flex-1 opacity-50" disabled>
-                Trigger Coup
-              </button>
-            </div>
           </div>
         </div>
 
         {/* Phase Indicator */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-game-text-secondary">
-            Intelligence Phase - Placeholder Screen
-          </p>
+        <div className="mt-6 text-center">
+          <span className="inline-block px-3 py-1 bg-blue-900/30 text-blue-400 rounded text-xs">
+            Intelligence Phase
+          </span>
         </div>
       </div>
     </GameLayout>

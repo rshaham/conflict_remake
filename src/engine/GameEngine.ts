@@ -3,7 +3,37 @@
 // ============================================
 // This is a pure TypeScript module - NO React dependencies allowed
 
-import type { GameState } from '../types/game';
+import type {
+  GameState,
+  GamePhase,
+  CountryId,
+  CountryState,
+  PlayerState,
+  DifficultyId,
+  ScenarioId,
+  TurnActions,
+  LeaderState,
+  RelationshipLevel,
+  StabilityLevel,
+  InsurgencyLevel,
+  NuclearStage,
+  DiplomaticStance,
+} from '../types/game';
+
+import { DiplomacyEngine } from './DiplomacyEngine';
+import { EconomyEngine } from './EconomyEngine';
+import { CombatEngine } from './CombatEngine';
+import { IntelligenceEngine } from './IntelligenceEngine';
+import { ScoringEngine } from './ScoringEngine';
+
+// Phase order for normal turn flow
+const PHASE_ORDER: GamePhase[] = [
+  'news',
+  'diplomatic',
+  'intelligence',
+  'military',
+  'resolution',
+];
 
 /**
  * Main game engine that orchestrates turn resolution
@@ -15,22 +45,101 @@ export const GameEngine = {
    * Called at end of Military phase
    */
   resolveTurn: (state: GameState): GameState => {
-    // TODO: Phase 2 - Implement turn resolution
+    let newState = { ...state };
+
     // 1. Apply player diplomatic actions
+    newState = DiplomacyEngine.applyPlayerActions(newState);
+
     // 2. Apply player intelligence actions
-    // 3. Process purchases and deliveries
+    newState = IntelligenceEngine.applyPlayerActions(newState);
+
+    // 3. Process weapon purchases and deliveries
+    newState = EconomyEngine.processPurchases(newState);
+    newState = EconomyEngine.processDeliveries(newState);
+
     // 4. Process airstrikes
-    // 5. AI countries take turns
-    // 6. Resolve active wars
-    // 7. Update relationships
-    // 8. Update stability and insurgency
-    // 9. Update Palestinian situation
-    // 10. Progress nuclear programs
-    // 11. Check for collapses
-    // 12. Check win/lose conditions
-    // 13. Advance turn counter
-    // 14. Clear turn actions
-    console.log('GameEngine.resolveTurn - Not implemented');
+    newState = CombatEngine.processAirstrikes(newState);
+
+    // 5. Resolve active wars
+    newState = CombatEngine.resolveAllWars(newState);
+
+    // 6. Update relationships (natural drift from stances)
+    newState = DiplomacyEngine.updateRelationships(newState);
+
+    // 7. Update stability based on insurgency
+    newState = IntelligenceEngine.updateStability(newState);
+
+    // 8. Check for country collapses
+    newState = IntelligenceEngine.checkForCollapse(newState);
+
+    // 9. Add monthly income
+    newState = EconomyEngine.addMonthlyIncome(newState);
+
+    // 10. Progress nuclear programs (simplified)
+    newState = GameEngine.progressNuclearPrograms(newState);
+
+    // 11. Check win/lose conditions
+    const endCondition = ScoringEngine.checkEndConditions(newState);
+    if (endCondition) {
+      newState = {
+        ...newState,
+        endState: ScoringEngine.generateEndState(newState, endCondition),
+        phase: 'game_over',
+      };
+      return newState;
+    }
+
+    // 12. Advance turn counter and reset turn actions
+    newState = {
+      ...newState,
+      turn: newState.turn + 1,
+      month: newState.month >= 12 ? 1 : newState.month + 1,
+      year: newState.month >= 12 ? newState.year + 1 : newState.year,
+      phase: 'news',
+      player: {
+        ...newState.player,
+        turnActions: createEmptyTurnActions(),
+      },
+    };
+
+    // 13. Check for UN Summit (December)
+    if (newState.month === 12) {
+      newState = {
+        ...newState,
+        phase: 'un_summit',
+      };
+    }
+
+    return newState;
+  },
+
+  /**
+   * Advance to the next phase
+   */
+  advancePhase: (state: GameState): GameState => {
+    const currentIndex = PHASE_ORDER.indexOf(state.phase);
+
+    // If at military phase, resolve the turn
+    if (state.phase === 'military') {
+      return GameEngine.resolveTurn(state);
+    }
+
+    // If at UN summit, move to news phase for new year
+    if (state.phase === 'un_summit') {
+      return {
+        ...state,
+        phase: 'news',
+      };
+    }
+
+    // Move to next phase
+    if (currentIndex >= 0 && currentIndex < PHASE_ORDER.length - 1) {
+      return {
+        ...state,
+        phase: PHASE_ORDER[currentIndex + 1],
+      };
+    }
+
     return state;
   },
 
@@ -38,18 +147,352 @@ export const GameEngine = {
    * Initialize a new game from scenario data
    */
   initializeGame: (
-    _difficulty: string,
-    _scenario: string
+    difficulty: DifficultyId,
+    scenario: ScenarioId
   ): GameState => {
-    // TODO: Phase 2 - Load scenario and create initial state
-    throw new Error('GameEngine.initializeGame - Not implemented');
+    // Get difficulty settings
+    const difficultySettings = getDifficultySettings(difficulty);
+
+    // Create initial state based on classic 1997 scenario
+    const initialState: GameState = {
+      gameId: `game_${Date.now()}`,
+      turn: 1,
+      month: 1,
+      year: 1997,
+      phase: 'news',
+      difficulty,
+      scenario,
+
+      player: createInitialPlayerState(difficultySettings),
+
+      countries: createInitialCountries(difficultySettings),
+
+      wars: [],
+      pendingEvents: [],
+
+      history: {
+        recentActions: [],
+        recentEvents: [],
+        headlines: ['You have been elected Prime Minister of Israel.'],
+      },
+    };
+
+    return initialState;
   },
 
   /**
    * Check if the game should end
    */
   checkGameEnd: (state: GameState): boolean => {
-    // TODO: Phase 2 - Check win/lose conditions
-    return state.endState !== undefined;
+    return state.endState !== undefined || state.phase === 'game_over';
+  },
+
+  /**
+   * Progress nuclear programs for all countries
+   */
+  progressNuclearPrograms: (state: GameState): GameState => {
+    const newCountries = { ...state.countries };
+
+    // Progress AI country nuclear programs
+    for (const [countryIdStr, country] of Object.entries(state.countries)) {
+      const countryId = countryIdStr as CountryId;
+      if (countryId === 'israel' || country.isDefeated) continue;
+
+      if (country.nuclearStage !== 'none' && country.nuclearStage !== 'operational') {
+        // AI countries progress their nuclear programs
+        const newProgress = country.nuclearProgress + 1;
+        const requiredProgress = getNuclearStageRequirement(country.nuclearStage);
+
+        if (newProgress >= requiredProgress) {
+          // Advance to next stage
+          newCountries[countryId] = {
+            ...country,
+            nuclearStage: getNextNuclearStage(country.nuclearStage),
+            nuclearProgress: 0,
+          };
+        } else {
+          newCountries[countryId] = {
+            ...country,
+            nuclearProgress: newProgress,
+          };
+        }
+      }
+    }
+
+    // Progress player nuclear program if funded
+    let newPlayer = state.player;
+    if (state.player.turnActions.fundedNuclear &&
+        state.player.nuclearStage !== 'operational') {
+      const newProgress = state.player.nuclearProgress + 1;
+      const requiredProgress = getNuclearStageRequirement(state.player.nuclearStage);
+
+      if (newProgress >= requiredProgress) {
+        newPlayer = {
+          ...state.player,
+          nuclearStage: getNextNuclearStage(state.player.nuclearStage),
+          nuclearProgress: 0,
+        };
+      } else {
+        newPlayer = {
+          ...state.player,
+          nuclearProgress: newProgress,
+        };
+      }
+    }
+
+    return {
+      ...state,
+      countries: newCountries,
+      player: newPlayer,
+    };
+  },
+
+  /**
+   * Get current phase display name
+   */
+  getPhaseName: (phase: GamePhase): string => {
+    const names: Record<GamePhase, string> = {
+      news: 'News',
+      events: 'Events',
+      diplomatic: 'Diplomatic',
+      intelligence: 'Intelligence',
+      military: 'Military',
+      palestinian: 'Palestinian',
+      resolution: 'Resolution',
+      un_summit: 'UN Summit',
+      game_over: 'Game Over',
+    };
+    return names[phase];
   },
 };
+
+// Helper functions
+
+function createEmptyTurnActions(): TurnActions {
+  return {
+    diplomaticActions: {},
+    intelligenceActions: {},
+    weaponPurchases: [],
+    fundedNuclear: false,
+    airstrikes: [],
+  };
+}
+
+function getDifficultySettings(difficulty: DifficultyId) {
+  const settings = {
+    easy: {
+      startingBudget: 150000000,
+      usAttitudeStart: 20,
+      aiAggressionModifier: 0.7,
+      relationshipModifier: 1,
+    },
+    normal: {
+      startingBudget: 100000000,
+      usAttitudeStart: 0,
+      aiAggressionModifier: 1.0,
+      relationshipModifier: 0,
+    },
+    hard: {
+      startingBudget: 75000000,
+      usAttitudeStart: -20,
+      aiAggressionModifier: 1.3,
+      relationshipModifier: -1,
+    },
+    impossible: {
+      startingBudget: 50000000,
+      usAttitudeStart: -40,
+      aiAggressionModifier: 1.5,
+      relationshipModifier: -2,
+    },
+  };
+  return settings[difficulty];
+}
+
+function createInitialPlayerState(settings: ReturnType<typeof getDifficultySettings>): PlayerState {
+  return {
+    budget: settings.startingBudget,
+    gdpDefensePercent: 35,
+    usAttitude: settings.usAttitudeStart,
+    prestige: 3,
+    knessetDisapproval: 0,
+    violencePoints: 0,
+
+    palestinianHomeland: false,
+    armyLimitAgreement: false,
+
+    palestinianLevel: 'calm',
+    policingTactic: 'none',
+
+    arsenal: {
+      light_tank: 10,
+      main_battle_tank: 5,
+      anti_tank_helicopter: 2,
+      sam_battery: 5,
+      fighter_aircraft: 10,
+      anti_sam_helicopter: 1,
+      infantry_brigade: 8,
+    },
+    nuclearStage: 'none',
+    nuclearProgress: 0,
+    deployedTroops: {
+      israel: 0,
+      egypt: 0,
+      syria: 0,
+      jordan: 0,
+      lebanon: 0,
+      iraq: 0,
+      iran: 0,
+      libya: 0,
+    },
+
+    vendorPurchases: {
+      usa: 0,
+      uk: 0,
+      france: 0,
+      black_market: 0,
+    },
+    embargoedBy: [],
+    pendingDeliveries: [],
+
+    turnActions: createEmptyTurnActions(),
+  };
+}
+
+function createInitialCountries(
+  settings: ReturnType<typeof getDifficultySettings>
+): Record<CountryId, CountryState> {
+  const relationshipOffset = settings.relationshipModifier;
+
+  const createCountry = (
+    id: CountryId,
+    baseRelationship: RelationshipLevel,
+    stability: StabilityLevel,
+    insurgency: InsurgencyLevel,
+    stance: DiplomaticStance,
+    nuclearStage: NuclearStage,
+    leader: LeaderState,
+    militaryStrength: number
+  ): CountryState => ({
+    id,
+    relationship: adjustRelationship(baseRelationship, relationshipOffset),
+    stability,
+    insurgency,
+    stance,
+    nuclearStage,
+    nuclearProgress: 0,
+    leader,
+    militaryStrength,
+    isDefeated: false,
+  });
+
+  return {
+    israel: createCountry(
+      'israel',
+      'military_pact', // Self
+      'solid',
+      'scattered',
+      'neutral',
+      'none',
+      { name: 'Player', strength: 'moderate', aggression: 'pragmatic', riskTolerance: 'calculated' },
+      100
+    ),
+    egypt: createCountry(
+      'egypt',
+      'cool',
+      'good',
+      'none',
+      'neutral',
+      'none',
+      { name: 'Hosni Mubarak', strength: 'strong', aggression: 'pragmatic', riskTolerance: 'cautious' },
+      80
+    ),
+    syria: createCountry(
+      'syria',
+      'hostile',
+      'solid',
+      'scattered',
+      'aggressive',
+      'none',
+      { name: 'Hafez al-Assad', strength: 'strong', aggression: 'hawkish', riskTolerance: 'calculated' },
+      70
+    ),
+    jordan: createCountry(
+      'jordan',
+      'satisfactory',
+      'good',
+      'none',
+      'friendly',
+      'none',
+      { name: 'King Hussein', strength: 'moderate', aggression: 'dovish', riskTolerance: 'cautious' },
+      40
+    ),
+    lebanon: createCountry(
+      'lebanon',
+      'cool',
+      'weak',
+      'organized',
+      'neutral',
+      'none',
+      { name: 'Rafik Hariri', strength: 'weak', aggression: 'dovish', riskTolerance: 'cautious' },
+      20
+    ),
+    iraq: createCountry(
+      'iraq',
+      'hostile',
+      'solid',
+      'none',
+      'aggressive',
+      'development',
+      { name: 'Saddam Hussein', strength: 'strong', aggression: 'hawkish', riskTolerance: 'reckless' },
+      90
+    ),
+    iran: createCountry(
+      'iran',
+      'hostile',
+      'solid',
+      'scattered',
+      'aggressive',
+      'research',
+      { name: 'Ali Khamenei', strength: 'strong', aggression: 'hawkish', riskTolerance: 'calculated' },
+      75
+    ),
+    libya: createCountry(
+      'libya',
+      'lamentable',
+      'good',
+      'none',
+      'aggressive',
+      'none',
+      { name: 'Muammar Gaddafi', strength: 'strong', aggression: 'hawkish', riskTolerance: 'reckless' },
+      50
+    ),
+  };
+}
+
+const RELATIONSHIP_ORDER: RelationshipLevel[] = [
+  'military_pact', 'profitable', 'beneficial', 'favourable',
+  'satisfactory', 'cool', 'lamentable', 'hostile', 'war',
+];
+
+function adjustRelationship(base: RelationshipLevel, offset: number): RelationshipLevel {
+  const index = RELATIONSHIP_ORDER.indexOf(base);
+  const newIndex = Math.max(0, Math.min(RELATIONSHIP_ORDER.length - 2, index - offset));
+  return RELATIONSHIP_ORDER[newIndex];
+}
+
+function getNuclearStageRequirement(stage: NuclearStage): number {
+  const requirements: Record<NuclearStage, number> = {
+    none: 0,
+    research: 12,      // 12 months
+    development: 18,   // 18 months
+    testing: 6,        // 6 months
+    operational: 0,
+  };
+  return requirements[stage];
+}
+
+function getNextNuclearStage(current: NuclearStage): NuclearStage {
+  const order: NuclearStage[] = ['none', 'research', 'development', 'testing', 'operational'];
+  const index = order.indexOf(current);
+  return index < order.length - 1 ? order[index + 1] : current;
+}
