@@ -1,22 +1,17 @@
 // ============================================
-// Military Screen - Arms and Combat
+// Military Screen - Strategic Command
 // ============================================
+// Forces deployment and airstrike operations
+// Weapon purchasing moved to ArmsScreen
+// Nuclear program moved to NuclearScreen
 
 import { useState } from 'react';
-import { GameLayout } from '../components/layout/GameLayout';
-import { WeaponCard } from '../components/game/WeaponCard';
+import { useNavigate } from 'react-router-dom';
+import { Scanlines } from '../components/ui/Scanlines';
+import { HatchedBar } from '../components/ui/HatchedBar';
 import { useGameStore } from '../store/gameStore';
-import { useUIStore } from '../store/uiStore';
-import { EconomyEngine } from '../engine/EconomyEngine';
-import { COUNTRY_NAMES } from '../utils/countryData';
-import type { VendorId, WeaponId, CountryId, AirstrikeTarget } from '../types/game';
-
-const VENDORS: { id: VendorId; name: string; flag: string }[] = [
-  { id: 'usa', name: 'USA', flag: '\u{1F1FA}\u{1F1F8}' },
-  { id: 'uk', name: 'UK', flag: '\u{1F1EC}\u{1F1E7}' },
-  { id: 'france', name: 'France', flag: '\u{1F1EB}\u{1F1F7}' },
-  { id: 'black_market', name: 'Black Market', flag: '\u{1F3F4}' },
-];
+import { COUNTRY_NAMES, COUNTRY_FLAGS } from '../utils/countryData';
+import type { CountryId, AirstrikeTarget } from '../types/game';
 
 const NEIGHBOR_BORDERS: CountryId[] = ['egypt', 'syria', 'jordan', 'lebanon'];
 
@@ -24,57 +19,40 @@ const NEIGHBOR_BORDERS: CountryId[] = ['egypt', 'syria', 'jordan', 'lebanon'];
 const AIRSTRIKE_TARGETS: CountryId[] = ['egypt', 'syria', 'jordan', 'lebanon', 'iraq', 'iran', 'libya'];
 
 const AIRSTRIKE_TARGET_TYPES: { id: AirstrikeTarget; name: string; desc: string; warning?: string }[] = [
-  { id: 'military', name: 'Military', desc: 'Target enemy military installations' },
-  { id: 'civilian', name: 'Civilian', desc: 'Target civilian infrastructure', warning: 'Reduces stability, US attitude impact' },
-  { id: 'industrial', name: 'Industrial', desc: 'Target industrial capacity' },
-  { id: 'nuclear', name: 'Nuclear', desc: 'Target nuclear facilities', warning: 'Severe diplomatic consequences' },
+  { id: 'military', name: 'MILITARY', desc: 'Enemy installations' },
+  { id: 'civilian', name: 'CIVILIAN', desc: 'Infrastructure', warning: 'Reduces stability, US impact' },
+  { id: 'industrial', name: 'INDUSTRIAL', desc: 'Industrial capacity' },
+  { id: 'nuclear', name: 'NUCLEAR', desc: 'Nuclear facilities', warning: 'Severe diplomatic fallout' },
 ];
 
-const NUCLEAR_STAGE_NAMES = {
-  none: 'No Program',
-  research: 'Research',
-  development: 'Development',
-  testing: 'Testing',
-  operational: 'Operational',
-};
-
-function formatCurrency(amount: number): string {
-  if (amount >= 1000000000) {
-    return `$${(amount / 1000000000).toFixed(2)}B`;
-  }
-  if (amount >= 1000000) {
-    return `$${(amount / 1000000).toFixed(1)}M`;
-  }
-  return `$${(amount / 1000).toFixed(0)}K`;
-}
+// Unit type display data
+const UNIT_TYPES: { id: string; name: string; icon: string }[] = [
+  { id: 'infantry_brigade', name: 'Infantry', icon: '🚶' },
+  { id: 'armor_brigade', name: 'Armor', icon: '🛡️' },
+  { id: 'fighter_aircraft', name: 'Fighters', icon: '✈️' },
+  { id: 'bomber_aircraft', name: 'Bombers', icon: '💣' },
+  { id: 'attack_helicopter', name: 'Helos', icon: '🚁' },
+  { id: 'naval_vessel', name: 'Navy', icon: '🚢' },
+  { id: 'sam_battery', name: 'SAM', icon: '🚀' },
+  { id: 'artillery', name: 'Artillery', icon: '💥' },
+];
 
 export function MilitaryScreen() {
-  const { game, purchaseWeapon, fundNuclear, deployTroops, orderAirstrike, cancelAirstrike } = useGameStore();
-  const selectedVendor = useUIStore((state) => state.selectedVendor);
-  const selectVendor = useUIStore((state) => state.selectVendor);
+  const navigate = useNavigate();
+  const { game, deployTroops, orderAirstrike, cancelAirstrike } = useGameStore();
 
   // Airstrike state
   const [selectedAirstrikeCountry, setSelectedAirstrikeCountry] = useState<CountryId>('syria');
   const [selectedAirstrikeType, setSelectedAirstrikeType] = useState<AirstrikeTarget>('military');
 
-  // If no game is loaded, show placeholder
   if (!game) {
     return (
-      <GameLayout>
-        <div className="p-4 flex items-center justify-center h-full">
-          <p className="text-game-text-secondary">No game in progress</p>
-        </div>
-      </GameLayout>
+      <div className="min-h-screen bg-retro-bg flex items-center justify-center">
+        <Scanlines />
+        <p className="font-mono text-retro-text-dim">No game in progress</p>
+      </div>
     );
   }
-
-  const currentVendor = selectedVendor || 'usa';
-  const vendorWeapons = EconomyEngine.getVendorWeapons(game, currentVendor);
-  const isVendorEmbargoed = game.player.embargoedBy.includes(currentVendor);
-
-  const handlePurchase = (weaponId: WeaponId, quantity: number) => {
-    purchaseWeapon(currentVendor, weaponId, quantity);
-  };
 
   const handleDeploymentChange = (country: CountryId, delta: number) => {
     const current = game.player.deployedTroops[country] || 0;
@@ -83,138 +61,84 @@ export function MilitaryScreen() {
   };
 
   // Calculate available brigades
-  const totalDeployed = Object.values(game.player.deployedTroops).reduce(
-    (a, b) => a + b,
-    0
-  );
+  const totalDeployed = Object.values(game.player.deployedTroops).reduce((a, b) => a + b, 0);
   const totalBrigades = game.player.arsenal.infantry_brigade || 0;
   const availableBrigades = totalBrigades - totalDeployed;
 
+  // Calculate readiness (simplified)
+  const totalArsenal = Object.values(game.player.arsenal).reduce((a, b) => a + b, 0);
+  const readiness = Math.min(100, Math.floor(totalArsenal * 2));
+
+  const fighters = game.player.arsenal.fighter_aircraft || 0;
+
   return (
-    <GameLayout>
-      <div className="p-4 pb-24">
-        <h2 className="text-xl font-bold text-game-text-primary mb-4">
-          Military Command
-        </h2>
+    <div className="min-h-screen flex flex-col bg-retro-bg">
+      <Scanlines />
 
-        {/* Budget Display */}
-        <div className="card mb-4">
-          <div className="flex justify-between items-center">
-            <span className="text-game-text-secondary">Available Budget</span>
-            <span className="text-green-400 font-bold text-lg">
-              {formatCurrency(game.player.budget)}
-            </span>
-          </div>
+      {/* Header with back button */}
+      <div className="shrink-0 p-3 bg-white border-b-2 border-black flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => navigate('/game/hub')}
+          className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white retro-shadow-sm hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+        >
+          ←
+        </button>
+        <div>
+          <h1 className="font-pixel text-lg leading-none">STRATEGIC COMMAND</h1>
+          <div className="font-mono text-[8px] text-gray-500 uppercase tracking-wider">Military Operations</div>
         </div>
+      </div>
 
-        {/* Vendor Tabs */}
-        <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
-          {VENDORS.map((vendor) => {
-            const isEmbargoed = game.player.embargoedBy.includes(vendor.id);
-            return (
-              <button
-                key={vendor.id}
-                onClick={() => selectVendor(vendor.id)}
-                className={`flex items-center gap-1 px-3 py-2 rounded-lg whitespace-nowrap transition-colors ${
-                  currentVendor === vendor.id
-                    ? 'bg-game-accent text-white'
-                    : isEmbargoed
-                    ? 'bg-red-900/30 text-red-400'
-                    : 'bg-game-bg-card text-game-text-secondary hover:bg-gray-700'
-                }`}
-              >
-                <span>{vendor.flag}</span>
-                <span className="text-sm">{vendor.name}</span>
-                {isEmbargoed && <span className="text-xs ml-1">(Embargo)</span>}
-              </button>
-            );
-          })}
-        </div>
+      {/* Terminal-style readiness display */}
+      <div className="shrink-0 px-3 py-2 bg-black text-green-500 font-mono text-[10px] flex justify-between items-center">
+        <span>READINESS: {readiness}%</span>
+        <span className="flex items-center gap-2">
+          <span className={`w-2 h-2 ${readiness >= 50 ? 'bg-green-500' : 'bg-red-500'} animate-pulse`} />
+          {game.wars.length > 0 ? 'COMBAT OPS ACTIVE' : 'PEACETIME STATUS'}
+        </span>
+      </div>
 
-        {/* Embargo Warning */}
-        {isVendorEmbargoed && (
-          <div className="card mb-4 bg-red-900/20 border border-red-800">
-            <p className="text-red-400 text-sm">
-              This vendor has placed an embargo on Israel. You cannot purchase weapons
-              from them.
-            </p>
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+
+        {/* Force Overview */}
+        <div className="bg-white border-2 border-black retro-shadow p-3">
+          <div className="font-mono font-bold text-xs uppercase mb-2 pb-1 border-b border-gray-300">
+            Force Overview
           </div>
-        )}
-
-        {/* Weapon Catalog */}
-        <div className="mb-6">
-          <h3 className="text-sm font-semibold text-game-text-secondary uppercase tracking-wide mb-3">
-            Weapon Catalog - {VENDORS.find((v) => v.id === currentVendor)?.name}
-          </h3>
-          <div className="space-y-3">
-            {vendorWeapons.map(({ weapon, price, available, reason }) => (
-              <WeaponCard
-                key={weapon}
-                weaponId={weapon}
-                vendor={currentVendor}
-                price={price}
-                owned={game.player.arsenal[weapon] || 0}
-                available={available && !isVendorEmbargoed}
-                reason={isVendorEmbargoed ? 'Vendor has embargoed you' : reason}
-                onPurchase={handlePurchase}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Nuclear Program */}
-        <div className="card mb-6">
-          <h3 className="font-bold text-game-text-primary mb-2">Nuclear Program</h3>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-game-text-secondary">
-                Status:{' '}
-                <span
-                  className={
-                    game.player.nuclearStage === 'operational'
-                      ? 'text-yellow-400'
-                      : 'text-game-text-primary'
-                  }
+          <div className="grid grid-cols-4 gap-2">
+            {UNIT_TYPES.map((unit) => {
+              const count = game.player.arsenal[unit.id as keyof typeof game.player.arsenal] || 0;
+              return (
+                <div
+                  key={unit.id}
+                  className="text-center p-2 border border-gray-300 bg-gray-50"
                 >
-                  {NUCLEAR_STAGE_NAMES[game.player.nuclearStage]}
-                </span>
-              </p>
-              {game.player.nuclearStage !== 'none' &&
-                game.player.nuclearStage !== 'operational' && (
-                  <p className="text-xs text-game-text-secondary">
-                    Progress: {game.player.nuclearProgress} months
-                  </p>
-                )}
-              <p className="text-xs text-game-text-secondary">Cost: $20M/month</p>
-            </div>
-            {game.player.nuclearStage !== 'operational' && (
-              <button
-                className={`${
-                  game.player.turnActions.fundedNuclear
-                    ? 'btn-primary'
-                    : 'btn-secondary'
-                }`}
-                onClick={() => fundNuclear(!game.player.turnActions.fundedNuclear)}
-              >
-                {game.player.turnActions.fundedNuclear ? 'Funding' : 'Fund Program'}
-              </button>
-            )}
-            {game.player.nuclearStage === 'operational' && (
-              <span className="px-3 py-1 bg-yellow-600 text-white rounded text-sm">
-                Ready
-              </span>
-            )}
+                  <div className="text-lg mb-0.5">{unit.icon}</div>
+                  <div className="font-mono text-xs font-bold">{count}</div>
+                  <div className="font-mono text-[8px] text-gray-500 uppercase">{unit.name}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Troop Deployment */}
-        <div className="card">
-          <h3 className="font-bold text-game-text-primary mb-2">Border Deployment</h3>
-          <p className="text-sm text-game-text-secondary mb-3">
-            <span className="text-blue-400">{availableBrigades}</span> of{' '}
-            <span className="text-blue-400">{totalBrigades}</span> Infantry Brigades
-            available
-          </p>
+        {/* Border Deployment */}
+        <div className="bg-white border-2 border-black retro-shadow p-3">
+          <div className="font-mono font-bold text-xs uppercase mb-2 pb-1 border-b border-gray-300">
+            Border Deployment
+          </div>
+
+          {/* Brigade counter */}
+          <div className="mb-3 p-2 bg-gray-100 border border-gray-300 font-mono text-[10px]">
+            <span className="text-gray-600">AVAILABLE: </span>
+            <span className={availableBrigades > 0 ? 'text-green-700 font-bold' : 'text-red-600 font-bold'}>
+              {availableBrigades}
+            </span>
+            <span className="text-gray-600"> / {totalBrigades} BRIGADES</span>
+          </div>
+
           <div className="space-y-2">
             {NEIGHBOR_BORDERS.map((country) => {
               const deployed = game.player.deployedTroops[country] || 0;
@@ -224,29 +148,32 @@ export function MilitaryScreen() {
               return (
                 <div
                   key={country}
-                  className={`flex items-center justify-between p-2 rounded ${
-                    isAtWar ? 'bg-red-900/20' : 'bg-gray-800'
+                  className={`flex items-center justify-between p-2 border-2 ${
+                    isAtWar ? 'border-red-600 bg-red-50' : 'border-gray-300 bg-white'
                   }`}
                 >
-                  <span className="text-game-text-primary">
-                    {COUNTRY_NAMES[country]}
-                    {isAtWar && (
-                      <span className="text-red-400 text-xs ml-2">AT WAR</span>
-                    )}
-                  </span>
                   <div className="flex items-center gap-2">
+                    <span className="text-lg">{COUNTRY_FLAGS[country]}</span>
+                    <div>
+                      <div className="font-mono font-bold text-xs">{COUNTRY_NAMES[country].toUpperCase()}</div>
+                      {isAtWar && (
+                        <div className="font-mono text-[8px] text-red-600 font-bold">⚔ AT WAR</div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
                     <button
-                      className="w-8 h-8 bg-gray-700 rounded hover:bg-gray-600 disabled:opacity-50"
+                      type="button"
+                      className="w-7 h-7 border-2 border-black bg-white font-mono font-bold text-sm retro-shadow-sm hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
                       onClick={() => handleDeploymentChange(country, -1)}
                       disabled={deployed === 0}
                     >
                       -
                     </button>
-                    <span className="w-8 text-center text-game-text-primary font-medium">
-                      {deployed}
-                    </span>
+                    <span className="w-8 text-center font-mono font-bold text-sm">{deployed}</span>
                     <button
-                      className="w-8 h-8 bg-gray-700 rounded hover:bg-gray-600 disabled:opacity-50"
+                      type="button"
+                      className="w-7 h-7 border-2 border-black bg-white font-mono font-bold text-sm retro-shadow-sm hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
                       onClick={() => handleDeploymentChange(country, 1)}
                       disabled={availableBrigades === 0}
                     >
@@ -257,86 +184,76 @@ export function MilitaryScreen() {
               );
             })}
           </div>
-          <p className="text-xs text-game-text-secondary mt-3 italic">
+
+          <div className="mt-2 font-mono text-[8px] text-gray-500 italic">
             Deploy troops to borders to enable war declaration
-          </p>
+          </div>
         </div>
 
         {/* Airstrike Operations */}
-        <div className="card mt-6">
-          <h3 className="font-bold text-game-text-primary mb-3">Airstrike Operations</h3>
-
-          {/* Available Fighters */}
-          <div className="flex justify-between items-center mb-3 text-sm">
-            <span className="text-game-text-secondary">Available Fighters</span>
-            <span className={`font-medium ${
-              (game.player.arsenal.fighter_aircraft || 0) > 0 ? 'text-blue-400' : 'text-red-400'
-            }`}>
-              {game.player.arsenal.fighter_aircraft || 0}
+        <div className="bg-white border-2 border-black retro-shadow p-3">
+          <div className="font-mono font-bold text-xs uppercase mb-2 pb-1 border-b border-gray-300 flex justify-between items-center">
+            <span>Airstrike Operations</span>
+            <span className={`text-[10px] ${fighters > 0 ? 'text-green-700' : 'text-red-600'}`}>
+              {fighters} FIGHTERS
             </span>
           </div>
 
-          {/* Target Selection */}
+          {/* Target Country Selection */}
           <div className="mb-3">
-            <label className="text-xs text-game-text-secondary uppercase tracking-wide block mb-2">
-              Target Country
-            </label>
-            <div className="flex flex-wrap gap-2">
+            <div className="font-mono text-[8px] text-gray-500 uppercase mb-1">Target Country</div>
+            <div className="flex flex-wrap gap-1">
               {AIRSTRIKE_TARGETS.filter(c => !game.countries[c].isDefeated).map((country) => (
                 <button
                   key={country}
                   type="button"
                   onClick={() => setSelectedAirstrikeCountry(country)}
-                  className={`px-3 py-1.5 rounded text-sm transition-colors ${
+                  className={`px-2 py-1 border-2 font-mono text-[10px] font-bold transition-all ${
                     selectedAirstrikeCountry === country
-                      ? 'bg-game-accent text-white'
-                      : 'bg-game-bg-dark text-game-text-secondary hover:bg-gray-700'
+                      ? 'border-black bg-black text-white'
+                      : 'border-gray-300 bg-white text-gray-700 hover:border-gray-500'
                   }`}
                 >
-                  {COUNTRY_NAMES[country]}
+                  {COUNTRY_FLAGS[country]} {COUNTRY_NAMES[country].toUpperCase()}
                 </button>
               ))}
             </div>
           </div>
 
           {/* Strike Type Selection */}
-          <div className="mb-4">
-            <label className="text-xs text-game-text-secondary uppercase tracking-wide block mb-2">
-              Strike Type
-            </label>
+          <div className="mb-3">
+            <div className="font-mono text-[8px] text-gray-500 uppercase mb-1">Strike Type</div>
             <div className="grid grid-cols-2 gap-2">
-              {AIRSTRIKE_TARGET_TYPES.map((type) => (
-                <button
-                  key={type.id}
-                  type="button"
-                  onClick={() => setSelectedAirstrikeType(type.id)}
-                  className={`p-2 rounded text-left transition-colors ${
-                    selectedAirstrikeType === type.id
-                      ? type.id === 'nuclear' || type.id === 'civilian'
-                        ? 'bg-red-900/50 border border-red-700'
-                        : 'bg-game-accent'
-                      : 'bg-game-bg-dark hover:bg-gray-700'
-                  }`}
-                >
-                  <div className={`font-medium text-sm ${
-                    selectedAirstrikeType === type.id ? 'text-white' : 'text-game-text-primary'
-                  }`}>
-                    {type.name}
-                  </div>
-                  <div className={`text-xs ${
-                    selectedAirstrikeType === type.id ? 'text-white/70' : 'text-game-text-secondary'
-                  }`}>
-                    {type.desc}
-                  </div>
-                </button>
-              ))}
+              {AIRSTRIKE_TARGET_TYPES.map((type) => {
+                const isRisky = type.id === 'nuclear' || type.id === 'civilian';
+                const isSelected = selectedAirstrikeType === type.id;
+                return (
+                  <button
+                    key={type.id}
+                    type="button"
+                    onClick={() => setSelectedAirstrikeType(type.id)}
+                    className={`p-2 border-2 text-left transition-all ${
+                      isSelected
+                        ? isRisky
+                          ? 'border-red-600 bg-red-50'
+                          : 'border-black bg-gray-100'
+                        : 'border-gray-300 bg-white hover:border-gray-500'
+                    }`}
+                  >
+                    <div className={`font-mono font-bold text-[10px] ${isSelected && isRisky ? 'text-red-700' : ''}`}>
+                      {type.name}
+                    </div>
+                    <div className="font-mono text-[8px] text-gray-500">{type.desc}</div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           {/* Warning for risky strikes */}
           {(selectedAirstrikeType === 'nuclear' || selectedAirstrikeType === 'civilian') && (
-            <div className="mb-3 p-2 bg-red-900/20 border border-red-800 rounded text-xs text-red-400">
-              {AIRSTRIKE_TARGET_TYPES.find(t => t.id === selectedAirstrikeType)?.warning}
+            <div className="mb-3 p-2 border-2 border-red-600 bg-red-50 font-mono text-[9px] text-red-700">
+              ⚠ {AIRSTRIKE_TARGET_TYPES.find(t => t.id === selectedAirstrikeType)?.warning}
             </div>
           )}
 
@@ -344,72 +261,66 @@ export function MilitaryScreen() {
           <button
             type="button"
             onClick={() => orderAirstrike(selectedAirstrikeCountry, selectedAirstrikeType)}
-            disabled={(game.player.arsenal.fighter_aircraft || 0) === 0}
-            className="w-full py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded font-medium transition-colors"
+            disabled={fighters === 0}
+            className="w-full py-2 font-mono font-bold text-xs uppercase border-2 border-black bg-red-600 text-white retro-shadow-sm hover:bg-red-700 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:bg-gray-300 disabled:text-gray-500 disabled:border-gray-400 disabled:shadow-none transition-all"
           >
-            {(game.player.arsenal.fighter_aircraft || 0) === 0
-              ? 'No Fighters Available'
-              : `Order Airstrike on ${COUNTRY_NAMES[selectedAirstrikeCountry]}`
+            {fighters === 0
+              ? 'NO FIGHTERS AVAILABLE'
+              : `ORDER AIRSTRIKE → ${COUNTRY_NAMES[selectedAirstrikeCountry].toUpperCase()}`
             }
           </button>
         </div>
 
         {/* Queued Airstrikes */}
         {game.player.turnActions.airstrikes.length > 0 && (
-          <div className="card mt-4 border border-red-900/50">
-            <h3 className="font-bold text-red-400 mb-2">
-              Queued Airstrikes ({game.player.turnActions.airstrikes.length})
-            </h3>
+          <div className="bg-white border-2 border-red-600 retro-shadow-red p-3">
+            <div className="font-mono font-bold text-xs uppercase text-red-700 mb-2 pb-1 border-b border-red-300">
+              Queued Strikes ({game.player.turnActions.airstrikes.length})
+            </div>
             <div className="space-y-2">
               {game.player.turnActions.airstrikes.map((strike, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-2 bg-red-900/20 rounded"
+                  className="flex items-center justify-between p-2 bg-red-50 border border-red-300"
                 >
-                  <div>
-                    <span className="text-game-text-primary font-medium">
-                      {COUNTRY_NAMES[strike.target]}
-                    </span>
-                    <span className="text-game-text-secondary text-sm ml-2">
-                      ({strike.type})
-                    </span>
-                    <span className="text-blue-400 text-xs ml-2">
-                      {strike.fightersUsed} fighters
-                    </span>
+                  <div className="font-mono text-[10px]">
+                    <span className="font-bold">{COUNTRY_NAMES[strike.target].toUpperCase()}</span>
+                    <span className="text-gray-600 ml-2">({strike.type})</span>
+                    <span className="text-blue-600 ml-2">{strike.fightersUsed} fighters</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => cancelAirstrike(index)}
-                    className="text-red-400 hover:text-red-300 text-sm px-2"
+                    className="px-2 py-1 font-mono text-[9px] font-bold text-red-600 border border-red-600 hover:bg-red-100"
                   >
-                    Cancel
+                    CANCEL
                   </button>
                 </div>
               ))}
             </div>
-            <p className="text-xs text-game-text-secondary mt-2 italic">
-              Airstrikes will be executed at end of turn
-            </p>
+            <div className="mt-2 font-mono text-[8px] text-red-600 italic">
+              Strikes execute at end of turn
+            </div>
           </div>
         )}
 
         {/* Pending Deliveries */}
         {game.player.pendingDeliveries.length > 0 && (
-          <div className="card mt-6">
-            <h3 className="font-bold text-game-text-primary mb-2">
+          <div className="bg-white border-2 border-black retro-shadow p-3">
+            <div className="font-mono font-bold text-xs uppercase mb-2 pb-1 border-b border-gray-300">
               Pending Deliveries
-            </h3>
-            <div className="space-y-2">
+            </div>
+            <div className="space-y-1">
               {game.player.pendingDeliveries.map((delivery, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between text-sm"
+                  className="flex items-center justify-between p-2 bg-gray-50 border border-gray-300 font-mono text-[10px]"
                 >
-                  <span className="text-game-text-secondary">
-                    {delivery.quantity}x {delivery.weaponId.replace('_', ' ')}
+                  <span>
+                    {delivery.quantity}x {delivery.weaponId.replace(/_/g, ' ').toUpperCase()}
                   </span>
-                  <span className="text-yellow-400">
-                    {delivery.turnsRemaining} turn{delivery.turnsRemaining > 1 ? 's' : ''}
+                  <span className="text-yellow-600 font-bold">
+                    {delivery.turnsRemaining} TURN{delivery.turnsRemaining > 1 ? 'S' : ''}
                   </span>
                 </div>
               ))}
@@ -417,13 +328,23 @@ export function MilitaryScreen() {
           </div>
         )}
 
-        {/* Phase indicator */}
-        <div className="mt-6 text-center">
-          <span className="inline-block px-3 py-1 bg-red-900/30 text-red-400 rounded text-xs">
-            Military Phase - End Turn to Execute Actions
-          </span>
+        {/* Military Readiness Bar */}
+        <div className="bg-white border-2 border-black retro-shadow p-3">
+          <HatchedBar
+            value={readiness}
+            label="COMBAT READINESS"
+            showDanger={true}
+          />
+        </div>
+
+      </div>
+
+      {/* Footer */}
+      <div className="shrink-0 p-3 bg-white border-t-2 border-black">
+        <div className="font-mono text-[9px] text-center text-gray-500 uppercase">
+          Military Phase — Actions execute at end of turn
         </div>
       </div>
-    </GameLayout>
+    </div>
   );
 }

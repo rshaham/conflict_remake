@@ -1,68 +1,92 @@
 // ============================================
-// Palestinian Screen - Manage Internal Situation
+// Territories Screen - Palestinian Situation
 // ============================================
+// Manage occupied territories and policing tactics
+// Renamed from Palestinian for hub navigation
 
-import { GameLayout } from '../components/layout/GameLayout';
+import { useNavigate } from 'react-router-dom';
+import { Scanlines } from '../components/ui/Scanlines';
+import { HatchedBar } from '../components/ui/HatchedBar';
 import { useGameStore } from '../store/gameStore';
 import { PalestinianEngine } from '../engine/PalestinianEngine';
 import type { PolicingTactic } from '../types/game';
 
 const PALESTINIAN_LEVELS = ['calm', 'unrest', 'protests', 'violence', 'intifada'] as const;
 
-const LEVEL_COLORS: Record<string, string> = {
-  calm: 'bg-green-500',
-  unrest: 'bg-yellow-500',
-  protests: 'bg-orange-500',
-  violence: 'bg-red-500',
-  intifada: 'bg-red-700',
+const LEVEL_STYLES: Record<string, { bg: string; text: string; border: string }> = {
+  calm: { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-600' },
+  unrest: { bg: 'bg-yellow-100', text: 'text-yellow-700', border: 'border-yellow-600' },
+  protests: { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-600' },
+  violence: { bg: 'bg-red-100', text: 'text-red-700', border: 'border-red-600' },
+  intifada: { bg: 'bg-red-200', text: 'text-red-800', border: 'border-red-800' },
 };
 
-const TACTIC_INFO: Record<PolicingTactic, { desc: string; warning?: string }> = {
+const TACTIC_INFO: Record<PolicingTactic, { name: string; desc: string; warning?: string; icon: string }> = {
   none: {
-    desc: 'No policing active. Situation may escalate.',
+    name: 'NO POLICING',
+    desc: 'No active enforcement. Situation may escalate freely.',
+    icon: '⚪',
   },
   soft: {
+    name: 'SOFT POLICING',
     desc: 'Minimal force. Requires 1 brigade. 50% escalation reduction.',
+    icon: '🛡️',
   },
   hard: {
+    name: 'HARD POLICING',
     desc: 'Aggressive enforcement. Requires 1 brigade. Prevents escalation.',
     warning: '-5 US attitude and +1 violence points per month.',
+    icon: '⚔️',
   },
 };
 
 export function PalestinianScreen() {
+  const navigate = useNavigate();
   const game = useGameStore((state) => state.game);
   const setPolicingTactic = useGameStore((state) => state.setPolicingTactic);
 
   if (!game) {
     return (
-      <GameLayout>
-        <div className="p-4 flex items-center justify-center h-full">
-          <p className="text-game-text-secondary">No game in progress</p>
-        </div>
-      </GameLayout>
+      <div className="min-h-screen bg-retro-bg flex items-center justify-center">
+        <Scanlines />
+        <p className="font-mono text-retro-text-dim">No game in progress</p>
+      </div>
     );
   }
 
   // Check if Palestinian homeland has been granted
   if (game.player.palestinianHomeland) {
     return (
-      <GameLayout>
-        <div className="p-4 pb-24">
-          <h2 className="text-xl font-bold text-game-text-primary mb-4">
-            Palestinian Situation
-          </h2>
-          <div className="card bg-green-900/20 border border-green-800">
-            <h3 className="text-lg font-bold text-green-400 mb-2">
-              Palestinian Homeland Established
-            </h3>
-            <p className="text-sm text-game-text-secondary">
-              The Palestinian question has been resolved through the UN Summit.
-              International recognition and US support have been secured.
-            </p>
+      <div className="min-h-screen flex flex-col bg-retro-bg">
+        <Scanlines />
+
+        {/* Header */}
+        <div className="shrink-0 p-3 bg-white border-b-2 border-black flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate('/game/hub')}
+            className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white retro-shadow-sm hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+          >
+            ←
+          </button>
+          <div>
+            <h1 className="font-pixel text-lg leading-none">TERRITORIES</h1>
+            <div className="font-mono text-[8px] text-gray-500 uppercase tracking-wider">Palestinian Issue</div>
           </div>
         </div>
-      </GameLayout>
+
+        {/* Content */}
+        <div className="flex-1 p-3">
+          <div className="bg-white border-2 border-green-600 retro-shadow p-6 text-center">
+            <div className="text-6xl mb-4">🕊️</div>
+            <div className="font-pixel text-xl text-green-700 mb-2">HOMELAND ESTABLISHED</div>
+            <div className="font-mono text-[10px] text-gray-600">
+              The Palestinian question has been resolved through the UN Summit.
+              International recognition and US support have been secured.
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -75,9 +99,9 @@ export function PalestinianScreen() {
   const warCount = game.wars.length;
   const escalationRisk = PalestinianEngine.getEscalationRisk(game);
 
-  // Calculate progress bar width
+  // Calculate level index for display
   const levelIndex = PALESTINIAN_LEVELS.indexOf(currentLevel);
-  const progressWidth = ((levelIndex + 1) / PALESTINIAN_LEVELS.length) * 100;
+  const levelStyle = LEVEL_STYLES[currentLevel] || LEVEL_STYLES.calm;
 
   // Calculate available brigades for policing
   const totalBrigades = game.player.arsenal.infantry_brigade || 0;
@@ -91,105 +115,136 @@ export function PalestinianScreen() {
   };
 
   return (
-    <GameLayout>
-      <div className="p-4 pb-24">
-        <h2 className="text-xl font-bold text-game-text-primary mb-4">
-          Palestinian Situation
-        </h2>
+    <div className="min-h-screen flex flex-col bg-retro-bg">
+      <Scanlines />
 
-        {/* Situation Meter */}
-        <div className="card mb-4">
-          <h3 className="text-sm text-game-text-secondary mb-2">Current Status</h3>
-          <div className="flex items-center gap-4">
-            <div className="flex-1">
-              <div className="h-3 bg-game-bg-dark rounded-full overflow-hidden">
-                <div
-                  className={`h-full ${LEVEL_COLORS[currentLevel]} rounded-full transition-all duration-500`}
-                  style={{ width: `${progressWidth}%` }}
-                />
+      {/* Header with back button */}
+      <div className="shrink-0 p-3 bg-white border-b-2 border-black flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => navigate('/game/hub')}
+          className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white retro-shadow-sm hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+        >
+          ←
+        </button>
+        <div>
+          <h1 className="font-pixel text-lg leading-none">TERRITORIES</h1>
+          <div className="font-mono text-[8px] text-gray-500 uppercase tracking-wider">Palestinian Issue</div>
+        </div>
+      </div>
+
+      {/* Terminal-style status display */}
+      <div className="shrink-0 px-3 py-2 bg-black text-green-500 font-mono text-[10px] flex justify-between items-center">
+        <span>OCCUPIED TERRITORIES STATUS</span>
+        <span className="flex items-center gap-2">
+          <span className={`w-2 h-2 ${currentLevel === 'calm' ? 'bg-green-500' : currentLevel === 'intifada' ? 'bg-red-500' : 'bg-yellow-500'} animate-pulse`} />
+          {PalestinianEngine.getLevelName(currentLevel).toUpperCase()}
+        </span>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+
+        {/* Large Status Meter */}
+        <div className="bg-white border-2 border-black retro-shadow p-4">
+          <div className="text-center mb-3">
+            <div className={`inline-block px-4 py-2 border-2 ${levelStyle.border} ${levelStyle.bg}`}>
+              <div className={`font-pixel text-2xl ${levelStyle.text}`}>
+                {PalestinianEngine.getLevelName(currentLevel).toUpperCase()}
               </div>
             </div>
-            <span className={`font-medium ${
-              currentLevel === 'calm' ? 'text-green-400' :
-              currentLevel === 'unrest' ? 'text-yellow-400' :
-              currentLevel === 'protests' ? 'text-orange-400' :
-              'text-red-400'
-            }`}>
-              {PalestinianEngine.getLevelName(currentLevel)}
-            </span>
           </div>
-          <div className="flex justify-between text-xs text-game-text-secondary mt-2">
-            {PALESTINIAN_LEVELS.map((level) => (
-              <span
-                key={level}
-                className={level === currentLevel ? 'text-game-text-primary font-medium' : ''}
-              >
-                {PalestinianEngine.getLevelName(level)}
-              </span>
-            ))}
+
+          {/* Level Progress Indicator */}
+          <div className="flex justify-between items-center gap-1 mb-2">
+            {PALESTINIAN_LEVELS.map((level, idx) => {
+              const isActive = idx === levelIndex;
+              const isPast = idx < levelIndex;
+              const style = LEVEL_STYLES[level];
+              return (
+                <div
+                  key={level}
+                  className={`flex-1 h-4 border-2 ${
+                    isActive
+                      ? `${style.border} ${style.bg}`
+                      : isPast
+                      ? `${style.border} ${style.bg} opacity-50`
+                      : 'border-gray-300 bg-gray-100'
+                  }`}
+                />
+              );
+            })}
+          </div>
+
+          <div className="flex justify-between font-mono text-[8px] text-gray-500">
+            <span>CALM</span>
+            <span>INTIFADA</span>
           </div>
         </div>
 
         {/* Escalation Risk */}
-        <div className="card mb-4">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="text-sm text-game-text-secondary">Escalation Risk</h3>
-            <span className={`text-lg font-bold ${
-              escalationRisk === 0 ? 'text-green-400' :
-              escalationRisk < 0.2 ? 'text-yellow-400' :
-              escalationRisk < 0.4 ? 'text-orange-400' :
-              'text-red-400'
+        <div className="bg-white border-2 border-black retro-shadow p-3">
+          <div className="font-mono font-bold text-xs uppercase mb-2 pb-1 border-b border-gray-300 flex justify-between">
+            <span>Escalation Risk</span>
+            <span className={`${
+              escalationRisk === 0 ? 'text-green-600' :
+              escalationRisk < 0.2 ? 'text-yellow-600' :
+              escalationRisk < 0.4 ? 'text-orange-600' :
+              'text-red-600'
             }`}>
               {Math.round(escalationRisk * 100)}%
             </span>
           </div>
-          <div className="h-2 bg-game-bg-dark rounded-full overflow-hidden">
-            <div
-              className={`h-full transition-all duration-300 ${
-                escalationRisk === 0 ? 'bg-green-500' :
-                escalationRisk < 0.2 ? 'bg-yellow-500' :
-                escalationRisk < 0.4 ? 'bg-orange-500' :
-                'bg-red-500'
-              }`}
-              style={{ width: `${Math.min(100, escalationRisk * 100)}%` }}
-            />
-          </div>
+          <HatchedBar
+            value={100 - Math.round(escalationRisk * 100)}
+            label="STABILITY"
+            showDanger={true}
+          />
         </div>
 
         {/* External Factors */}
-        <div className="card mb-4">
-          <h3 className="text-sm text-game-text-secondary mb-2">External Factors</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-game-text-secondary">
-                Hostile Neighbors ({hostileCount})
-              </span>
-              <span className={hostileCount > 0 ? 'text-yellow-400' : 'text-green-400'}>
-                {hostileCount > 0 ? `+${hostileCount * 10}% risk` : 'None'}
-              </span>
+        <div className="bg-white border-2 border-black retro-shadow p-3">
+          <div className="font-mono font-bold text-xs uppercase mb-2 pb-1 border-b border-gray-300">
+            External Factors
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div className={`p-2 border ${hostileCount > 0 ? 'border-yellow-400 bg-yellow-50' : 'border-green-400 bg-green-50'}`}>
+              <div className="font-mono text-lg font-bold text-center">
+                {hostileCount}
+              </div>
+              <div className="font-mono text-[8px] text-center text-gray-600">
+                HOSTILE NEIGHBORS
+              </div>
+              {hostileCount > 0 && (
+                <div className="font-mono text-[8px] text-center text-yellow-700">
+                  +{hostileCount * 10}% risk
+                </div>
+              )}
             </div>
-            <div className="flex justify-between">
-              <span className="text-game-text-secondary">
-                Active Wars ({warCount})
-              </span>
-              <span className={warCount > 0 ? 'text-red-400' : 'text-green-400'}>
-                {warCount > 0 ? `+${warCount * 20}% risk` : 'None'}
-              </span>
+            <div className={`p-2 border ${warCount > 0 ? 'border-red-400 bg-red-50' : 'border-green-400 bg-green-50'}`}>
+              <div className="font-mono text-lg font-bold text-center">
+                {warCount}
+              </div>
+              <div className="font-mono text-[8px] text-center text-gray-600">
+                ACTIVE WARS
+              </div>
+              {warCount > 0 && (
+                <div className="font-mono text-[8px] text-center text-red-700">
+                  +{warCount * 20}% risk
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Policing Tactics */}
-        <div className="card mb-4">
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="text-lg font-bold text-game-text-primary">
-              Policing Tactics
-            </h3>
-            <span className="text-sm text-game-text-secondary">
-              {availableBrigades} brigade{availableBrigades !== 1 ? 's' : ''} available
-            </span>
+        <div className="bg-white border-2 border-black retro-shadow p-3">
+          <div className="font-mono font-bold text-xs uppercase mb-2 pb-1 border-b border-gray-300 flex justify-between">
+            <span>Policing Tactics</span>
+            <span className="text-blue-600">{availableBrigades} BRIGADES FREE</span>
           </div>
-          <div className="space-y-3">
+
+          <div className="space-y-2">
             {(['none', 'soft', 'hard'] as PolicingTactic[]).map((tactic) => {
               const isSelected = currentTactic === tactic;
               const canSelect = PalestinianEngine.canSetPolicingTactic(game, tactic);
@@ -199,41 +254,44 @@ export function PalestinianScreen() {
               return (
                 <button
                   key={tactic}
+                  type="button"
                   onClick={() => handleTacticSelect(tactic)}
                   disabled={!canSelect}
-                  className={`w-full p-3 rounded-lg text-left transition-colors ${
+                  className={`w-full p-3 border-2 text-left transition-all ${
                     isSelected
                       ? tactic === 'hard'
-                        ? 'bg-red-900/50 border border-red-700'
-                        : 'bg-game-accent'
+                        ? 'border-red-600 bg-red-50'
+                        : 'border-black bg-gray-100 retro-shadow-sm'
                       : canSelect
-                        ? 'bg-game-bg-dark hover:bg-gray-700'
-                        : 'bg-game-bg-dark opacity-50 cursor-not-allowed'
-                  } ${tactic === 'hard' && !isSelected ? 'border border-red-900' : ''}`}
+                        ? 'border-gray-300 bg-white hover:border-gray-500'
+                        : 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed'
+                  }`}
                 >
-                  <div className="flex justify-between items-center">
-                    <span className={`font-medium ${
-                      tactic === 'hard' ? 'text-red-400' :
-                      isSelected ? 'text-white' : 'text-game-text-primary'
-                    }`}>
-                      {PalestinianEngine.getTacticName(tactic)}
-                    </span>
-                    {brigadesRequired > 0 && (
-                      <span className={`text-xs px-2 py-0.5 rounded ${
-                        canSelect ? 'bg-blue-900/50 text-blue-400' : 'bg-red-900/50 text-red-400'
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{info.icon}</span>
+                      <span className={`font-mono font-bold text-xs ${
+                        tactic === 'hard' ? 'text-red-700' : ''
                       }`}>
-                        {brigadesRequired} brigade
+                        {info.name}
+                      </span>
+                    </div>
+                    {brigadesRequired > 0 && (
+                      <span className={`font-mono text-[9px] px-2 py-0.5 border ${
+                        canSelect
+                          ? 'border-blue-400 bg-blue-50 text-blue-700'
+                          : 'border-red-400 bg-red-50 text-red-700'
+                      }`}>
+                        {brigadesRequired} BRIGADE
                       </span>
                     )}
                   </div>
-                  <div className={`text-sm mt-1 ${
-                    isSelected ? 'text-white text-opacity-80' : 'text-game-text-secondary'
-                  }`}>
+                  <div className="font-mono text-[10px] text-gray-600 ml-8">
                     {info.desc}
                   </div>
                   {info.warning && (
-                    <div className="text-xs text-red-400 mt-1">
-                      {info.warning}
+                    <div className="font-mono text-[9px] text-red-600 ml-8 mt-1">
+                      ⚠ {info.warning}
                     </div>
                   )}
                 </button>
@@ -243,39 +301,47 @@ export function PalestinianScreen() {
         </div>
 
         {/* Knesset Pressure */}
-        <div className="card">
-          <h3 className="text-sm text-game-text-secondary mb-2">Knesset Pressure</h3>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 h-2 bg-game-bg-dark rounded-full overflow-hidden">
-              <div
-                className="h-full bg-red-500 rounded-full transition-all duration-300"
-                style={{ width: `${(knessetDisapproval / 10) * 100}%` }}
-              />
-            </div>
-            <span className={`font-medium ${
-              knessetDisapproval >= 8 ? 'text-red-400' :
-              knessetDisapproval >= 5 ? 'text-yellow-400' :
-              'text-game-text-primary'
+        <div className={`bg-white border-2 ${knessetDisapproval >= 8 ? 'border-red-600' : 'border-black'} retro-shadow p-3`}>
+          <div className="font-mono font-bold text-xs uppercase mb-2 pb-1 border-b border-gray-300 flex justify-between">
+            <span>Knesset Pressure</span>
+            <span className={`${
+              knessetDisapproval >= 8 ? 'text-red-600' :
+              knessetDisapproval >= 5 ? 'text-yellow-600' :
+              'text-gray-600'
             }`}>
-              {knessetDisapproval.toFixed(1)}/10
+              {knessetDisapproval.toFixed(1)} / 10
             </span>
           </div>
-          <p className="text-xs text-game-text-secondary mt-2">
-            {knessetDisapproval >= 8
-              ? 'CRITICAL: You are close to being removed from office!'
+
+          <HatchedBar
+            value={100 - (knessetDisapproval * 10)}
+            label="COALITION STABILITY"
+            showDanger={true}
+          />
+
+          <div className={`mt-2 p-2 font-mono text-[10px] ${
+            knessetDisapproval >= 8
+              ? 'bg-red-100 border border-red-400 text-red-700'
               : knessetDisapproval >= 5
-                ? 'Warning: Parliament is growing restless.'
-                : 'Reach 10 and you will be removed from office.'}
-          </p>
+              ? 'bg-yellow-100 border border-yellow-400 text-yellow-700'
+              : 'bg-gray-100 border border-gray-300 text-gray-600'
+          }`}>
+            {knessetDisapproval >= 8
+              ? '⚠ CRITICAL: Coalition on verge of collapse!'
+              : knessetDisapproval >= 5
+              ? '⚠ WARNING: Parliament growing restless'
+              : 'Reach 10 points and you will be removed from office'}
+          </div>
         </div>
 
-        {/* Phase Indicator */}
-        <div className="mt-6 text-center">
-          <span className="inline-block px-3 py-1 bg-purple-900/30 text-purple-400 rounded text-xs">
-            Palestinian Phase
-          </span>
+      </div>
+
+      {/* Footer */}
+      <div className="shrink-0 p-3 bg-white border-t-2 border-black">
+        <div className="font-mono text-[9px] text-center text-gray-500 uppercase">
+          Territories Phase — Policing applied at end of turn
         </div>
       </div>
-    </GameLayout>
+    </div>
   );
 }

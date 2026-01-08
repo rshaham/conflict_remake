@@ -1,111 +1,164 @@
 // ============================================
-// News Screen - Turn Start Headlines
+// News Screen - Dot Matrix Bulletin Style
 // ============================================
 
-import { GameLayout } from '../components/layout/GameLayout';
+import { useNavigate } from 'react-router-dom';
+import { Panel } from '../components/ui/Panel';
+import { Scanlines } from '../components/ui/Scanlines';
 import { useGameStore } from '../store/gameStore';
 import type { GameState } from '../types/game';
 
 const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
+  'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
+  'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
 ];
 
 export function NewsScreen() {
+  const navigate = useNavigate();
   const game = useGameStore((state) => state.game);
 
   // If no game is loaded, show placeholder
   if (!game) {
     return (
-      <GameLayout>
-        <div className="p-4 flex items-center justify-center h-full">
-          <p className="text-game-text-secondary">No game in progress</p>
-        </div>
-      </GameLayout>
+      <div className="min-h-screen bg-retro-bg flex items-center justify-center">
+        <Scanlines />
+        <p className="font-mono text-retro-text-dim">No game in progress</p>
+      </div>
     );
   }
 
   const monthName = MONTH_NAMES[game.month - 1];
+  const dateStr = `${monthName} ${String(game.turn).padStart(2, '0')} ${game.year}`;
 
   // Generate contextual headlines based on game state
   const headlines = generateHeadlines(game);
+  const mainHeadline = headlines[0];
+  const secondaryHeadlines = headlines.slice(1, 3);
+
+  // Generate ticker items
+  const ticker = generateTicker(game);
+
+  const handleProceed = () => {
+    navigate('/game/hub');
+  };
 
   return (
-    <GameLayout>
-      <div className="p-4 pb-24">
-        {/* Newspaper Header */}
-        <div className="card mb-4 text-center border-b-4 border-game-accent">
-          <p className="text-xs text-game-text-secondary uppercase tracking-wider">
-            The Jerusalem Post
-          </p>
-          <h1 className="text-2xl font-bold text-game-text-primary mt-1">
-            Regional News
-          </h1>
-          <p className="text-sm text-game-text-secondary">
-            {monthName} {game.year} - Turn {game.turn}
-          </p>
-        </div>
+    <div className="min-h-screen flex flex-col bg-retro-bg">
+      <Scanlines />
 
-        {/* Headlines */}
-        <div className="space-y-3">
-          {headlines.map((headline, index) => (
-            <div key={index} className={`card ${headline.urgent ? 'border-l-4 border-red-500' : ''}`}>
-              <div className="flex items-start gap-2">
-                {headline.urgent && (
-                  <span className="text-red-400 text-xs font-bold uppercase">Breaking</span>
-                )}
-              </div>
-              <h3 className="font-medium text-game-text-primary">
-                {headline.title}
-              </h3>
-              <p className="text-sm text-game-text-secondary mt-1">
-                {headline.body}
-              </p>
-            </div>
-          ))}
-        </div>
+      {/* Header bar */}
+      <div className="shrink-0 p-3 bg-white border-b-2 border-black flex justify-between items-center">
+        <span className="font-pixel text-2xl">THE CONFLICT</span>
+        <span className="font-mono text-[9px] bg-black text-white px-2 py-0.5">
+          VOL.{String(game.year).slice(-2)}.{game.turn}
+        </span>
+      </div>
 
-        {/* Game Status Summary */}
-        <div className="card mt-6 bg-game-bg-dark">
-          <h3 className="text-sm font-semibold text-game-text-secondary uppercase mb-3">
-            Situation Report
-          </h3>
-          <div className="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <span className="text-game-text-secondary">Active Wars:</span>
-              <span className={`ml-2 ${game.wars.length > 0 ? 'text-red-400' : 'text-green-400'}`}>
-                {game.wars.length}
-              </span>
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-3">
+        <Panel className="p-4">
+          {/* Classification tag */}
+          <div className="bg-black text-white font-mono text-[8px] font-bold px-2 py-1 inline-block mb-3 uppercase transform -rotate-1">
+            Classified // Eyes Only
+          </div>
+
+          {/* Main headline */}
+          <h2 className="font-pixel text-3xl leading-tight mb-3 bg-gray-100 p-2 border-l-4 border-black">
+            {mainHeadline.title.toUpperCase()}
+          </h2>
+
+          <p className="font-mono text-[11px] leading-relaxed mb-4">
+            <span className="float-left text-4xl font-pixel mr-2 mt-[-2px]">
+              {mainHeadline.body.charAt(0)}
+            </span>
+            {mainHeadline.body.slice(1)}
+          </p>
+
+          {/* ASCII divider */}
+          <div className="text-center font-mono text-gray-300 text-[8px] tracking-[0.4em] my-4">
+            ++++++++++++++++++
+          </div>
+
+          {/* Secondary stories */}
+          {secondaryHeadlines.length > 0 && (
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              {secondaryHeadlines.map((headline, i) => (
+                <div key={i} className="border-2 border-black p-2 bg-gray-50">
+                  <h3 className="font-mono font-bold text-[9px] border-b border-black inline-block mb-1">
+                    {headline.title.toUpperCase().slice(0, 20)}
+                  </h3>
+                  <p className="font-mono text-[8px] text-gray-600">
+                    {headline.body.slice(0, 50)}...
+                  </p>
+                </div>
+              ))}
             </div>
-            <div>
-              <span className="text-game-text-secondary">Budget:</span>
-              <span className="ml-2 text-green-400">
-                ${(game.player.budget / 1000000).toFixed(0)}M
-              </span>
-            </div>
-            <div>
-              <span className="text-game-text-secondary">Prestige:</span>
-              <span className="ml-2 text-game-text-primary">
-                {game.player.prestige}
-              </span>
-            </div>
-            <div>
-              <span className="text-game-text-secondary">US Relations:</span>
-              <span className={`ml-2 ${game.player.usAttitude >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {game.player.usAttitude > 0 ? '+' : ''}{game.player.usAttitude}
-              </span>
+          )}
+
+          {/* Ticker */}
+          <div className="border-2 border-black p-2 bg-white mb-4">
+            <h4 className="font-pixel text-sm mb-2">TICKER</h4>
+            <div className="font-mono text-[9px] space-y-1 text-gray-600">
+              {ticker.map((t, i) => (
+                <div key={i}>{'>'} {t}</div>
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* Phase indicator */}
-        <div className="mt-6 text-center">
-          <span className="inline-block px-3 py-1 bg-blue-900/30 text-blue-400 rounded text-xs">
-            News Phase - Review headlines and continue
-          </span>
-        </div>
+          {/* Action box */}
+          <div className="border-2 border-red-600 p-3 bg-red-50 relative retro-shadow-red">
+            <div className="absolute -top-2.5 left-3 bg-red-600 text-white px-2 py-0.5 text-[8px] font-mono font-bold uppercase">
+              Action Required
+            </div>
+            <p className="font-mono text-[10px] font-bold text-red-900 mb-3 mt-1">
+              {game.wars.length > 0
+                ? 'MILITARY SITUATION REQUIRES IMMEDIATE ATTENTION.'
+                : 'CABINET AWAITS YOUR DIRECTIVES FOR THIS MONTH.'}
+            </p>
+            <button
+              type="button"
+              onClick={handleProceed}
+              className="w-full py-2 bg-red-600 text-white font-mono font-bold text-xs uppercase border-2 border-black retro-shadow-sm hover:bg-red-700 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
+            >
+              PROCEED TO COMMAND CENTER
+            </button>
+          </div>
+        </Panel>
+
+        {/* Situation Report */}
+        <Panel className="p-3 mt-3">
+          <div className="font-mono font-bold text-[10px] border-b-2 border-black pb-2 mb-3">
+            SITUATION REPORT — {dateStr}
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="border-2 border-black p-2 bg-gray-50">
+              <div className="font-mono text-[8px] text-gray-500 font-bold">ACTIVE WARS</div>
+              <div className={`font-mono text-lg font-bold ${game.wars.length > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                {game.wars.length}
+              </div>
+            </div>
+            <div className="border-2 border-black p-2 bg-gray-50">
+              <div className="font-mono text-[8px] text-gray-500 font-bold">BUDGET</div>
+              <div className="font-mono text-lg font-bold text-green-700">
+                ${(game.player.budget / 1000000).toFixed(0)}M
+              </div>
+            </div>
+            <div className="border-2 border-black p-2 bg-gray-50">
+              <div className="font-mono text-[8px] text-gray-500 font-bold">PRESTIGE</div>
+              <div className="font-mono text-lg font-bold">
+                {game.player.prestige}
+              </div>
+            </div>
+            <div className="border-2 border-black p-2 bg-gray-50">
+              <div className="font-mono text-[8px] text-gray-500 font-bold">US ATTITUDE</div>
+              <div className={`font-mono text-lg font-bold ${game.player.usAttitude >= 0 ? 'text-green-700' : 'text-red-600'}`}>
+                {game.player.usAttitude > 0 ? '+' : ''}{game.player.usAttitude}
+              </div>
+            </div>
+          </div>
+        </Panel>
       </div>
-    </GameLayout>
+    </div>
   );
 }
 
@@ -127,7 +180,7 @@ function generateHeadlines(game: GameState): Headline[] {
         title: `War with ${enemyName} Continues`,
         body: `Fighting continues on the ${enemyName}i front. Military commanders report ${
           war.progress > 0 ? 'steady progress' : war.progress < 0 ? 'fierce resistance' : 'a stalemate'
-        }.`,
+        }. Casualty reports remain classified.`,
         urgent: true,
       });
     }
@@ -141,7 +194,7 @@ function generateHeadlines(game: GameState): Headline[] {
   if (hostileCountries.length > 0 && game.wars.length === 0) {
     headlines.push({
       title: 'Tensions High with Neighboring States',
-      body: `Relations with ${hostileCountries.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(' and ')} remain hostile. Analysts warn of potential conflict.`,
+      body: `Relations with ${hostileCountries.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(' and ')} remain hostile. Intelligence analysts warn of potential military mobilization along borders.`,
       urgent: true,
     });
   }
@@ -155,7 +208,7 @@ function generateHeadlines(game: GameState): Headline[] {
     const name = defeatedThisTurn[0].charAt(0).toUpperCase() + defeatedThisTurn[0].slice(1);
     headlines.push({
       title: `${name} Government Collapses`,
-      body: `The government of ${name} has fallen. Regional power dynamics shift dramatically.`,
+      body: `The government of ${name} has fallen following sustained military pressure. Regional power dynamics shift dramatically as neighboring states reassess their positions.`,
       urgent: true,
     });
   }
@@ -163,22 +216,22 @@ function generateHeadlines(game: GameState): Headline[] {
   // Nuclear progress
   if (game.player.nuclearStage !== 'none' && game.player.nuclearStage !== 'operational') {
     headlines.push({
-      title: 'Nuclear Program Advances',
-      body: `Israel's nuclear program continues in the ${game.player.nuclearStage} phase. International observers express concern.`,
+      title: 'Project Jericho Advances',
+      body: `Classified reports indicate Israel's strategic deterrent program continues in the ${game.player.nuclearStage} phase. International observers express growing concern.`,
     });
   }
 
   // Palestinian situation
   if (game.player.palestinianLevel !== 'calm') {
     const levelNames = {
-      unrest: 'grows restless',
-      protests: 'protests across territories',
-      violence: 'violent clashes reported',
-      intifada: 'full intifada underway',
+      unrest: 'grows increasingly restless',
+      protests: 'see protests spreading across territories',
+      violence: 'report violent clashes between security forces and protesters',
+      intifada: 'face full-scale intifada conditions',
     };
     headlines.push({
-      title: 'Palestinian Situation Deteriorates',
-      body: `The Palestinian territories see ${levelNames[game.player.palestinianLevel as keyof typeof levelNames]}. Government response under scrutiny.`,
+      title: 'Palestinian Territories Destabilize',
+      body: `The occupied territories ${levelNames[game.player.palestinianLevel as keyof typeof levelNames]}. Cabinet urges decisive response.`,
       urgent: game.player.palestinianLevel === 'intifada',
     });
   }
@@ -187,15 +240,41 @@ function generateHeadlines(game: GameState): Headline[] {
   if (headlines.length === 0) {
     headlines.push({
       title: 'Relative Calm in the Region',
-      body: 'Diplomatic channels remain open as the new government consolidates power.',
+      body: `Diplomatic channels remain open as the government consolidates power. Regional analysts note cautious optimism among neighboring states regarding potential negotiations.`,
     });
   }
 
   // Always add a regional context headline
   headlines.push({
-    title: 'Regional Analysis',
-    body: `As Prime Minister, you face ${game.wars.length > 0 ? 'ongoing military challenges' : 'complex diplomatic negotiations'}. Your decisions will shape Israel's future.`,
+    title: 'Cabinet Analysis',
+    body: `As Prime Minister, you face ${game.wars.length > 0 ? 'ongoing military challenges requiring immediate attention' : 'complex diplomatic negotiations on multiple fronts'}. Your decisions this month will shape Israel's strategic position.`,
   });
 
   return headlines;
+}
+
+function generateTicker(game: GameState): string[] {
+  const items: string[] = [];
+
+  // Current time simulation
+  items.push(`08:00 TURN ${game.turn} BEGINS`);
+
+  // Wars
+  if (game.wars.length > 0) {
+    items.push(`07:30 ${game.wars.length} ACTIVE FRONT${game.wars.length > 1 ? 'S' : ''}`);
+  }
+
+  // Budget
+  const budgetM = Math.floor(game.player.budget / 1000000);
+  items.push(`07:00 TREASURY: $${budgetM}M`);
+
+  // US Relations
+  items.push(`06:30 US STANCE: ${game.player.usAttitude >= 0 ? 'FAVORABLE' : 'CRITICAL'}`);
+
+  // Palestinian
+  if (game.player.palestinianLevel !== 'calm') {
+    items.push(`06:00 TERRITORIES: ${game.player.palestinianLevel.toUpperCase()}`);
+  }
+
+  return items.slice(0, 4);
 }

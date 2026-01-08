@@ -1,5 +1,5 @@
 // ============================================
-// Title Screen - Main Menu
+// Title Screen - BIOS Boot Style
 // ============================================
 
 import { useNavigate } from 'react-router-dom';
@@ -7,11 +7,7 @@ import { useEffect, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { loadAllGameData } from '../data/loader';
 import type { GameData } from '../types/data';
-
-const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-];
+import { Scanlines } from '../components/ui/Scanlines';
 
 interface SaveInfo {
   turn: number;
@@ -43,11 +39,9 @@ export function TitleScreen() {
   const [gameData, setGameData] = useState<GameData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize save info synchronously (reading from localStorage is sync)
   const saveInfo = getSaveInfo();
 
   useEffect(() => {
-    // Load game data on mount
     loadAllGameData()
       .then((data) => {
         console.log('Game data loaded:', data);
@@ -67,31 +61,45 @@ export function TitleScreen() {
   };
 
   const handleContinue = () => {
-    // Zustand persist automatically restores state, so just navigate
     if (existingGame) {
       navigate('/game/news');
     }
   };
 
+  // Loading state - terminal style
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-game-bg-dark flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin w-12 h-12 border-4 border-game-accent border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-game-text-secondary">Loading game data...</p>
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6">
+        <Scanlines />
+        <div className="terminal p-6 w-full max-w-xs text-center terminal-glow">
+          <div className="text-green-500 font-mono text-sm mb-4">
+            LOADING SYSTEM...
+          </div>
+          <div className="text-green-700 font-mono text-xs animate-pulse">
+            ████████████████
+          </div>
         </div>
       </div>
     );
   }
 
+  // Error state - terminal style
   if (error) {
     return (
-      <div className="min-h-screen bg-game-bg-dark flex items-center justify-center p-4">
-        <div className="card text-center max-w-md">
-          <h2 className="text-xl font-bold text-red-500 mb-2">Error Loading Game</h2>
-          <p className="text-game-text-secondary mb-4">{error}</p>
-          <button onClick={() => window.location.reload()} className="btn-primary">
-            Retry
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6">
+        <Scanlines />
+        <div className="terminal p-6 w-full max-w-xs text-center">
+          <div className="text-red-500 font-mono text-sm mb-4">
+            SYSTEM ERROR
+          </div>
+          <div className="text-red-400 font-mono text-xs mb-4">
+            {error}
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full py-2 bg-red-900/20 border-2 border-red-500 text-red-500 font-mono font-bold text-xs hover:bg-red-500 hover:text-black transition-all"
+          >
+            [ RETRY ]
           </button>
         </div>
       </div>
@@ -99,57 +107,69 @@ export function TitleScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-game-bg-dark flex flex-col items-center justify-center p-4">
-      {/* Title */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-game-text-primary mb-2">
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 relative">
+      <Scanlines />
+
+      {/* Main terminal container */}
+      <div className="border-2 border-green-500 p-6 w-full max-w-xs text-center terminal-glow">
+        {/* BIOS header */}
+        <div className="text-green-600 font-mono text-[9px] mb-6 flex justify-between">
+          <span>BIOS 01/01/97</span>
+          <span>640K OK</span>
+        </div>
+
+        {/* Title */}
+        <h1 className="font-pixel text-6xl text-green-500 leading-none mb-2">
           CONFLICT
         </h1>
-        <h2 className="text-xl text-game-accent">
-          Middle East Political Simulator
+        <h2 className="font-mono text-green-700 text-[10px] tracking-[0.25em] mb-8 border-y border-green-900 py-2">
+          MIDDLE EAST SIMULATION
         </h2>
-        <p className="text-sm text-game-text-secondary mt-2">
-          A remake of the 1990 classic
-        </p>
+
+        {/* Menu buttons */}
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={handleNewGame}
+            className="w-full py-3 bg-green-900/20 border-2 border-green-500 text-green-500 font-mono font-bold text-xs hover:bg-green-500 hover:text-black transition-all"
+          >
+            [ INITIALIZE ]
+          </button>
+
+          <button
+            type="button"
+            onClick={handleContinue}
+            disabled={!saveInfo || !existingGame}
+            className={`w-full py-2 border font-mono text-[10px] transition-all ${
+              saveInfo && existingGame
+                ? 'border-green-500 text-green-500 hover:border-green-400 hover:text-green-400'
+                : 'border-green-900 text-green-900 cursor-not-allowed'
+            }`}
+          >
+            {saveInfo
+              ? `LOAD SAVE — TURN ${saveInfo.turn}`
+              : 'NO SAVE DATA'
+            }
+          </button>
+        </div>
+
+        {/* Copyright */}
+        <div className="mt-6 text-green-900 text-[9px] font-mono">
+          (C) 1990-1997 DISCOVERY
+        </div>
+
+        {/* Data loaded indicator */}
+        {gameData && (
+          <div className="mt-2 text-green-800 text-[8px] font-mono">
+            {Object.keys(gameData.countries.countries).length} NATIONS LOADED
+          </div>
+        )}
       </div>
 
-      {/* Menu Buttons */}
-      <div className="flex flex-col gap-4 w-full max-w-xs">
-        <button onClick={handleNewGame} className="btn-primary text-lg py-4">
-          New Game
-        </button>
-
-        <button
-          onClick={handleContinue}
-          className="btn-secondary"
-          disabled={!saveInfo || !existingGame}
-        >
-          {saveInfo
-            ? `Continue (Turn ${saveInfo.turn}, ${MONTH_NAMES[saveInfo.month - 1]} ${saveInfo.year})`
-            : 'Continue (No save found)'
-          }
-        </button>
-
-        <button className="btn-secondary" disabled>
-          Settings
-        </button>
-
-        <button className="btn-secondary" disabled>
-          How to Play
-        </button>
+      {/* Command prompt footer */}
+      <div className="absolute bottom-6 font-mono text-green-700 text-[10px]">
+        C:\{'>'} <span className="animate-pulse">█</span>
       </div>
-
-      {/* Data loaded indicator (for debugging) */}
-      {gameData && (
-        <p className="text-xs text-game-text-secondary mt-8">
-          ✓ {Object.keys(gameData.countries.countries).length} countries loaded
-        </p>
-      )}
-
-      {/* Footer */}
-      <p className="text-xs text-game-text-secondary mt-8 text-center">
-        Phase 3 - Full Gameplay Implementation
-      </p>
     </div>
   );
 }

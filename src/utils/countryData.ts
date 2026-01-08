@@ -35,6 +35,20 @@ export const COUNTRY_FLAGS: Record<CountryId, string> = {
 };
 
 /**
+ * 3-letter country codes for compact display
+ */
+export const COUNTRY_CODES: Record<CountryId, string> = {
+  israel: 'ISR',
+  egypt: 'EGY',
+  syria: 'SYR',
+  jordan: 'JOR',
+  lebanon: 'LBN',
+  iraq: 'IRQ',
+  iran: 'IRN',
+  libya: 'LBY',
+};
+
+/**
  * Get display name for a country
  */
 export function getCountryName(id: CountryId): string {

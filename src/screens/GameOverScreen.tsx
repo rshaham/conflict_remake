@@ -1,15 +1,18 @@
 // ============================================
 // Game Over Screen - End Game Summary
 // ============================================
+// Victory or defeat summary with statistics
 
 import { useNavigate } from 'react-router-dom';
+import { Scanlines } from '../components/ui/Scanlines';
 import { useGameStore } from '../store/gameStore';
+import { COUNTRY_NAMES, COUNTRY_FLAGS } from '../utils/countryData';
 
 export function GameOverScreen() {
   const navigate = useNavigate();
   const game = useGameStore((state) => state.game);
 
-  // Get end state from game, or show placeholder
+  // Get end state from game
   const endState = game?.endState;
 
   const isVictory = endState?.type === 'victory';
@@ -19,118 +22,141 @@ export function GameOverScreen() {
   const statistics = endState?.statistics;
 
   const conditionNames: Record<string, string> = {
-    total_victory: 'Total Victory',
-    military_defeat: 'Military Defeat',
-    nuclear_holocaust: 'Nuclear Holocaust',
-    impeachment: 'Impeachment',
-    assassination: 'Assassination',
+    total_victory: 'TOTAL VICTORY',
+    military_defeat: 'MILITARY DEFEAT',
+    nuclear_holocaust: 'NUCLEAR HOLOCAUST',
+    impeachment: 'IMPEACHMENT',
+    assassination: 'ASSASSINATION',
   };
 
   const handlePlayAgain = () => {
-    // Reset game state would happen in newGame
     navigate('/');
   };
 
   return (
-    <div className="min-h-screen bg-game-bg-dark p-4 flex flex-col">
-      {/* Result Header */}
-      <div className="text-center py-8">
-        <div className="text-6xl mb-4">
-          {isVictory ? '\u{1F3C6}' : '\u{1F480}'}
+    <div className="min-h-screen flex flex-col bg-retro-bg">
+      <Scanlines />
+
+      {/* Header */}
+      <div className={`shrink-0 p-6 bg-white border-b-4 ${isVictory ? 'border-green-600' : 'border-red-600'} text-center`}>
+        <div className="text-6xl mb-2">
+          {isVictory ? '🏆' : '💀'}
         </div>
-        <h1 className={`text-3xl font-bold ${isVictory ? 'text-green-400' : 'text-red-400'}`}>
-          {isVictory ? 'Victory!' : 'Defeat'}
+        <h1 className={`font-pixel text-3xl ${isVictory ? 'text-green-700' : 'text-red-700'}`}>
+          {isVictory ? 'VICTORY' : 'DEFEAT'}
         </h1>
-        <p className="text-game-text-secondary mt-2">
-          {endState?.condition ? conditionNames[endState.condition] : 'Game Over'}
-        </p>
+        <div className={`font-mono text-xs ${isVictory ? 'text-green-600' : 'text-red-600'} mt-1`}>
+          {endState?.condition ? conditionNames[endState.condition] : 'GAME OVER'}
+        </div>
       </div>
 
-      {/* Score */}
-      <div className="card mb-4 text-center">
-        <p className="text-sm text-game-text-secondary">Final Score</p>
-        <p className="text-4xl font-bold text-game-accent">{score}</p>
+      {/* Terminal-style display */}
+      <div className={`shrink-0 px-3 py-2 bg-black ${isVictory ? 'text-green-500' : 'text-red-500'} font-mono text-[10px] flex justify-between items-center`}>
+        <span>GAME COMPLETE</span>
+        <span className="flex items-center gap-2">
+          <span className={`w-2 h-2 ${isVictory ? 'bg-green-500' : 'bg-red-500'}`} />
+          FINAL REPORT
+        </span>
       </div>
 
-      {/* Leadership Style */}
-      <div className="card mb-4">
-        <p className="text-sm text-game-text-secondary mb-1">Leadership Style</p>
-        <p className="text-xl font-bold text-game-text-primary">{leadershipStyle}</p>
-      </div>
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-3">
 
-      {/* Statistics */}
-      {statistics && (
-        <div className="card mb-4">
-          <h3 className="font-bold text-game-text-primary mb-3">Statistics</h3>
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-game-text-secondary">Turns Played</span>
-              <span className="text-game-text-primary">{statistics.turnsPlayed}</span>
+        {/* Score Display */}
+        <div className="bg-white border-2 border-black retro-shadow p-4 text-center">
+          <div className="font-mono text-[10px] text-gray-500 uppercase mb-1">Final Score</div>
+          <div className="font-pixel text-4xl text-blue-600">{score}</div>
+        </div>
+
+        {/* Leadership Style */}
+        <div className="bg-white border-2 border-black retro-shadow p-3">
+          <div className="font-mono font-bold text-xs uppercase mb-1 pb-1 border-b border-gray-300">
+            Leadership Style
+          </div>
+          <div className="font-pixel text-lg text-center py-2">{leadershipStyle}</div>
+        </div>
+
+        {/* Statistics */}
+        {statistics && (
+          <div className="bg-white border-2 border-black retro-shadow p-3">
+            <div className="font-mono font-bold text-xs uppercase mb-2 pb-1 border-b border-gray-300">
+              Statistics
             </div>
-            <div className="flex justify-between">
-              <span className="text-game-text-secondary">Wars Won</span>
-              <span className="text-game-text-primary">{statistics.warsWon}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-game-text-secondary">Wars Lost</span>
-              <span className="text-game-text-primary">{statistics.warsLost}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-game-text-secondary">Countries Defeated</span>
-              <span className="text-game-text-primary">{statistics.countriesDefeated.length}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-game-text-secondary">Weapons Purchased</span>
-              <span className="text-game-text-primary">{statistics.totalWeaponsPurchased}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-game-text-secondary">Peak Prestige</span>
-              <span className="text-game-text-primary">{statistics.peakPrestige}</span>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-2 border border-gray-300 bg-gray-50 text-center">
+                <div className="font-mono text-lg font-bold">{statistics.turnsPlayed}</div>
+                <div className="font-mono text-[8px] text-gray-500">TURNS PLAYED</div>
+              </div>
+              <div className="p-2 border border-gray-300 bg-gray-50 text-center">
+                <div className="font-mono text-lg font-bold text-green-600">{statistics.warsWon}</div>
+                <div className="font-mono text-[8px] text-gray-500">WARS WON</div>
+              </div>
+              <div className="p-2 border border-gray-300 bg-gray-50 text-center">
+                <div className="font-mono text-lg font-bold text-red-600">{statistics.warsLost}</div>
+                <div className="font-mono text-[8px] text-gray-500">WARS LOST</div>
+              </div>
+              <div className="p-2 border border-gray-300 bg-gray-50 text-center">
+                <div className="font-mono text-lg font-bold">{statistics.countriesDefeated.length}</div>
+                <div className="font-mono text-[8px] text-gray-500">NATIONS DEFEATED</div>
+              </div>
+              <div className="p-2 border border-gray-300 bg-gray-50 text-center">
+                <div className="font-mono text-lg font-bold">{statistics.totalWeaponsPurchased}</div>
+                <div className="font-mono text-[8px] text-gray-500">WEAPONS BOUGHT</div>
+              </div>
+              <div className="p-2 border border-gray-300 bg-gray-50 text-center">
+                <div className="font-mono text-lg font-bold">{statistics.peakPrestige}</div>
+                <div className="font-mono text-[8px] text-gray-500">PEAK PRESTIGE</div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Countries Defeated */}
-      {statistics && statistics.countriesDefeated.length > 0 && (
-        <div className="card mb-4">
-          <h3 className="font-bold text-game-text-primary mb-2">Defeated Nations</h3>
-          <div className="flex flex-wrap gap-2">
-            {statistics.countriesDefeated.map((country) => (
-              <span
-                key={country}
-                className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-sm"
-              >
-                {country.charAt(0).toUpperCase() + country.slice(1)}
-              </span>
-            ))}
+        {/* Defeated Nations */}
+        {statistics && statistics.countriesDefeated.length > 0 && (
+          <div className="bg-white border-2 border-green-600 retro-shadow p-3">
+            <div className="font-mono font-bold text-xs uppercase mb-2 pb-1 border-b border-green-300 text-green-700">
+              Defeated Nations
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {statistics.countriesDefeated.map((country) => (
+                <span
+                  key={country}
+                  className="px-2 py-1 border-2 border-green-600 bg-green-100 font-mono text-[10px] font-bold text-green-700"
+                >
+                  {COUNTRY_FLAGS[country as keyof typeof COUNTRY_FLAGS]} {COUNTRY_NAMES[country as keyof typeof COUNTRY_NAMES]?.toUpperCase()}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Narrative / Legacy */}
+        <div className="bg-white border-2 border-black retro-shadow p-3">
+          <div className="font-mono font-bold text-xs uppercase mb-2 pb-1 border-b border-gray-300">
+            Your Legacy
+          </div>
+          <div className="font-mono text-[10px] text-gray-700 leading-relaxed">
+            {narrative}
           </div>
         </div>
-      )}
 
-      {/* Narrative */}
-      <div className="card mb-6 flex-1">
-        <h3 className="font-bold text-game-text-primary mb-2">Your Legacy</h3>
-        <p className="text-sm text-game-text-secondary leading-relaxed">
-          {narrative}
-        </p>
       </div>
 
-      {/* Actions */}
-      <div className="space-y-3">
+      {/* Footer */}
+      <div className="shrink-0 p-3 bg-white border-t-2 border-black space-y-2">
         <button
           type="button"
           onClick={handlePlayAgain}
-          className="btn-primary w-full"
+          className="w-full py-3 font-mono font-bold text-sm uppercase border-2 border-black bg-black text-white retro-shadow-sm hover:bg-gray-800 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
         >
-          Play Again
+          PLAY AGAIN
         </button>
         <button
           type="button"
           onClick={() => navigate('/')}
-          className="btn-secondary w-full"
+          className="w-full py-2 font-mono font-bold text-xs uppercase border-2 border-gray-400 bg-white text-gray-600 hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5"
         >
-          Main Menu
+          MAIN MENU
         </button>
       </div>
     </div>

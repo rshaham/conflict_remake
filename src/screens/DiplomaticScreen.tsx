@@ -1,12 +1,15 @@
 // ============================================
-// Diplomatic Screen - Manage Relations
+// Diplomatic Screen - Retro Style
 // ============================================
 
-import { useState } from 'react';
-import { GameLayout } from '../components/layout/GameLayout';
-import { CountryCard } from '../components/game/CountryCard';
+import { useNavigate } from 'react-router-dom';
+import { Panel } from '../components/ui/Panel';
+import { Scanlines } from '../components/ui/Scanlines';
+import { StatusBadge } from '../components/ui/StatusBadge';
+import { StabilityBar } from '../components/ui/HatchedBar';
 import { useGameStore } from '../store/gameStore';
-import type { CountryId, DiplomaticAction } from '../types/game';
+import { COUNTRY_NAMES, COUNTRY_FLAGS, COUNTRY_CODES } from '../utils/countryData';
+import type { CountryId, CountryState, DiplomaticAction } from '../types/game';
 
 // The four neighboring countries (primary focus)
 const NEIGHBOR_COUNTRIES: CountryId[] = ['egypt', 'syria', 'jordan', 'lebanon'];
@@ -14,18 +17,127 @@ const NEIGHBOR_COUNTRIES: CountryId[] = ['egypt', 'syria', 'jordan', 'lebanon'];
 // Other countries in the region
 const OTHER_COUNTRIES: CountryId[] = ['iraq', 'iran', 'libya'];
 
-export function DiplomaticScreen() {
-  const { game, setDiplomaticAction } = useGameStore();
-  const [selectedCountry, setSelectedCountry] = useState<CountryId | null>(null);
+interface RetroCountryCardProps {
+  country: CountryState;
+  currentAction?: DiplomaticAction;
+  onActionChange: (countryId: CountryId, action: DiplomaticAction) => void;
+}
 
-  // If no game is loaded, show placeholder
+function RetroCountryCard({ country, currentAction, onActionChange }: RetroCountryCardProps) {
+  const isDefeated = country.isDefeated;
+  const isAtWar = country.relationship === 'war';
+  const countryCode = COUNTRY_CODES[country.id] || country.id.toUpperCase().slice(0, 3);
+
+  return (
+    <div className="bg-white border-2 border-black retro-shadow relative">
+      {/* Floppy label */}
+      <div className="bg-black text-white text-[8px] font-mono font-bold px-2 py-0.5 absolute -top-2.5 left-3 uppercase">
+        REF: {countryCode}-97
+      </div>
+
+      <div className="p-4 pt-5">
+        {/* Header row */}
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">{COUNTRY_FLAGS[country.id]}</span>
+            <h3 className="font-pixel text-2xl">{COUNTRY_NAMES[country.id]}</h3>
+          </div>
+          <StatusBadge status={country.relationship} defeated={isDefeated} />
+        </div>
+
+        {/* Leader */}
+        <div className="font-mono text-[9px] text-gray-500 mb-3">
+          LEADER: {country.leader.name.toUpperCase()}
+        </div>
+
+        {/* Stability bar */}
+        <StabilityBar stability={country.stability} className="mb-3" />
+
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <div className="border-2 border-black p-2 bg-gray-50">
+            <div className="font-mono text-[8px] text-gray-500 font-bold">STANCE</div>
+            <div className="font-mono text-xs font-bold uppercase">{country.stance}</div>
+          </div>
+          <div className="border-2 border-black p-2 bg-gray-50">
+            <div className="font-mono text-[8px] text-gray-500 font-bold">NUCLEAR</div>
+            <div className={`font-mono text-xs font-bold uppercase ${
+              country.nuclearStage !== 'none' ? 'text-orange-600' : 'text-gray-400'
+            }`}>
+              {country.nuclearStage === 'none' ? 'NONE' : country.nuclearStage}
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        {!isDefeated && !isAtWar && (
+          <div className="grid grid-cols-3 gap-2 pt-3 border-t-2 border-dashed border-black">
+            <button
+              type="button"
+              onClick={() => onActionChange(country.id, 'improve')}
+              className={`px-2 py-2 font-mono font-bold text-[9px] uppercase border-2 border-black transition-all ${
+                currentAction === 'improve'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-white hover:bg-green-50'
+              }`}
+            >
+              IMPROVE
+            </button>
+            <button
+              type="button"
+              onClick={() => onActionChange(country.id, 'maintain')}
+              className={`px-2 py-2 font-mono font-bold text-[9px] uppercase border-2 border-black transition-all ${
+                currentAction === 'maintain'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white hover:bg-blue-50'
+              }`}
+            >
+              MAINTAIN
+            </button>
+            <button
+              type="button"
+              onClick={() => onActionChange(country.id, 'worsen')}
+              className={`px-2 py-2 font-mono font-bold text-[9px] uppercase border-2 border-black transition-all ${
+                currentAction === 'worsen'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-white hover:bg-red-50'
+              }`}
+            >
+              WORSEN
+            </button>
+          </div>
+        )}
+
+        {/* War Status */}
+        {isAtWar && (
+          <div className="mt-3 p-2 bg-red-100 border-2 border-red-600 text-center">
+            <span className="text-red-800 font-mono font-bold text-xs uppercase">AT WAR</span>
+          </div>
+        )}
+
+        {/* Defeated Status */}
+        {isDefeated && (
+          <div className="mt-3 p-2 bg-gray-100 border-2 border-gray-400 text-center">
+            <span className="text-gray-600 font-mono text-[10px]">
+              DEFEATED TURN {country.defeatedOnTurn}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function DiplomaticScreen() {
+  const navigate = useNavigate();
+  const { game, setDiplomaticAction } = useGameStore();
+
   if (!game) {
     return (
-      <GameLayout>
-        <div className="p-4 flex items-center justify-center h-full">
-          <p className="text-game-text-secondary">No game in progress</p>
-        </div>
-      </GameLayout>
+      <div className="min-h-screen bg-retro-bg flex items-center justify-center">
+        <Scanlines />
+        <p className="font-mono text-retro-text-dim">No game in progress</p>
+      </div>
     );
   }
 
@@ -35,113 +147,101 @@ export function DiplomaticScreen() {
     setDiplomaticAction(countryId, action);
   };
 
-  const handleCountrySelect = (countryId: CountryId) => {
-    setSelectedCountry(selectedCountry === countryId ? null : countryId);
+  const handleBack = () => {
+    navigate('/game/hub');
   };
 
   return (
-    <GameLayout>
-      <div className="p-4 pb-24">
-        {/* Header */}
-        <div className="mb-4">
-          <h2 className="text-xl font-bold text-game-text-primary">
-            Diplomatic Relations
-          </h2>
-          <p className="text-sm text-game-text-secondary">
-            Set your diplomatic stance with each country
-          </p>
-        </div>
+    <div className="min-h-screen flex flex-col bg-retro-bg">
+      <Scanlines />
 
-        {/* Mini Map Placeholder */}
-        <div className="card mb-4 h-32 flex items-center justify-center bg-game-bg-dark border border-gray-700">
-          <div className="text-center">
-            <p className="text-game-text-secondary text-sm">Regional Map</p>
-            <p className="text-xs text-game-text-secondary opacity-60">
-              Coming in Phase 5
-            </p>
-          </div>
-        </div>
+      {/* Header */}
+      <div className="shrink-0 p-3 bg-white border-b-2 border-black flex items-center gap-3">
+        <button
+          type="button"
+          onClick={handleBack}
+          className="font-mono text-[10px] hover:underline"
+        >
+          ← BACK
+        </button>
+        <span className="font-pixel text-xl">DIPLOMATIC CORPS</span>
+      </div>
 
-        {/* Neighboring Countries (Primary Enemies) */}
-        <div className="mb-6">
-          <h3 className="text-sm font-semibold text-game-text-secondary uppercase tracking-wide mb-3">
-            Neighboring Countries
-          </h3>
-          <div className="space-y-3">
-            {NEIGHBOR_COUNTRIES.map((countryId) => {
-              const country = game.countries[countryId];
-              return (
-                <CountryCard
-                  key={countryId}
-                  country={country}
-                  currentAction={diplomaticActions[countryId]}
-                  onActionChange={handleActionChange}
-                  onSelect={handleCountrySelect}
-                  isSelected={selectedCountry === countryId}
-                  showActions={true}
-                />
-              );
-            })}
-          </div>
-        </div>
+      {/* Legend */}
+      <div className="shrink-0 px-3 py-2 bg-gray-100 border-b-2 border-black flex gap-3 font-mono text-[8px]">
+        <span className="flex items-center gap-1">
+          <span className="w-2 h-2 bg-green-600" /> FRIENDLY
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="w-2 h-2 bg-red-600" /> HOSTILE
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="w-2 h-2 bg-orange-500" /> TENSE
+        </span>
+      </div>
 
-        {/* Other Regional Powers */}
-        <div className="mb-6">
-          <h3 className="text-sm font-semibold text-game-text-secondary uppercase tracking-wide mb-3">
-            Regional Powers
-          </h3>
-          <div className="space-y-3">
-            {OTHER_COUNTRIES.map((countryId) => {
-              const country = game.countries[countryId];
-              return (
-                <CountryCard
-                  key={countryId}
-                  country={country}
-                  currentAction={diplomaticActions[countryId]}
-                  onActionChange={handleActionChange}
-                  onSelect={handleCountrySelect}
-                  isSelected={selectedCountry === countryId}
-                  showActions={true}
-                />
-              );
-            })}
-          </div>
+      {/* Country list */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-4">
+        {/* Neighboring Countries */}
+        <div className="font-mono text-[9px] font-bold text-gray-500 uppercase mb-2">
+          NEIGHBORING COUNTRIES
         </div>
+        {NEIGHBOR_COUNTRIES.map((countryId) => {
+          const country = game.countries[countryId];
+          return (
+            <RetroCountryCard
+              key={countryId}
+              country={country}
+              currentAction={diplomaticActions[countryId]}
+              onActionChange={handleActionChange}
+            />
+          );
+        })}
+
+        {/* Regional Powers */}
+        <div className="font-mono text-[9px] font-bold text-gray-500 uppercase mt-6 mb-2">
+          REGIONAL POWERS
+        </div>
+        {OTHER_COUNTRIES.map((countryId) => {
+          const country = game.countries[countryId];
+          return (
+            <RetroCountryCard
+              key={countryId}
+              country={country}
+              currentAction={diplomaticActions[countryId]}
+              onActionChange={handleActionChange}
+            />
+          );
+        })}
 
         {/* Victory Progress */}
-        <div className="card p-4 bg-game-bg-dark">
-          <h3 className="text-sm font-semibold text-game-text-secondary mb-2">
-            Victory Progress
-          </h3>
+        <Panel className="p-3 mt-4">
+          <div className="font-mono font-bold text-[10px] border-b-2 border-black pb-2 mb-3">
+            VICTORY PROGRESS
+          </div>
           <div className="flex items-center gap-2">
             {NEIGHBOR_COUNTRIES.map((countryId) => {
               const country = game.countries[countryId];
+              const code = COUNTRY_CODES[countryId] || countryId.toUpperCase().slice(0, 3);
               return (
                 <div
                   key={countryId}
-                  className={`flex-1 h-8 rounded flex items-center justify-center text-xs font-medium ${
+                  className={`flex-1 h-8 border-2 border-black flex items-center justify-center text-[10px] font-mono font-bold ${
                     country.isDefeated
                       ? 'bg-green-600 text-white'
-                      : 'bg-gray-700 text-gray-400'
+                      : 'bg-gray-100 text-gray-500'
                   }`}
                 >
-                  {countryId.charAt(0).toUpperCase() + countryId.slice(1, 3)}
+                  {code}
                 </div>
               );
             })}
           </div>
-          <p className="text-xs text-game-text-secondary mt-2 text-center">
-            Defeat all 4 neighbors to win
+          <p className="font-mono text-[8px] text-gray-500 mt-2 text-center uppercase">
+            Defeat all 4 neighbors to achieve victory
           </p>
-        </div>
-
-        {/* Phase indicator */}
-        <div className="mt-6 text-center">
-          <span className="inline-block px-3 py-1 bg-blue-900/30 text-blue-400 rounded text-xs">
-            Diplomatic Phase
-          </span>
-        </div>
+        </Panel>
       </div>
-    </GameLayout>
+    </div>
   );
 }
