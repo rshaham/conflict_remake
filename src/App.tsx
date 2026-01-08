@@ -15,6 +15,7 @@ import { PalestinianScreen } from './screens/PalestinianScreen';
 import { WarScreen } from './screens/WarScreen';
 import { UNSummitScreen } from './screens/UNSummitScreen';
 import { GameOverScreen } from './screens/GameOverScreen';
+import { MenuScreen } from './screens/MenuScreen';
 
 // Create a client for TanStack Query
 const queryClient = new QueryClient({
@@ -40,6 +41,7 @@ function App() {
           <Route path="/game/intelligence" element={<IntelligenceScreen />} />
           <Route path="/game/military" element={<MilitaryScreen />} />
           <Route path="/game/palestinian" element={<PalestinianScreen />} />
+          <Route path="/game/menu" element={<MenuScreen />} />
           <Route path="/game/war" element={<WarScreen />} />
           <Route path="/game/summit" element={<UNSummitScreen />} />
           <Route path="/game/over" element={<GameOverScreen />} />
