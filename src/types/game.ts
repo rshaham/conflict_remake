@@ -74,39 +74,38 @@ export type NeighborCountryId = 'egypt' | 'syria' | 'jordan' | 'lebanon';
 
 export type VendorId = 'usa' | 'uk' | 'france' | 'black_market';
 
-// All 26 specific weapons from the catalog + legacy generic types
+// 26 specific weapons matching generated images + legacy generic types
 export type WeaponId =
   // USA Vendor (7)
   | 'm60a3_patton'
   | 'm1a1_abrams'
-  | 'ah64_apache'
-  | 'mim104_patriot'
-  | 'f15c_eagle'
-  | 'f16c_falcon'
-  | 'f4g_wild_weasel'
+  | 'f15_eagle'
+  | 'f16_falcon'
+  | 'f4_phantom'
+  | 'e2c_hawkeye'
+  | 'm109_howitzer'
   // UK Vendor (5)
-  | 'chieftain_mk11'
-  | 'challenger_1'
-  | 'lynx_ah7'
-  | 'rapier_fsc'
-  | 'tornado_gr1'
-  // France Vendor (6)
-  | 'amx30b2'
-  | 'leclerc'
-  | 'gazelle_hot'
-  | 'crotale_ng'
-  | 'mirage_2000c'
+  | 'chieftain'
+  | 'challenger'
+  | 'rapier'
+  | 'tornado'
+  | 'jaguar'
+  // France Vendor (5)
+  | 'amx30'
   | 'mirage_f1'
-  // Black Market / Soviet (6)
-  | 't62m'
-  | 't72m'
-  | 'mi24v_hind'
-  | 's300pmu'
-  | 'mig29_fulcrum'
-  | 'su24_fencer'
-  // Israeli Domestic (2)
-  | 'merkava_mk3'
-  | 'iai_kfir'
+  | 'mirage_2000'
+  | 'sa321_superfrelon'
+  | 'exocet_system'
+  // Black Market / Soviet (9)
+  | 't55'
+  | 't62'
+  | 't72'
+  | 'mig21'
+  | 'mig23'
+  | 'mig29'
+  | 'su24'
+  | 'sa6_gainful'
+  | 'scud_b'
   // Legacy generic types (for combat calculations and starting arsenals)
   | 'light_tank'
   | 'main_battle_tank'

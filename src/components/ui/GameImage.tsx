@@ -218,6 +218,18 @@ export function WeaponImage({
   );
 }
 
+// Map country IDs to their actual generated leader image filenames
+const LEADER_IMAGE_MAP: Record<string, string> = {
+  egypt: 'pres_egypt',
+  syria: 'pres_syria',
+  jordan: 'king_jordan',
+  lebanon: 'pres_lebanon',
+  iraq: 'pres_iraq',
+  iran: 'leader_iran',
+  libya: 'pres_libya',
+  israel: 'pm_israel',
+};
+
 interface LeaderPortraitProps {
   leaderId: string;
   leaderName: string;
@@ -248,9 +260,14 @@ export function LeaderPortrait({
     lg: 96,
   };
 
+  // Use country ID to get the correct image filename
+  const imageFilename = countryId && LEADER_IMAGE_MAP[countryId]
+    ? LEADER_IMAGE_MAP[countryId]
+    : leaderId;
+
   return (
     <GameImage
-      src={`/images/leaders/${leaderId}.png`}
+      src={`/images/leaders/${imageFilename}.png`}
       alt={leaderName}
       className={`rounded-full ${sizeClasses[size]} ${className}`}
       width={sizePixels[size]}
@@ -301,20 +318,37 @@ export function EventHeader({ category, className = '' }: EventHeaderProps) {
   );
 }
 
+// Map topic names to actual generated news image filenames
+const NEWS_IMAGE_MAP: Record<string, string> = {
+  war: 'airstrike_aftermath',
+  diplomatic: 'diplomatic_handshake',
+  peace: 'peace_treaty',
+  military: 'military_parade',
+  protest: 'protests',
+  oil: 'oil_refinery',
+  terror: 'terrorist_attack',
+  un: 'unsc_meeting',
+  // Fallback variations
+  crisis: 'airstrike_aftermath',
+  victory: 'military_parade',
+  defeat: 'airstrike_aftermath',
+};
+
 interface NewsImageProps {
   topic: string;
-  countryId?: string;
   className?: string;
 }
 
 /**
  * News illustration image
  */
-export function NewsImage({ topic, countryId, className = '' }: NewsImageProps) {
-  // Determine the image path
-  const imagePath = countryId
-    ? `/images/news/news_${countryId}.png`
-    : `/images/news/news_${topic.toLowerCase().replace(/\s+/g, '_')}.png`;
+export function NewsImage({ topic, className = '' }: NewsImageProps) {
+  // Map topic to actual filename, using correct path (news_generic folder)
+  const normalizedTopic = topic.toLowerCase().replace(/\s+/g, '_');
+  const imageFilename = NEWS_IMAGE_MAP[normalizedTopic] || 'diplomatic_handshake';
+
+  // Use news_generic folder for generic news, could add country-specific later
+  const imagePath = `/images/news_generic/${imageFilename}.png`;
 
   return (
     <GameImage

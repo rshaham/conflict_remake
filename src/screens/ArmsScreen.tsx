@@ -162,91 +162,95 @@ export function ArmsScreen() {
               return (
                 <div
                   key={weapon}
-                  className={`border-2 ${canPurchase ? 'border-gray-300' : 'border-gray-200 bg-gray-50'} p-2`}
+                  className={`border-2 ${canPurchase ? 'border-gray-300' : 'border-gray-200 bg-gray-50'} p-2 flex gap-3`}
                 >
-                  {/* Weapon Image */}
-                  <div className="mb-2">
+                  {/* Weapon Image - Fixed width thumbnail */}
+                  <div className="shrink-0 w-24">
                     <GameImage
                       src={weaponData.image}
                       alt={weaponData.name}
                       className="w-full"
-                      width={256}
-                      height={128}
+                      width={96}
+                      height={64}
                       retroBorder
                       fallback={
-                        <div className="w-full h-24 bg-gray-200 border-2 border-black flex items-center justify-center">
-                          <span className="font-mono text-xs text-gray-500">{weaponData.name}</span>
+                        <div className="w-full h-16 bg-gray-200 border-2 border-black flex items-center justify-center">
+                          <span className="font-mono text-[8px] text-gray-500">{weaponData.name}</span>
                         </div>
                       }
                     />
                   </div>
 
-                  {/* Info */}
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="font-mono font-bold text-[11px] truncate">
-                      {weaponData.name.toUpperCase()}
+                  {/* Info - Flexible width */}
+                  <div className="flex-1 min-w-0 flex flex-col justify-between">
+                    {/* Header row */}
+                    <div className="flex items-center justify-between gap-1 mb-1">
+                      <div className="font-mono font-bold text-[11px] truncate">
+                        {weaponData.name.toUpperCase()}
+                      </div>
+                      <span className="shrink-0 font-mono text-[8px] px-1 py-0.5 bg-gray-200 border border-gray-300">
+                        {categoryName}
+                      </span>
                     </div>
-                    <span className="font-mono text-[8px] px-1 py-0.5 bg-gray-200 border border-gray-300">
-                      {categoryName}
-                    </span>
-                  </div>
 
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono text-[11px] text-green-700 font-bold">
-                      {formatCurrency(price)}
-                    </span>
-                    <span className="font-mono text-[9px] text-gray-500">
-                      OWNED: <span className="text-blue-600 font-bold">{game.player.arsenal[weapon] || 0}</span>
-                    </span>
-                  </div>
+                    {/* Price and owned row */}
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-mono text-[11px] text-green-700 font-bold">
+                        {formatCurrency(price)}
+                      </span>
+                      <span className="font-mono text-[9px] text-gray-500">
+                        OWNED: <span className="text-blue-600 font-bold">{game.player.arsenal[weapon] || 0}</span>
+                      </span>
+                    </div>
 
-                  {/* Combat value indicator */}
-                  <div className="flex items-center gap-1 mb-2">
-                    <span className="font-mono text-[8px] text-gray-500">COMBAT:</span>
-                    <div className="flex gap-0.5">
-                      {Array.from({ length: 10 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className={`w-2 h-2 border ${
-                            i < weaponData.combatValue
-                              ? 'bg-green-500 border-green-600'
-                              : 'bg-gray-200 border-gray-300'
-                          }`}
-                        />
-                      ))}
+                    {/* Combat value indicator */}
+                    <div className="flex items-center gap-1 mb-1">
+                      <span className="font-mono text-[8px] text-gray-500">COMBAT:</span>
+                      <div className="flex gap-0.5">
+                        {Array.from({ length: 10 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className={`w-1.5 h-1.5 border ${
+                              i < weaponData.combatValue
+                                ? 'bg-green-500 border-green-600'
+                                : 'bg-gray-200 border-gray-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Purchase buttons or reason */}
-                  {canPurchase ? (
-                    <div className="flex gap-1">
-                      <button
-                        type="button"
-                        onClick={() => handlePurchase(weapon, 1)}
-                        className="flex-1 py-1.5 font-mono font-bold text-[9px] border-2 border-black bg-white retro-shadow-sm hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
-                      >
-                        BUY 1
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handlePurchase(weapon, 5)}
-                        className="flex-1 py-1.5 font-mono font-bold text-[9px] border-2 border-gray-400 bg-gray-100 hover:bg-gray-200 active:translate-x-0.5 active:translate-y-0.5"
-                      >
-                        BUY 5
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handlePurchase(weapon, 10)}
-                        className="flex-1 py-1.5 font-mono font-bold text-[9px] border-2 border-gray-400 bg-gray-100 hover:bg-gray-200 active:translate-x-0.5 active:translate-y-0.5"
-                      >
-                        BUY 10
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="py-1.5 px-2 bg-yellow-50 border border-yellow-200 font-mono text-[9px] text-yellow-700 italic text-center">
-                      {isVendorEmbargoed ? 'Vendor embargo in effect' : reason}
-                    </div>
-                  )}
+                    {/* Purchase buttons or reason */}
+                    {canPurchase ? (
+                      <div className="flex gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handlePurchase(weapon, 1)}
+                          className="flex-1 py-1 font-mono font-bold text-[9px] border-2 border-black bg-white retro-shadow-sm hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                        >
+                          +1
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handlePurchase(weapon, 5)}
+                          className="flex-1 py-1 font-mono font-bold text-[9px] border-2 border-gray-400 bg-gray-100 hover:bg-gray-200 active:translate-x-0.5 active:translate-y-0.5"
+                        >
+                          +5
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handlePurchase(weapon, 10)}
+                          className="flex-1 py-1 font-mono font-bold text-[9px] border-2 border-gray-400 bg-gray-100 hover:bg-gray-200 active:translate-x-0.5 active:translate-y-0.5"
+                        >
+                          +10
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="py-1 px-2 bg-yellow-50 border border-yellow-200 font-mono text-[8px] text-yellow-700 italic text-center">
+                        {isVendorEmbargoed ? 'Embargo' : reason}
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             })}
