@@ -168,6 +168,7 @@ export interface ExtremeMeasureConfig {
 
 export interface WeaponsData {
   vendors: Record<VendorId, VendorConfig>;
+  categories: Record<WeaponCategory, WeaponCategoryConfig>;
   weapons: Record<WeaponId, WeaponConfig>;
 }
 
@@ -188,21 +189,47 @@ export interface VendorConfig {
 export interface WeaponConfig {
   id: WeaponId;
   name: string;
+  hebrewName?: string;
+  vendor: VendorId;
   category: WeaponCategory;
-  description: string;
-  costPerUnit: number;
+  unlockRequirement: number;
+  cost: number;
   combatValue: number;
-  counters?: WeaponId[];
-  counteredBy?: WeaponId[];
+  counters?: string[];
+  counteredBy?: string[];
+  image: string;
+  wikipediaUrl?: string;
+  summary?: string;
+  specs?: WeaponSpecs;
+  stats: WeaponStats;
+  // Legacy fields for backwards compatibility
   canAirstrike?: boolean;
   canOccupy?: boolean;
   canPolice?: boolean;
-  availability: Record<VendorId, WeaponAvailability>;
 }
 
-export interface WeaponAvailability {
-  minPurchases: number;
-  price: number;
+export interface WeaponSpecs {
+  weight?: string;
+  mainGun?: string;
+  engine?: string;
+  maxSpeed?: string;
+  range?: string;
+  ceiling?: string;
+  armament?: string;
+  crew?: number;
+}
+
+export interface WeaponStats {
+  armor: number;
+  firepower: number;
+  speed: number;
+  range: number;
+}
+
+export interface WeaponCategoryConfig {
+  name: string;
+  description: string;
+  icon: string;
 }
 
 // === Nuclear Data ===

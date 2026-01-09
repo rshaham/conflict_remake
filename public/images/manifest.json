@@ -1,0 +1,512 @@
+{
+  "generated_at": "2026-01-08T11:43:10.556771",
+  "total_specs": 56,
+  "successful": 56,
+  "failed": 0,
+  "results": [
+    {
+      "id": "m60a3_patton",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\m60a3_patton.png",
+      "error": null,
+      "timestamp": "2026-01-08T10:59:16.582913",
+      "retries": 0
+    },
+    {
+      "id": "m1a1_abrams",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\m1a1_abrams.png",
+      "error": null,
+      "timestamp": "2026-01-08T10:59:36.734281",
+      "retries": 0
+    },
+    {
+      "id": "f4_phantom",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\f4_phantom.png",
+      "error": null,
+      "timestamp": "2026-01-08T10:59:56.658794",
+      "retries": 0
+    },
+    {
+      "id": "f16_falcon",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\f16_falcon.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:00:38.357425",
+      "retries": 0
+    },
+    {
+      "id": "e2c_hawkeye",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\e2c_hawkeye.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:00:58.208634",
+      "retries": 0
+    },
+    {
+      "id": "mirage_f1",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\mirage_f1.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:01:37.506974",
+      "retries": 0
+    },
+    {
+      "id": "amx30",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\amx30.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:02:18.069223",
+      "retries": 0
+    },
+    {
+      "id": "sa321_superfrelon",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\sa321_superfrelon.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:02:38.346595",
+      "retries": 0
+    },
+    {
+      "id": "exocet_system",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\exocet_system.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:02:58.549133",
+      "retries": 0
+    },
+    {
+      "id": "challenger",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\challenger.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:03:41.821066",
+      "retries": 0
+    },
+    {
+      "id": "rapier",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\rapier.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:04:22.564534",
+      "retries": 0
+    },
+    {
+      "id": "t55",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\t55.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:05:02.064709",
+      "retries": 0
+    },
+    {
+      "id": "t62",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\t62.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:05:25.354772",
+      "retries": 0
+    },
+    {
+      "id": "t72",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\t72.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:05:45.180099",
+      "retries": 0
+    },
+    {
+      "id": "mig23",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\mig23.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:06:26.357305",
+      "retries": 0
+    },
+    {
+      "id": "su24",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\su24.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:07:07.514711",
+      "retries": 0
+    },
+    {
+      "id": "scud_b",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\scud_b.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:07:27.317692",
+      "retries": 0
+    },
+    {
+      "id": "m109_howitzer",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\m109_howitzer.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:15:53.421962",
+      "retries": 0
+    },
+    {
+      "id": "mirage_2000",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\mirage_2000.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:16:16.874502",
+      "retries": 0
+    },
+    {
+      "id": "mig21",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\mig21.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:16:56.454453",
+      "retries": 0
+    },
+    {
+      "id": "mig29",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\mig29.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:17:17.225765",
+      "retries": 0
+    },
+    {
+      "id": "f15_eagle",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\f15_eagle.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:28:59.442609",
+      "retries": 0
+    },
+    {
+      "id": "jaguar",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\jaguar.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:29:19.488755",
+      "retries": 0
+    },
+    {
+      "id": "chieftain",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\chieftain.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:30:21.341433",
+      "retries": 0
+    },
+    {
+      "id": "sa6_gainful",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\sa6_gainful.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:30:41.083325",
+      "retries": 0
+    },
+    {
+      "id": "tornado",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\tornado.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:31:16.051321",
+      "retries": 0
+    },
+    {
+      "id": "pm_israel",
+      "category": "leaders",
+      "success": true,
+      "output_path": "public\\images\\leaders\\pm_israel.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:32:25.405603",
+      "retries": 0
+    },
+    {
+      "id": "pres_egypt",
+      "category": "leaders",
+      "success": true,
+      "output_path": "public\\images\\leaders\\pres_egypt.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:32:45.618359",
+      "retries": 0
+    },
+    {
+      "id": "pres_syria",
+      "category": "leaders",
+      "success": true,
+      "output_path": "public\\images\\leaders\\pres_syria.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:33:06.768213",
+      "retries": 0
+    },
+    {
+      "id": "king_jordan",
+      "category": "leaders",
+      "success": true,
+      "output_path": "public\\images\\leaders\\king_jordan.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:33:26.030129",
+      "retries": 0
+    },
+    {
+      "id": "pres_iraq",
+      "category": "leaders",
+      "success": true,
+      "output_path": "public\\images\\leaders\\pres_iraq.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:33:46.939950",
+      "retries": 0
+    },
+    {
+      "id": "leader_iran",
+      "category": "leaders",
+      "success": true,
+      "output_path": "public\\images\\leaders\\leader_iran.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:34:07.040450",
+      "retries": 0
+    },
+    {
+      "id": "pres_lebanon",
+      "category": "leaders",
+      "success": true,
+      "output_path": "public\\images\\leaders\\pres_lebanon.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:34:27.136627",
+      "retries": 0
+    },
+    {
+      "id": "leader_palestinian",
+      "category": "leaders",
+      "success": true,
+      "output_path": "public\\images\\leaders\\leader_palestinian.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:34:47.541093",
+      "retries": 0
+    },
+    {
+      "id": "pres_libya",
+      "category": "leaders",
+      "success": true,
+      "output_path": "public\\images\\leaders\\pres_libya.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:35:08.383529",
+      "retries": 0
+    },
+    {
+      "id": "un_secgen",
+      "category": "leaders",
+      "success": true,
+      "output_path": "public\\images\\leaders\\un_secgen.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:35:29.087813",
+      "retries": 0
+    },
+    {
+      "id": "us_president",
+      "category": "leaders",
+      "success": true,
+      "output_path": "public\\images\\leaders\\us_president.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:35:50.205006",
+      "retries": 0
+    },
+    {
+      "id": "pres_russia",
+      "category": "leaders",
+      "success": true,
+      "output_path": "public\\images\\leaders\\pres_russia.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:36:09.966642",
+      "retries": 0
+    },
+    {
+      "id": "pres_france",
+      "category": "leaders",
+      "success": true,
+      "output_path": "public\\images\\leaders\\pres_france.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:36:32.850528",
+      "retries": 0
+    },
+    {
+      "id": "diplomatic_handshake",
+      "category": "news_generic",
+      "success": true,
+      "output_path": "public\\images\\news_generic\\diplomatic_handshake.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:36:52.987714",
+      "retries": 0
+    },
+    {
+      "id": "military_parade",
+      "category": "news_generic",
+      "success": true,
+      "output_path": "public\\images\\news_generic\\military_parade.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:37:14.563340",
+      "retries": 0
+    },
+    {
+      "id": "unsc_meeting",
+      "category": "news_generic",
+      "success": true,
+      "output_path": "public\\images\\news_generic\\unsc_meeting.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:37:33.961749",
+      "retries": 0
+    },
+    {
+      "id": "protests",
+      "category": "news_generic",
+      "success": true,
+      "output_path": "public\\images\\news_generic\\protests.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:37:54.370554",
+      "retries": 0
+    },
+    {
+      "id": "airstrike_aftermath",
+      "category": "news_generic",
+      "success": true,
+      "output_path": "public\\images\\news_generic\\airstrike_aftermath.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:38:16.142218",
+      "retries": 0
+    },
+    {
+      "id": "peace_treaty",
+      "category": "news_generic",
+      "success": true,
+      "output_path": "public\\images\\news_generic\\peace_treaty.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:38:36.729785",
+      "retries": 0
+    },
+    {
+      "id": "oil_refinery",
+      "category": "news_generic",
+      "success": true,
+      "output_path": "public\\images\\news_generic\\oil_refinery.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:39:08.812182",
+      "retries": 0
+    },
+    {
+      "id": "terrorist_attack",
+      "category": "news_generic",
+      "success": true,
+      "output_path": "public\\images\\news_generic\\terrorist_attack.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:39:29.258881",
+      "retries": 0
+    },
+    {
+      "id": "region_political",
+      "category": "maps",
+      "success": true,
+      "output_path": "public\\images\\maps\\region_political.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:39:49.456234",
+      "retries": 0
+    },
+    {
+      "id": "region_satellite",
+      "category": "maps",
+      "success": true,
+      "output_path": "public\\images\\maps\\region_satellite.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:40:10.021117",
+      "retries": 0
+    },
+    {
+      "id": "israel_detail",
+      "category": "maps",
+      "success": true,
+      "output_path": "public\\images\\maps\\israel_detail.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:40:31.144694",
+      "retries": 0
+    },
+    {
+      "id": "golan_sector",
+      "category": "maps",
+      "success": true,
+      "output_path": "public\\images\\maps\\golan_sector.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:40:51.319868",
+      "retries": 0
+    },
+    {
+      "id": "sinai_sector",
+      "category": "maps",
+      "success": true,
+      "output_path": "public\\images\\maps\\sinai_sector.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:41:17.551745",
+      "retries": 0
+    },
+    {
+      "id": "west_bank_sector",
+      "category": "maps",
+      "success": true,
+      "output_path": "public\\images\\maps\\west_bank_sector.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:41:40.173770",
+      "retries": 0
+    },
+    {
+      "id": "lebanon_border",
+      "category": "maps",
+      "success": true,
+      "output_path": "public\\images\\maps\\lebanon_border.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:42:00.616941",
+      "retries": 0
+    },
+    {
+      "id": "nuclear_sites",
+      "category": "maps",
+      "success": true,
+      "output_path": "public\\images\\maps\\nuclear_sites.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:42:30.718473",
+      "retries": 0
+    },
+    {
+      "id": "world_map_flat",
+      "category": "maps",
+      "success": true,
+      "output_path": "public\\images\\maps\\world_map_flat.png",
+      "error": null,
+      "timestamp": "2026-01-08T11:42:50.502628",
+      "retries": 0
+    }
+  ]
+}

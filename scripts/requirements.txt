@@ -1,0 +1,14 @@
+# Conflict Remake - Image Generation Dependencies
+# Install with: pip install -r requirements.txt
+
+# Google Gemini API client (new unified SDK)
+google-genai>=1.0.0
+
+# YAML parsing
+pyyaml>=6.0
+
+# Image processing
+Pillow>=10.0
+
+# Progress bars
+tqdm>=4.66

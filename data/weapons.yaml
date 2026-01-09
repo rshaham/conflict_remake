@@ -1,5 +1,12 @@
-# data/weapons.yaml
-# Arms vendors and weapons catalog
+# ============================================
+# Weapons Data - Full 26 Weapon Catalog
+# ============================================
+# All purchasable weapons plus Israeli starting arsenal
+# Expanded from generic types to specific real-world systems
+
+# ============================================
+# VENDORS
+# ============================================
 
 vendors:
   usa:
@@ -29,111 +36,773 @@ vendors:
     name: "France"
     flag: "fr"
     willEmbargo: false
+    description: "France has no embargo policy - sells to anyone"
 
   black_market:
     id: "black_market"
     name: "Black Market"
     flag: "pirate"
-    description: "South African dealer with Soviet equipment"
+    description: "Third-party dealers with Soviet equipment"
     willEmbargo: false
     deliveryDelay: 2
-    priceModifier: 1.2
+    priceModifier: 1.0
     alwaysAvailable: true
 
-weapons:
-  light_tank:
-    id: "light_tank"
-    name: "Light Tank"
-    category: "armor"
-    description: "Fast, cheap, expendable"
-    costPerUnit: 1000000
-    combatValue: 1
-    counteredBy: ["anti_tank_helicopter", "main_battle_tank"]
-    availability:
-      usa: { minPurchases: 0, price: 1000000 }
-      uk: { minPurchases: 0, price: 1000000 }
-      france: { minPurchases: 0, price: 1100000 }
-      black_market: { minPurchases: 0, price: 1200000 }
+# ============================================
+# WEAPON CATEGORIES
+# ============================================
+
+categories:
+  light_armor:
+    name: "Light Tanks"
+    description: "Entry-level tanks, cheap and expendable"
+    icon: "icon_light_armor"
 
   main_battle_tank:
-    id: "main_battle_tank"
-    name: "Main Battle Tank"
-    category: "armor"
-    description: "Heavy armor, high firepower"
-    costPerUnit: 2000000
-    combatValue: 3
-    counters: ["light_tank"]
-    counteredBy: ["anti_tank_helicopter"]
-    availability:
-      usa: { minPurchases: 5, price: 2000000 }
-      uk: { minPurchases: 5, price: 2100000 }
-      france: { minPurchases: 3, price: 2200000 }
-      black_market: { minPurchases: 0, price: 2400000 }
+    name: "Main Battle Tanks"
+    description: "Heavy armor and firepower"
+    icon: "icon_main_battle_tank"
 
-  anti_tank_helicopter:
-    id: "anti_tank_helicopter"
-    name: "Anti-Tank Helicopter"
-    category: "aircraft"
-    description: "Tank killer, vulnerable to AA"
-    costPerUnit: 5000000
-    combatValue: 4
-    counters: ["light_tank", "main_battle_tank"]
-    counteredBy: ["sam_battery", "fighter_aircraft"]
-    availability:
-      usa: { minPurchases: 10, price: 5000000 }
-      black_market: { minPurchases: 5, price: 6000000 }
+  attack_helicopter:
+    name: "Attack Helicopters"
+    description: "Tank killers, vulnerable to AA"
+    icon: "icon_attack_helicopter"
 
   sam_battery:
-    id: "sam_battery"
-    name: "SAM Battery"
-    category: "air_defense"
-    description: "Surface-to-air missiles"
-    costPerUnit: 3000000
-    combatValue: 2
-    counters: ["anti_tank_helicopter", "fighter_aircraft"]
-    counteredBy: ["anti_sam_helicopter"]
-    availability:
-      usa: { minPurchases: 8, price: 3000000 }
-      uk: { minPurchases: 8, price: 3200000 }
-      black_market: { minPurchases: 0, price: 3600000 }
+    name: "SAM Batteries"
+    description: "Surface-to-air missile systems"
+    icon: "icon_sam_battery"
 
   fighter_aircraft:
-    id: "fighter_aircraft"
     name: "Fighter Aircraft"
-    category: "aircraft"
-    description: "Air superiority and strikes"
-    costPerUnit: 10000000
-    combatValue: 5
-    counters: ["anti_tank_helicopter"]
-    counteredBy: ["sam_battery", "fighter_aircraft"]
-    canAirstrike: true
-    availability:
-      usa: { minPurchases: 15, price: 10000000 }
-      uk: { minPurchases: 12, price: 10500000 }
-      france: { minPurchases: 10, price: 11000000 }
-      black_market: { minPurchases: 8, price: 12000000 }
+    description: "Air superiority and strike missions"
+    icon: "icon_fighter_aircraft"
 
-  anti_sam_helicopter:
-    id: "anti_sam_helicopter"
-    name: "SEAD Helicopter"
-    category: "aircraft"
-    description: "Suppression of enemy air defense"
-    costPerUnit: 8000000
-    combatValue: 3
-    counters: ["sam_battery"]
+  sead_aircraft:
+    name: "SEAD Aircraft"
+    description: "Suppression of Enemy Air Defenses"
+    icon: "icon_sead_aircraft"
+
+  infantry:
+    name: "Infantry"
+    description: "Ground troops for occupation and policing"
+    icon: "icon_infantry"
+
+# ============================================
+# WEAPONS - USA VENDOR
+# ============================================
+
+weapons:
+  # ------------------------------
+  # USA VENDOR (7 weapons)
+  # ------------------------------
+
+  m60a3_patton:
+    id: "m60a3_patton"
+    name: "M60A3 Patton"
+    vendor: "usa"
+    category: "light_armor"
+    unlockRequirement: 0
+    cost: 1200000
+    combatValue: 2
+    counters: []
+    counteredBy: ["t72m", "ah64_apache", "main_battle_tank"]
+    image: "/images/weapons/m60a3_patton.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/M60_tank"
+    summary: "Second-generation American MBT, reliable and cost-effective. Israel operated modified versions extensively."
+    specs:
+      weight: "52 tonnes"
+      mainGun: "105mm M68 rifled"
+      engine: "750 hp Continental AVDS-1790"
+      maxSpeed: "48 km/h"
+      range: "500 km"
+      crew: 4
+    stats:
+      armor: 40
+      firepower: 50
+      speed: 60
+      range: 40
+
+  m1a1_abrams:
+    id: "m1a1_abrams"
+    name: "M1A1 Abrams"
+    vendor: "usa"
+    category: "main_battle_tank"
+    unlockRequirement: 10
+    cost: 4500000
+    combatValue: 6
+    counters: ["light_armor", "t72m"]
+    counteredBy: ["ah64_apache", "mi24v_hind"]
+    image: "/images/weapons/m1a1_abrams.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/M1_Abrams"
+    summary: "America's premier main battle tank with gas turbine engine and depleted uranium armor. Devastated Iraqi T-72s in 1991 Gulf War."
+    specs:
+      weight: "57 tonnes"
+      mainGun: "120mm M256 smoothbore"
+      engine: "1,500 hp Honeywell AGT1500"
+      maxSpeed: "67 km/h"
+      range: "426 km"
+      crew: 4
+    stats:
+      armor: 95
+      firepower: 90
+      speed: 75
+      range: 50
+
+  ah64_apache:
+    id: "ah64_apache"
+    name: "AH-64A Apache"
+    hebrewName: "Peten"
+    vendor: "usa"
+    category: "attack_helicopter"
+    unlockRequirement: 15
+    cost: 15000000
+    combatValue: 7
+    counters: ["light_armor", "main_battle_tank"]
+    counteredBy: ["sam_battery", "fighter_aircraft"]
+    image: "/images/weapons/ah64_apache.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Boeing_AH-64_Apache"
+    summary: "US Army's primary attack helicopter. Israel was the first export customer, receiving them in September 1990."
+    specs:
+      maxSpeed: "293 km/h"
+      range: "476 km"
+      ceiling: "6,400 m"
+      armament: "30mm M230 chain gun, 16x AGM-114 Hellfire, 76x Hydra 70"
+      crew: 2
+    stats:
+      armor: 30
+      firepower: 85
+      speed: 65
+      range: 60
+
+  mim104_patriot:
+    id: "mim104_patriot"
+    name: "MIM-104 Patriot"
+    vendor: "usa"
+    category: "sam_battery"
+    unlockRequirement: 12
+    cost: 4000000
+    combatValue: 5
+    counters: ["fighter_aircraft", "attack_helicopter"]
+    counteredBy: ["f4g_wild_weasel", "sead_aircraft"]
+    image: "/images/weapons/mim104_patriot.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/MIM-104_Patriot"
+    summary: "Advanced SAM system that gained fame during the 1991 Gulf War against Iraqi Scuds. Israel received batteries for defense."
+    specs:
+      range: "70-160 km"
+      altitude: "24 km"
+      speed: "Mach 5"
+      guidance: "Track-via-missile"
+      missilesPerLauncher: 4
+    stats:
+      armor: 10
+      firepower: 75
+      speed: 0
+      range: 95
+
+  f15c_eagle:
+    id: "f15c_eagle"
+    name: "F-15C Eagle"
+    hebrewName: "Baz"
+    vendor: "usa"
+    category: "fighter_aircraft"
+    unlockRequirement: 20
+    cost: 30000000
+    combatValue: 9
+    canAirstrike: true
+    counters: ["fighter_aircraft", "attack_helicopter", "mig29_fulcrum"]
+    counteredBy: ["sam_battery", "s300pmu"]
+    image: "/images/weapons/f15c_eagle.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/McDonnell_Douglas_F-15_Eagle"
+    summary: "Undefeated air superiority fighter (104 kills, 0 losses). Israel has achieved more F-15 kills than any other nation."
+    specs:
+      maxSpeed: "Mach 2.5 (2,665 km/h)"
+      range: "5,550 km"
+      ceiling: "20,000 m"
+      armament: "20mm M61 Vulcan, 8x AIM-7/AIM-120, 4x AIM-9"
+      crew: 1
+    stats:
+      armor: 20
+      firepower: 95
+      speed: 100
+      range: 85
+
+  f16c_falcon:
+    id: "f16c_falcon"
+    name: "F-16C Fighting Falcon"
+    hebrewName: "Barak"
+    vendor: "usa"
+    category: "fighter_aircraft"
+    unlockRequirement: 8
+    cost: 18000000
+    combatValue: 7
+    canAirstrike: true
+    counters: ["attack_helicopter", "light_armor"]
+    counteredBy: ["sam_battery", "f15c_eagle"]
+    image: "/images/weapons/f16c_falcon.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/General_Dynamics_F-16_Fighting_Falcon"
+    summary: "World's most successful 4th-gen fighter. Israel operates the largest fleet outside the US. Destroyed Osirak reactor in 1981."
+    specs:
+      maxSpeed: "Mach 2.0 (2,120 km/h)"
+      range: "4,220 km"
+      ceiling: "15,240 m"
+      armament: "20mm M61 Vulcan, 6x AIM-120, 2x AIM-9, various bombs"
+      crew: 1
+    stats:
+      armor: 15
+      firepower: 80
+      speed: 90
+      range: 70
+
+  f4g_wild_weasel:
+    id: "f4g_wild_weasel"
+    name: "F-4G Wild Weasel"
+    vendor: "usa"
+    category: "sead_aircraft"
+    unlockRequirement: 25
+    cost: 22000000
+    combatValue: 6
+    canAirstrike: true
+    counters: ["sam_battery", "s300pmu"]
     counteredBy: ["fighter_aircraft"]
-    availability:
-      usa: { minPurchases: 20, price: 8000000 }
-      black_market: { minPurchases: 15, price: 9600000 }
+    bonusVsSAM: 2.0
+    image: "/images/weapons/f4g_wild_weasel.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/McDonnell_Douglas_F-4_Phantom_II"
+    summary: "Specialized SEAD aircraft designed to destroy enemy radar and SAM sites. Among the most dangerous missions in aerial warfare."
+    specs:
+      maxSpeed: "Mach 2.2"
+      range: "2,600 km"
+      armament: "AGM-88 HARM, AGM-78 Standard ARM, AIM-7"
+      specialEquipment: "APR-38/47 radar warning receiver"
+      crew: 2
+    stats:
+      armor: 25
+      firepower: 70
+      speed: 85
+      range: 75
+
+  # ------------------------------
+  # UK VENDOR (5 weapons)
+  # ------------------------------
+
+  chieftain_mk11:
+    id: "chieftain_mk11"
+    name: "Chieftain Mk.11"
+    vendor: "uk"
+    category: "light_armor"
+    unlockRequirement: 0
+    cost: 1000000
+    combatValue: 2
+    counters: []
+    counteredBy: ["main_battle_tank", "attack_helicopter"]
+    image: "/images/weapons/chieftain_mk11.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Chieftain_(tank)"
+    summary: "Britain's MBT from 1960s-1990s, renowned for its powerful 120mm gun. Iran and Jordan operated them extensively."
+    specs:
+      weight: "55 tonnes"
+      mainGun: "120mm L11A5 rifled"
+      engine: "750 hp Leyland L60"
+      maxSpeed: "48 km/h"
+      range: "400 km"
+      crew: 4
+    stats:
+      armor: 55
+      firepower: 45
+      speed: 35
+      range: 35
+
+  challenger_1:
+    id: "challenger_1"
+    name: "Challenger 1"
+    vendor: "uk"
+    category: "main_battle_tank"
+    unlockRequirement: 8
+    cost: 4000000
+    combatValue: 5
+    counters: ["light_armor", "t72m"]
+    counteredBy: ["ah64_apache"]
+    image: "/images/weapons/challenger_1.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Challenger_1"
+    summary: "Featured Chobham composite armor. Achieved the longest tank-on-tank kill (4.7 km) during the 1991 Gulf War."
+    specs:
+      weight: "62 tonnes"
+      mainGun: "120mm L11A5 rifled"
+      engine: "1,200 hp Perkins CV12"
+      maxSpeed: "56 km/h"
+      range: "450 km"
+      crew: 4
+    stats:
+      armor: 90
+      firepower: 85
+      speed: 55
+      range: 45
+
+  lynx_ah7:
+    id: "lynx_ah7"
+    name: "Westland Lynx AH.7"
+    vendor: "uk"
+    category: "attack_helicopter"
+    unlockRequirement: 10
+    cost: 8000000
+    combatValue: 4
+    counters: ["light_armor"]
+    counteredBy: ["sam_battery", "fighter_aircraft"]
+    image: "/images/weapons/lynx_ah7.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Westland_Lynx"
+    summary: "Versatile British helicopter, world record holder for helicopter speed. Smaller and more agile than the Apache."
+    specs:
+      maxSpeed: "324 km/h"
+      range: "528 km"
+      armament: "8x TOW missiles, 20mm cannon"
+      crew: 2
+    stats:
+      armor: 20
+      firepower: 60
+      speed: 80
+      range: 50
+
+  rapier_fsc:
+    id: "rapier_fsc"
+    name: "Rapier FSC"
+    vendor: "uk"
+    category: "sam_battery"
+    unlockRequirement: 6
+    cost: 2500000
+    combatValue: 3
+    counters: ["attack_helicopter", "fighter_aircraft"]
+    counteredBy: ["sead_aircraft"]
+    image: "/images/weapons/rapier_fsc.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Rapier_(missile)"
+    summary: "Short-range SAM for point defense. Used by British forces in the Falklands War. Operated by several Middle Eastern nations."
+    specs:
+      range: "8 km"
+      altitude: "3 km"
+      speed: "Mach 2.5"
+      missilesPerLauncher: 4
+    stats:
+      armor: 5
+      firepower: 55
+      speed: 0
+      range: 60
+
+  tornado_gr1:
+    id: "tornado_gr1"
+    name: "Panavia Tornado GR.1"
+    vendor: "uk"
+    category: "fighter_aircraft"
+    unlockRequirement: 15
+    cost: 25000000
+    combatValue: 6
+    canAirstrike: true
+    bonusVsGround: 1.5
+    counters: ["ground_targets"]
+    counteredBy: ["sam_battery", "fighter_aircraft"]
+    image: "/images/weapons/tornado_gr1.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Panavia_Tornado"
+    summary: "Multinational swing-wing strike aircraft. Conducted dangerous low-level attacks on Iraqi airfields during Gulf War."
+    specs:
+      maxSpeed: "Mach 2.2"
+      range: "3,890 km"
+      armament: "2x 27mm Mauser, JP233, Paveway LGBs, ALARM"
+      crew: 2
+    stats:
+      armor: 25
+      firepower: 85
+      speed: 85
+      range: 80
+
+  # ------------------------------
+  # FRANCE VENDOR (6 weapons)
+  # ------------------------------
+
+  amx30b2:
+    id: "amx30b2"
+    name: "AMX-30B2"
+    vendor: "france"
+    category: "light_armor"
+    unlockRequirement: 0
+    cost: 1100000
+    combatValue: 2
+    counters: []
+    counteredBy: ["main_battle_tank", "attack_helicopter"]
+    image: "/images/weapons/amx30b2.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/AMX-30"
+    summary: "France's MBT since 1966, prioritizing mobility over armor. Operated by Saudi Arabia, UAE, and other Gulf states."
+    specs:
+      weight: "36 tonnes"
+      mainGun: "105mm CN-105-F1"
+      engine: "720 hp Hispano-Suiza HS-110"
+      maxSpeed: "65 km/h"
+      range: "600 km"
+    stats:
+      armor: 35
+      firepower: 55
+      speed: 65
+      range: 45
+
+  leclerc:
+    id: "leclerc"
+    name: "AMX-56 Leclerc"
+    vendor: "france"
+    category: "main_battle_tank"
+    unlockRequirement: 5
+    cost: 5500000
+    combatValue: 6
+    counters: ["light_armor", "t72m"]
+    counteredBy: ["ah64_apache"]
+    image: "/images/weapons/leclerc.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Leclerc_tank"
+    summary: "Most modern Western tank of the 1990s. Features autoloader (3 crew) and advanced electronics. UAE is primary export customer."
+    specs:
+      weight: "56 tonnes"
+      mainGun: "120mm CN120-26 smoothbore"
+      engine: "1,500 hp SACM V8X-1500"
+      maxSpeed: "71 km/h"
+      rateOfFire: "12 rounds/minute"
+      crew: 3
+    stats:
+      armor: 85
+      firepower: 90
+      speed: 80
+      range: 55
+
+  tiger_hap:
+    id: "tiger_hap"
+    name: "Eurocopter Tiger HAP"
+    vendor: "france"
+    category: "attack_helicopter"
+    unlockRequirement: 8
+    cost: 12000000
+    combatValue: 5
+    counters: ["light_armor", "attack_helicopter"]
+    counteredBy: ["sam_battery", "fighter_aircraft"]
+    image: "/images/weapons/tiger_hap.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Eurocopter_Tiger"
+    summary: "Franco-German attack helicopter. HAP variant focuses on fire support and escort. Represents advanced French rotorcraft."
+    specs:
+      maxSpeed: "290 km/h"
+      range: "800 km"
+      armament: "30mm GIAT cannon, Mistral AAMs, HOT ATGMs"
+      crew: 2
+    stats:
+      armor: 25
+      firepower: 70
+      speed: 75
+      range: 55
+
+  crotale_ng:
+    id: "crotale_ng"
+    name: "Crotale NG"
+    vendor: "france"
+    category: "sam_battery"
+    unlockRequirement: 4
+    cost: 3000000
+    combatValue: 4
+    counters: ["attack_helicopter", "fighter_aircraft"]
+    counteredBy: ["sead_aircraft"]
+    image: "/images/weapons/crotale_ng.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Crotale_(missile)"
+    summary: "Mobile French SAM with all-weather capability. Its mobility makes it difficult to suppress."
+    specs:
+      range: "11 km"
+      altitude: "6 km"
+      speed: "Mach 3.5"
+      missilesPerVehicle: 8
+    stats:
+      armor: 10
+      firepower: 65
+      speed: 50
+      range: 70
+
+  mirage_2000c:
+    id: "mirage_2000c"
+    name: "Dassault Mirage 2000C"
+    vendor: "france"
+    category: "fighter_aircraft"
+    unlockRequirement: 3
+    cost: 23000000
+    combatValue: 7
+    canAirstrike: true
+    counters: ["attack_helicopter"]
+    counteredBy: ["f15c_eagle", "sam_battery"]
+    image: "/images/weapons/mirage_2000c.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Dassault_Mirage_2000"
+    summary: "Fourth-gen delta-wing fighter. France's willingness to sell without political strings made it popular worldwide."
+    specs:
+      maxSpeed: "Mach 2.2"
+      range: "3,335 km"
+      armament: "2x 30mm DEFA, Super 530, Magic 2, various bombs"
+      crew: 1
+    stats:
+      armor: 15
+      firepower: 80
+      speed: 95
+      range: 65
+
+  mirage_f1:
+    id: "mirage_f1"
+    name: "Dassault Mirage F1"
+    vendor: "france"
+    category: "fighter_aircraft"
+    unlockRequirement: 0
+    cost: 12000000
+    combatValue: 5
+    canAirstrike: true
+    counters: []
+    counteredBy: ["f15c_eagle", "f16c_falcon", "mig29_fulcrum"]
+    image: "/images/weapons/mirage_f1.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Dassault_Mirage_F1"
+    summary: "Swept-wing fighter exported to over a dozen nations. Iraq's F1s famously attacked USS Stark in 1987. Aging but affordable."
+    specs:
+      maxSpeed: "Mach 2.2"
+      range: "2,150 km"
+      armament: "2x 30mm DEFA, R.530/Super 530, Magic"
+      crew: 1
+    stats:
+      armor: 15
+      firepower: 65
+      speed: 85
+      range: 55
+
+  # ------------------------------
+  # BLACK MARKET / SOVIET (6 weapons)
+  # ------------------------------
+
+  t62m:
+    id: "t62m"
+    name: "T-62M"
+    vendor: "black_market"
+    category: "light_armor"
+    unlockRequirement: 0
+    deliveryDelay: 1
+    cost: 600000
+    combatValue: 2
+    counters: []
+    counteredBy: ["m1a1_abrams", "ah64_apache", "main_battle_tank"]
+    image: "/images/weapons/t62m.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/T-62"
+    summary: "Soviet MBT from 1961 with world's first smoothbore tank gun. Exported massively - huge stockpiles make them extremely cheap."
+    specs:
+      weight: "40 tonnes"
+      mainGun: "115mm U-5TS smoothbore"
+      engine: "580 hp V-55 diesel"
+      maxSpeed: "50 km/h"
+      crew: 4
+    stats:
+      armor: 45
+      firepower: 50
+      speed: 50
+      range: 40
+
+  t72m:
+    id: "t72m"
+    name: "T-72M"
+    vendor: "black_market"
+    category: "main_battle_tank"
+    unlockRequirement: 5
+    deliveryDelay: 2
+    cost: 1800000
+    combatValue: 4
+    counters: ["light_armor"]
+    counteredBy: ["m1a1_abrams", "challenger_1", "ah64_apache"]
+    image: "/images/weapons/t72m.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/T-72"
+    summary: "Most-produced post-WWII tank. Export 'monkey model' with downgraded armor. Performed poorly against M1s in Gulf War."
+    specs:
+      weight: "41 tonnes"
+      mainGun: "125mm 2A46 smoothbore"
+      engine: "780 hp V-46-6 diesel"
+      maxSpeed: "60 km/h"
+      autoloader: true
+      crew: 3
+    stats:
+      armor: 70
+      firepower: 75
+      speed: 60
+      range: 40
+
+  mi24v_hind:
+    id: "mi24v_hind"
+    name: "Mi-24V Hind"
+    vendor: "black_market"
+    category: "attack_helicopter"
+    unlockRequirement: 8
+    deliveryDelay: 2
+    cost: 6000000
+    combatValue: 4
+    counters: ["light_armor", "infantry_brigade"]
+    counteredBy: ["sam_battery", "fighter_aircraft", "ah64_apache"]
+    image: "/images/weapons/mi24v_hind.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Mil_Mi-24"
+    summary: "Soviet 'flying tank' with heavy armor and troop capacity. Less agile than Apache but extremely rugged."
+    specs:
+      maxSpeed: "335 km/h"
+      range: "450 km"
+      armament: "12.7mm YakB-12.7, 9M114 Shturm ATGMs, rocket pods"
+      troopCapacity: 8
+      crew: 3
+    stats:
+      armor: 40
+      firepower: 65
+      speed: 55
+      range: 45
+
+  s300pmu:
+    id: "s300pmu"
+    name: "S-300PMU"
+    vendor: "black_market"
+    category: "sam_battery"
+    unlockRequirement: 15
+    deliveryDelay: 3
+    cost: 8000000
+    combatValue: 8
+    counters: ["fighter_aircraft", "attack_helicopter"]
+    counteredBy: ["f4g_wild_weasel", "sead_aircraft"]
+    image: "/images/weapons/s300pmu.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/S-300_missile_system"
+    summary: "Soviet premier long-range SAM, comparable to Patriot. A game-changer for air defense. Russia's attempted sales to Syria and Iran caused major tensions."
+    specs:
+      range: "150 km"
+      altitude: "27 km"
+      speed: "Mach 6"
+      missilesPerLauncher: 4
+      simultaneousTargets: 6
+    stats:
+      armor: 15
+      firepower: 95
+      speed: 30
+      range: 100
+
+  mig29_fulcrum:
+    id: "mig29_fulcrum"
+    name: "MiG-29 Fulcrum"
+    vendor: "black_market"
+    category: "fighter_aircraft"
+    unlockRequirement: 10
+    deliveryDelay: 2
+    cost: 22000000
+    combatValue: 7
+    canAirstrike: false
+    counters: ["attack_helicopter"]
+    counteredBy: ["f15c_eagle", "sam_battery"]
+    image: "/images/weapons/mig29_fulcrum.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Mikoyan_MiG-29"
+    summary: "Soviet answer to F-15/F-16 with exceptional close-range capability. Limited range made it inferior in beyond-visual-range combat."
+    specs:
+      maxSpeed: "Mach 2.25"
+      range: "1,430 km"
+      armament: "30mm GSh-30-1, R-27, R-73"
+      crew: 1
+    stats:
+      armor: 15
+      firepower: 80
+      speed: 95
+      range: 50
+
+  su24_fencer:
+    id: "su24_fencer"
+    name: "Su-24M Fencer"
+    vendor: "black_market"
+    category: "fighter_aircraft"
+    unlockRequirement: 12
+    deliveryDelay: 2
+    cost: 18000000
+    combatValue: 5
+    canAirstrike: true
+    bonusVsGround: 1.4
+    counters: ["ground_targets"]
+    counteredBy: ["f15c_eagle", "sam_battery"]
+    image: "/images/weapons/su24_fencer.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Sukhoi_Su-24"
+    summary: "Soviet equivalent to F-111 strike aircraft. Excellent ground attack platform but vulnerable in air combat."
+    specs:
+      maxSpeed: "Mach 1.35"
+      range: "2,775 km"
+      armament: "23mm GSh-6-23, 8,000 kg bombs/missiles"
+      crew: 2
+    stats:
+      armor: 20
+      firepower: 75
+      speed: 80
+      range: 70
+
+  # ------------------------------
+  # ISRAELI DOMESTIC (2 weapons)
+  # Starting arsenal - cannot be purchased
+  # ------------------------------
+
+  merkava_mk3:
+    id: "merkava_mk3"
+    name: "Merkava Mk.3"
+    hebrewName: "Merkava"
+    vendor: "israel_domestic"
+    category: "main_battle_tank"
+    unlockRequirement: -1  # Cannot be purchased
+    cost: 0
+    combatValue: 6
+    counters: ["light_armor", "t72m"]
+    counteredBy: ["ah64_apache"]
+    image: "/images/weapons/merkava_mk3.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/Merkava"
+    summary: "Israel's indigenous MBT designed with crew survival as top priority. Front-mounted engine protects crew. Represents decades of combat experience."
+    specs:
+      weight: "65 tonnes"
+      mainGun: "120mm MG253 smoothbore"
+      engine: "1,200 hp AVDS-1790"
+      maxSpeed: "60 km/h"
+      crew: 4
+    stats:
+      armor: 90
+      firepower: 85
+      speed: 60
+      range: 45
+
+  iai_kfir:
+    id: "iai_kfir"
+    name: "IAI Kfir C.7"
+    hebrewName: "Kfir"
+    vendor: "israel_domestic"
+    category: "fighter_aircraft"
+    unlockRequirement: -1  # Cannot be purchased
+    cost: 0
+    combatValue: 5
+    canAirstrike: true
+    counters: []
+    counteredBy: ["f15c_eagle", "mig29_fulcrum", "sam_battery"]
+    image: "/images/weapons/iai_kfir.png"
+    wikipediaUrl: "https://en.wikipedia.org/wiki/IAI_Kfir"
+    summary: "Israeli-built fighter based on embargoed Mirage 5 with US J79 engine. Demonstrates Israel's determination for defense independence."
+    specs:
+      maxSpeed: "Mach 2.3"
+      range: "1,760 km"
+      armament: "2x 30mm DEFA, various missiles and bombs"
+      crew: 1
+    stats:
+      armor: 15
+      firepower: 70
+      speed: 90
+      range: 55
+
+  # ------------------------------
+  # INFANTRY (special)
+  # ------------------------------
 
   infantry_brigade:
     id: "infantry_brigade"
     name: "Infantry Brigade"
+    vendor: "israel_domestic"
     category: "infantry"
-    description: "Ground troops for occupation"
-    costPerUnit: 0
+    unlockRequirement: -1  # Cannot be purchased
+    cost: 0
     combatValue: 2
     canOccupy: true
     canPolice: true
-    availability:
-      usa: { minPurchases: 0, price: 0 }
+    counters: []
+    counteredBy: ["main_battle_tank", "attack_helicopter"]
+    image: "/images/icons/icon_infantry.png"
+    summary: "Ground troops for occupation and policing operations. Required for territorial control and Palestinian policing."
+    stats:
+      armor: 10
+      firepower: 30
+      speed: 20
+      range: 10

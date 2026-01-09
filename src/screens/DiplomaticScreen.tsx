@@ -7,6 +7,7 @@ import { Panel } from '../components/ui/Panel';
 import { Scanlines } from '../components/ui/Scanlines';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { StabilityBar } from '../components/ui/HatchedBar';
+import { LeaderPortrait } from '../components/ui/GameImage';
 import { useGameStore } from '../store/gameStore';
 import { COUNTRY_NAMES, COUNTRY_FLAGS, COUNTRY_CODES } from '../utils/countryData';
 import type { CountryId, CountryState, DiplomaticAction } from '../types/game';
@@ -46,8 +47,16 @@ function RetroCountryCard({ country, currentAction, onActionChange }: RetroCount
         </div>
 
         {/* Leader */}
-        <div className="font-mono text-[9px] text-gray-500 mb-3">
-          LEADER: {country.leader.name.toUpperCase()}
+        <div className="flex items-center gap-2 mb-3">
+          <LeaderPortrait
+            leaderId={`leader_${country.id}`}
+            leaderName={country.leader.name}
+            countryId={country.id}
+            size="sm"
+          />
+          <div className="font-mono text-[9px] text-gray-500">
+            LEADER: {country.leader.name.toUpperCase()}
+          </div>
         </div>
 
         {/* Stability bar */}

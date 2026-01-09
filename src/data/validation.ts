@@ -98,24 +98,43 @@ export const countryConfigSchema = z.object({
 
 // === Weapon Validation ===
 
-export const weaponAvailabilitySchema = z.object({
-  minPurchases: z.number().int().min(0),
-  price: z.number().min(0),
+export const weaponStatsSchema = z.object({
+  armor: z.number().min(0).max(100),
+  firepower: z.number().min(0).max(100),
+  speed: z.number().min(0).max(100),
+  range: z.number().min(0).max(100),
 });
+
+export const weaponSpecsSchema = z.object({
+  weight: z.string().optional(),
+  mainGun: z.string().optional(),
+  engine: z.string().optional(),
+  maxSpeed: z.string().optional(),
+  range: z.string().optional(),
+  ceiling: z.string().optional(),
+  armament: z.string().optional(),
+  crew: z.number().optional(),
+}).optional();
 
 export const weaponConfigSchema = z.object({
   id: z.string(),
   name: z.string(),
-  category: z.enum(['armor', 'aircraft', 'air_defense', 'infantry']),
-  description: z.string(),
-  costPerUnit: z.number().min(0),
+  hebrewName: z.string().optional(),
+  vendor: z.enum(['usa', 'uk', 'france', 'black_market']),
+  category: z.enum(['light_armor', 'main_battle_tank', 'attack_helicopter', 'sam_battery', 'fighter_aircraft', 'sead_aircraft', 'infantry']),
+  unlockRequirement: z.number().min(0),
+  cost: z.number().min(0),
   combatValue: z.number().positive(),
   counters: z.array(z.string()).optional(),
   counteredBy: z.array(z.string()).optional(),
+  image: z.string(),
+  wikipediaUrl: z.string().optional(),
+  summary: z.string().optional(),
+  specs: weaponSpecsSchema,
+  stats: weaponStatsSchema,
   canAirstrike: z.boolean().optional(),
   canOccupy: z.boolean().optional(),
   canPolice: z.boolean().optional(),
-  availability: z.record(z.string(), weaponAvailabilitySchema),
 });
 
 // === Validation Functions ===

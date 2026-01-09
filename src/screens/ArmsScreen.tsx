@@ -9,6 +9,7 @@ import { Scanlines } from '../components/ui/Scanlines';
 import { useGameStore } from '../store/gameStore';
 import { useUIStore } from '../store/uiStore';
 import { EconomyEngine } from '../engine/EconomyEngine';
+import { GameImage } from '../components/ui/GameImage';
 import type { VendorId, WeaponId } from '../types/game';
 
 const VENDORS: { id: VendorId; name: string; flag: string; country: string }[] = [
@@ -18,20 +19,15 @@ const VENDORS: { id: VendorId; name: string; flag: string; country: string }[] =
   { id: 'black_market', name: 'BLACK MKT', flag: '🏴', country: 'Underground' },
 ];
 
-// Weapon display info
-const WEAPON_INFO: Record<string, { name: string; icon: string; category: string }> = {
-  light_tank: { name: 'Light Tank', icon: '🚗', category: 'ARMOR' },
-  main_battle_tank: { name: 'Main Battle Tank', icon: '🛡️', category: 'ARMOR' },
-  anti_tank_helicopter: { name: 'AT Helicopter', icon: '🚁', category: 'AIR' },
-  sam_battery: { name: 'SAM Battery', icon: '🚀', category: 'DEF' },
-  fighter_aircraft: { name: 'Fighter Jet', icon: '✈️', category: 'AIR' },
-  anti_sam_helicopter: { name: 'SEAD Helo', icon: '🚁', category: 'AIR' },
-  infantry_brigade: { name: 'Infantry Brigade', icon: '🚶', category: 'INF' },
-  bomber_aircraft: { name: 'Bomber', icon: '💣', category: 'AIR' },
-  attack_helicopter: { name: 'Attack Helo', icon: '🚁', category: 'AIR' },
-  naval_vessel: { name: 'Naval Vessel', icon: '🚢', category: 'NAVY' },
-  artillery: { name: 'Artillery', icon: '💥', category: 'ARTY' },
-  armor_brigade: { name: 'Armor Brigade', icon: '🛡️', category: 'ARMOR' },
+// Category display names
+const CATEGORY_NAMES: Record<string, string> = {
+  light_armor: 'ARMOR',
+  main_battle_tank: 'MBT',
+  attack_helicopter: 'HELO',
+  sam_battery: 'SAM',
+  fighter_aircraft: 'AIR',
+  sead_aircraft: 'SEAD',
+  infantry: 'INF',
 };
 
 function formatCurrency(amount: number): string {
@@ -158,78 +154,99 @@ export function ArmsScreen() {
             Weapon Catalog
           </div>
 
-          <div className="space-y-2">
-            {vendorWeapons.map(({ weapon, price, available, reason }) => {
-              const info = WEAPON_INFO[weapon] || { name: weapon, icon: '📦', category: '???' };
+          <div className="space-y-3">
+            {vendorWeapons.map(({ weapon, price, available, reason, weaponData }) => {
               const canPurchase = available && !isVendorEmbargoed;
+              const categoryName = CATEGORY_NAMES[weaponData.category] || weaponData.category.toUpperCase();
 
               return (
                 <div
                   key={weapon}
                   className={`border-2 ${canPurchase ? 'border-gray-300' : 'border-gray-200 bg-gray-50'} p-2`}
                 >
-                  <div className="flex items-start gap-2">
-                    {/* Icon */}
-                    <div className="w-10 h-10 border border-gray-300 bg-gray-100 flex items-center justify-center text-xl flex-shrink-0">
-                      {info.icon}
+                  {/* Weapon Image */}
+                  <div className="mb-2">
+                    <GameImage
+                      src={weaponData.image}
+                      alt={weaponData.name}
+                      className="w-full"
+                      width={256}
+                      height={128}
+                      retroBorder
+                      fallback={
+                        <div className="w-full h-24 bg-gray-200 border-2 border-black flex items-center justify-center">
+                          <span className="font-mono text-xs text-gray-500">{weaponData.name}</span>
+                        </div>
+                      }
+                    />
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="font-mono font-bold text-[11px] truncate">
+                      {weaponData.name.toUpperCase()}
                     </div>
+                    <span className="font-mono text-[8px] px-1 py-0.5 bg-gray-200 border border-gray-300">
+                      {categoryName}
+                    </span>
+                  </div>
 
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <div className="font-mono font-bold text-[10px] truncate">
-                          {info.name.toUpperCase()}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="font-mono text-[8px] px-1 py-0.5 bg-gray-200 border border-gray-300">
-                            {info.category}
-                          </span>
-                        </div>
-                      </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-mono text-[11px] text-green-700 font-bold">
+                      {formatCurrency(price)}
+                    </span>
+                    <span className="font-mono text-[9px] text-gray-500">
+                      OWNED: <span className="text-blue-600 font-bold">{game.player.arsenal[weapon] || 0}</span>
+                    </span>
+                  </div>
 
-                      <div className="flex items-center justify-between mt-1">
-                        <span className="font-mono text-[10px] text-green-700 font-bold">
-                          {formatCurrency(price)}
-                        </span>
-                        <span className="font-mono text-[9px] text-gray-500">
-                          OWNED: <span className="text-blue-600 font-bold">{game.player.arsenal[weapon] || 0}</span>
-                        </span>
-                      </div>
-
-                      {/* Purchase buttons or reason */}
-                      <div className="mt-2">
-                        {canPurchase ? (
-                          <div className="flex gap-1">
-                            <button
-                              type="button"
-                              onClick={() => handlePurchase(weapon, 1)}
-                              className="flex-1 py-1 font-mono font-bold text-[9px] border-2 border-black bg-white retro-shadow-sm hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
-                            >
-                              BUY 1
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handlePurchase(weapon, 5)}
-                              className="flex-1 py-1 font-mono font-bold text-[9px] border-2 border-gray-400 bg-gray-100 hover:bg-gray-200 active:translate-x-0.5 active:translate-y-0.5"
-                            >
-                              BUY 5
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handlePurchase(weapon, 10)}
-                              className="flex-1 py-1 font-mono font-bold text-[9px] border-2 border-gray-400 bg-gray-100 hover:bg-gray-200 active:translate-x-0.5 active:translate-y-0.5"
-                            >
-                              BUY 10
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="font-mono text-[9px] text-yellow-700 italic">
-                            {isVendorEmbargoed ? 'Vendor embargo in effect' : reason}
-                          </div>
-                        )}
-                      </div>
+                  {/* Combat value indicator */}
+                  <div className="flex items-center gap-1 mb-2">
+                    <span className="font-mono text-[8px] text-gray-500">COMBAT:</span>
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 10 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-2 h-2 border ${
+                            i < weaponData.combatValue
+                              ? 'bg-green-500 border-green-600'
+                              : 'bg-gray-200 border-gray-300'
+                          }`}
+                        />
+                      ))}
                     </div>
                   </div>
+
+                  {/* Purchase buttons or reason */}
+                  {canPurchase ? (
+                    <div className="flex gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handlePurchase(weapon, 1)}
+                        className="flex-1 py-1.5 font-mono font-bold text-[9px] border-2 border-black bg-white retro-shadow-sm hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                      >
+                        BUY 1
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handlePurchase(weapon, 5)}
+                        className="flex-1 py-1.5 font-mono font-bold text-[9px] border-2 border-gray-400 bg-gray-100 hover:bg-gray-200 active:translate-x-0.5 active:translate-y-0.5"
+                      >
+                        BUY 5
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handlePurchase(weapon, 10)}
+                        className="flex-1 py-1.5 font-mono font-bold text-[9px] border-2 border-gray-400 bg-gray-100 hover:bg-gray-200 active:translate-x-0.5 active:translate-y-0.5"
+                      >
+                        BUY 10
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="py-1.5 px-2 bg-yellow-50 border border-yellow-200 font-mono text-[9px] text-yellow-700 italic text-center">
+                      {isVendorEmbargoed ? 'Vendor embargo in effect' : reason}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -244,15 +261,16 @@ export function ArmsScreen() {
             </div>
             <div className="space-y-1">
               {game.player.pendingDeliveries.map((delivery, index) => {
-                const info = WEAPON_INFO[delivery.weaponId] || { name: delivery.weaponId, icon: '📦' };
+                const weaponInfo = EconomyEngine.getWeaponData(delivery.weaponId);
+                const name = weaponInfo?.name || delivery.weaponId;
                 return (
                   <div
                     key={index}
                     className="flex items-center justify-between p-2 bg-gray-50 border border-gray-300 font-mono text-[10px]"
                   >
                     <div className="flex items-center gap-2">
-                      <span>{info.icon}</span>
-                      <span>{delivery.quantity}x {info.name.toUpperCase()}</span>
+                      <span className="text-xs">📦</span>
+                      <span>{delivery.quantity}x {name.toUpperCase()}</span>
                     </div>
                     <span className="text-yellow-600 font-bold">
                       {delivery.turnsRemaining} TURN{delivery.turnsRemaining > 1 ? 'S' : ''}

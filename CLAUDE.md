@@ -26,6 +26,16 @@ Read these documents in order of relevance to your task:
 
 ---
 
+## Code Quality
+
+1. **Avoid code duplication** - Extract shared logic into reusable functions/components. DRY (Don't Repeat Yourself).
+
+2. **Keep modularity** - Small, focused functions and components. Single responsibility principle.
+
+3. **Don't over-engineer** - Only build what's needed now. Avoid speculative features or abstractions for hypothetical future requirements.
+
+---
+
 ## Tech Stack
 
 ```

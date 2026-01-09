@@ -11,81 +11,326 @@ import type {
   PendingDelivery,
 } from '../types/game';
 
-// Weapon data - would normally come from YAML but hardcoded for engine purity
-const WEAPON_DATA: Record<WeaponId, {
+// Weapon data - 26 specific weapons from catalog
+// Each weapon belongs to a single vendor
+interface WeaponData {
   name: string;
-  costPerUnit: number;
+  vendor: VendorId;
+  category: string;
+  cost: number;
   combatValue: number;
-  availability: Partial<Record<VendorId, { minPurchases: number; price: number }>>;
-}> = {
+  unlockRequirement: number;
+  image: string;
+}
+
+const WEAPON_DATA: Record<WeaponId, WeaponData> = {
+  // USA Vendor (7 weapons)
+  m60a3_patton: {
+    name: 'M60A3 Patton',
+    vendor: 'usa',
+    category: 'light_armor',
+    cost: 1200000,
+    combatValue: 2,
+    unlockRequirement: 0,
+    image: '/images/weapons/m60a3_patton.png',
+  },
+  m1a1_abrams: {
+    name: 'M1A1 Abrams',
+    vendor: 'usa',
+    category: 'main_battle_tank',
+    cost: 4500000,
+    combatValue: 6,
+    unlockRequirement: 10,
+    image: '/images/weapons/m1a1_abrams.png',
+  },
+  ah64_apache: {
+    name: 'AH-64A Apache',
+    vendor: 'usa',
+    category: 'attack_helicopter',
+    cost: 15000000,
+    combatValue: 7,
+    unlockRequirement: 15,
+    image: '/images/weapons/ah64_apache.png',
+  },
+  mim104_patriot: {
+    name: 'MIM-104 Patriot',
+    vendor: 'usa',
+    category: 'sam_battery',
+    cost: 4000000,
+    combatValue: 5,
+    unlockRequirement: 12,
+    image: '/images/weapons/mim104_patriot.png',
+  },
+  f15c_eagle: {
+    name: 'F-15C Eagle',
+    vendor: 'usa',
+    category: 'fighter_aircraft',
+    cost: 30000000,
+    combatValue: 9,
+    unlockRequirement: 20,
+    image: '/images/weapons/f15c_eagle.png',
+  },
+  f16c_falcon: {
+    name: 'F-16C Fighting Falcon',
+    vendor: 'usa',
+    category: 'fighter_aircraft',
+    cost: 18000000,
+    combatValue: 7,
+    unlockRequirement: 8,
+    image: '/images/weapons/f16c_falcon.png',
+  },
+  f4g_wild_weasel: {
+    name: 'F-4G Wild Weasel',
+    vendor: 'usa',
+    category: 'sead_aircraft',
+    cost: 22000000,
+    combatValue: 6,
+    unlockRequirement: 25,
+    image: '/images/weapons/f4g_wild_weasel.png',
+  },
+
+  // UK Vendor (5 weapons)
+  chieftain_mk11: {
+    name: 'Chieftain Mk.11',
+    vendor: 'uk',
+    category: 'light_armor',
+    cost: 1000000,
+    combatValue: 2,
+    unlockRequirement: 0,
+    image: '/images/weapons/chieftain_mk11.png',
+  },
+  challenger_1: {
+    name: 'Challenger 1',
+    vendor: 'uk',
+    category: 'main_battle_tank',
+    cost: 4000000,
+    combatValue: 5,
+    unlockRequirement: 8,
+    image: '/images/weapons/challenger_1.png',
+  },
+  lynx_ah7: {
+    name: 'Westland Lynx AH.7',
+    vendor: 'uk',
+    category: 'attack_helicopter',
+    cost: 8000000,
+    combatValue: 4,
+    unlockRequirement: 10,
+    image: '/images/weapons/lynx_ah7.png',
+  },
+  rapier_fsc: {
+    name: 'Rapier FSC',
+    vendor: 'uk',
+    category: 'sam_battery',
+    cost: 2500000,
+    combatValue: 3,
+    unlockRequirement: 6,
+    image: '/images/weapons/rapier_fsc.png',
+  },
+  tornado_gr1: {
+    name: 'Panavia Tornado GR.1',
+    vendor: 'uk',
+    category: 'fighter_aircraft',
+    cost: 25000000,
+    combatValue: 6,
+    unlockRequirement: 15,
+    image: '/images/weapons/tornado_gr1.png',
+  },
+
+  // France Vendor (6 weapons)
+  amx30b2: {
+    name: 'AMX-30B2',
+    vendor: 'france',
+    category: 'light_armor',
+    cost: 900000,
+    combatValue: 2,
+    unlockRequirement: 0,
+    image: '/images/weapons/amx30b2.png',
+  },
+  leclerc: {
+    name: 'AMX-56 Leclerc',
+    vendor: 'france',
+    category: 'main_battle_tank',
+    cost: 5000000,
+    combatValue: 6,
+    unlockRequirement: 12,
+    image: '/images/weapons/leclerc.png',
+  },
+  gazelle_hot: {
+    name: 'SA 342 Gazelle HOT',
+    vendor: 'france',
+    category: 'attack_helicopter',
+    cost: 6000000,
+    combatValue: 3,
+    unlockRequirement: 5,
+    image: '/images/weapons/gazelle_hot.png',
+  },
+  crotale_ng: {
+    name: 'Crotale NG',
+    vendor: 'france',
+    category: 'sam_battery',
+    cost: 3000000,
+    combatValue: 4,
+    unlockRequirement: 8,
+    image: '/images/weapons/crotale_ng.png',
+  },
+  mirage_2000c: {
+    name: 'Dassault Mirage 2000C',
+    vendor: 'france',
+    category: 'fighter_aircraft',
+    cost: 23000000,
+    combatValue: 7,
+    unlockRequirement: 10,
+    image: '/images/weapons/mirage_2000c.png',
+  },
+  mirage_f1: {
+    name: 'Dassault Mirage F1',
+    vendor: 'france',
+    category: 'fighter_aircraft',
+    cost: 15000000,
+    combatValue: 5,
+    unlockRequirement: 5,
+    image: '/images/weapons/mirage_f1.png',
+  },
+
+  // Black Market / Soviet (6 weapons)
+  t62m: {
+    name: 'T-62M',
+    vendor: 'black_market',
+    category: 'light_armor',
+    cost: 600000,
+    combatValue: 2,
+    unlockRequirement: 0,
+    image: '/images/weapons/t62m.png',
+  },
+  t72m: {
+    name: 'T-72M',
+    vendor: 'black_market',
+    category: 'main_battle_tank',
+    cost: 1800000,
+    combatValue: 4,
+    unlockRequirement: 0,
+    image: '/images/weapons/t72m.png',
+  },
+  mi24v_hind: {
+    name: 'Mi-24V Hind',
+    vendor: 'black_market',
+    category: 'attack_helicopter',
+    cost: 10000000,
+    combatValue: 5,
+    unlockRequirement: 5,
+    image: '/images/weapons/mi24v_hind.png',
+  },
+  s300pmu: {
+    name: 'S-300PMU',
+    vendor: 'black_market',
+    category: 'sam_battery',
+    cost: 8000000,
+    combatValue: 7,
+    unlockRequirement: 10,
+    image: '/images/weapons/s300pmu.png',
+  },
+  mig29_fulcrum: {
+    name: 'MiG-29 Fulcrum',
+    vendor: 'black_market',
+    category: 'fighter_aircraft',
+    cost: 20000000,
+    combatValue: 6,
+    unlockRequirement: 8,
+    image: '/images/weapons/mig29_fulcrum.png',
+  },
+  su24_fencer: {
+    name: 'Su-24M Fencer',
+    vendor: 'black_market',
+    category: 'sead_aircraft',
+    cost: 18000000,
+    combatValue: 5,
+    unlockRequirement: 12,
+    image: '/images/weapons/su24_fencer.png',
+  },
+
+  // Israeli Domestic (2 weapons) - not purchasable, starting equipment only
+  merkava_mk3: {
+    name: 'Merkava Mk.3',
+    vendor: 'usa', // Placeholder - not actually for sale
+    category: 'main_battle_tank',
+    cost: 3500000,
+    combatValue: 7,
+    unlockRequirement: 999, // Not purchasable
+    image: '/images/weapons/merkava_mk3.png',
+  },
+  iai_kfir: {
+    name: 'IAI Kfir C.7',
+    vendor: 'usa', // Placeholder - not actually for sale
+    category: 'fighter_aircraft',
+    cost: 12000000,
+    combatValue: 5,
+    unlockRequirement: 999, // Not purchasable
+    image: '/images/weapons/iai_kfir.png',
+  },
+
+  // Legacy generic weapon types (for backwards compatibility with combat system)
   light_tank: {
     name: 'Light Tank',
-    costPerUnit: 1000000,
-    combatValue: 1,
-    availability: {
-      usa: { minPurchases: 0, price: 1000000 },
-      uk: { minPurchases: 0, price: 1000000 },
-      france: { minPurchases: 0, price: 1100000 },
-      black_market: { minPurchases: 0, price: 1200000 },
-    },
+    vendor: 'usa',
+    category: 'light_armor',
+    cost: 1000000,
+    combatValue: 2,
+    unlockRequirement: 999, // Not purchasable - legacy type
+    image: '/images/weapons/m60a3_patton.png',
   },
   main_battle_tank: {
     name: 'Main Battle Tank',
-    costPerUnit: 2000000,
-    combatValue: 3,
-    availability: {
-      usa: { minPurchases: 5, price: 2000000 },
-      uk: { minPurchases: 5, price: 2100000 },
-      france: { minPurchases: 3, price: 2200000 },
-      black_market: { minPurchases: 0, price: 2400000 },
-    },
+    vendor: 'usa',
+    category: 'main_battle_tank',
+    cost: 3000000,
+    combatValue: 5,
+    unlockRequirement: 999,
+    image: '/images/weapons/m1a1_abrams.png',
   },
   anti_tank_helicopter: {
-    name: 'Anti-Tank Helicopter',
-    costPerUnit: 5000000,
-    combatValue: 4,
-    availability: {
-      usa: { minPurchases: 10, price: 5000000 },
-      black_market: { minPurchases: 5, price: 6000000 },
-    },
+    name: 'Attack Helicopter',
+    vendor: 'usa',
+    category: 'attack_helicopter',
+    cost: 10000000,
+    combatValue: 6,
+    unlockRequirement: 999,
+    image: '/images/weapons/ah64_apache.png',
   },
   sam_battery: {
     name: 'SAM Battery',
-    costPerUnit: 3000000,
-    combatValue: 2,
-    availability: {
-      usa: { minPurchases: 8, price: 3000000 },
-      uk: { minPurchases: 8, price: 3200000 },
-      black_market: { minPurchases: 0, price: 3600000 },
-    },
+    vendor: 'usa',
+    category: 'sam_battery',
+    cost: 3000000,
+    combatValue: 4,
+    unlockRequirement: 999,
+    image: '/images/weapons/mim104_patriot.png',
   },
   fighter_aircraft: {
     name: 'Fighter Aircraft',
-    costPerUnit: 10000000,
-    combatValue: 5,
-    availability: {
-      usa: { minPurchases: 15, price: 10000000 },
-      uk: { minPurchases: 12, price: 10500000 },
-      france: { minPurchases: 10, price: 11000000 },
-      black_market: { minPurchases: 8, price: 12000000 },
-    },
+    vendor: 'usa',
+    category: 'fighter_aircraft',
+    cost: 20000000,
+    combatValue: 7,
+    unlockRequirement: 999,
+    image: '/images/weapons/f15c_eagle.png',
   },
   anti_sam_helicopter: {
-    name: 'SEAD Helicopter',
-    costPerUnit: 8000000,
-    combatValue: 3,
-    availability: {
-      usa: { minPurchases: 20, price: 8000000 },
-      black_market: { minPurchases: 15, price: 9600000 },
-    },
+    name: 'SEAD Aircraft',
+    vendor: 'usa',
+    category: 'sead_aircraft',
+    cost: 15000000,
+    combatValue: 5,
+    unlockRequirement: 999,
+    image: '/images/weapons/f4g_wild_weasel.png',
   },
   infantry_brigade: {
     name: 'Infantry Brigade',
-    costPerUnit: 0,
+    vendor: 'usa',
+    category: 'infantry',
+    cost: 0,
     combatValue: 2,
-    availability: {
-      usa: { minPurchases: 0, price: 0 },
-    },
+    unlockRequirement: 999,
+    image: '/images/icons/icon_infantry.png',
   },
 };
 
@@ -256,17 +501,16 @@ export const EconomyEngine = {
 
     // Check weapon availability from this vendor
     const weaponData = WEAPON_DATA[weapon];
-    const vendorAvailability = weaponData.availability[vendor];
-    if (!vendorAvailability) {
+    if (!weaponData || weaponData.vendor !== vendor) {
       return { valid: false, reason: 'Weapon not available from this vendor' };
     }
 
-    // Check minimum purchase requirement
+    // Check unlock requirement (total purchases from this vendor)
     const currentPurchases = state.player.vendorPurchases[vendor] || 0;
-    if (currentPurchases < vendorAvailability.minPurchases) {
+    if (currentPurchases < weaponData.unlockRequirement) {
       return {
         valid: false,
-        reason: `Requires ${vendorAvailability.minPurchases} prior purchases from this vendor`,
+        reason: `Requires ${weaponData.unlockRequirement} prior purchases from this vendor`,
       };
     }
 
@@ -293,11 +537,11 @@ export const EconomyEngine = {
     quantity: number
   ): number => {
     const weaponData = WEAPON_DATA[weapon];
-    const vendorAvailability = weaponData.availability[vendor];
+    if (!weaponData || weaponData.vendor !== vendor) {
+      return Infinity;
+    }
 
-    if (!vendorAvailability) return Infinity;
-
-    let unitPrice = vendorAvailability.price;
+    let unitPrice = weaponData.cost;
 
     // Apply vendor price modifier (e.g., black market 1.2x)
     const vendorData = VENDOR_DATA[vendor];
@@ -379,22 +623,28 @@ export const EconomyEngine = {
   getVendorWeapons: (
     state: GameState,
     vendor: VendorId
-  ): { weapon: WeaponId; price: number; available: boolean; reason?: string }[] => {
-    const result: { weapon: WeaponId; price: number; available: boolean; reason?: string }[] = [];
+  ): { weapon: WeaponId; price: number; available: boolean; reason?: string; weaponData: WeaponData }[] => {
+    const result: { weapon: WeaponId; price: number; available: boolean; reason?: string; weaponData: WeaponData }[] = [];
 
     for (const [weaponId, weaponData] of Object.entries(WEAPON_DATA)) {
-      const vendorAvail = weaponData.availability[vendor as VendorId];
-      if (!vendorAvail) continue;
+      // Filter weapons by vendor
+      if (weaponData.vendor !== vendor) continue;
+      // Skip Israeli domestic weapons (not purchasable)
+      if (weaponData.unlockRequirement >= 999) continue;
 
       const canPurchase = EconomyEngine.canPurchase(state, vendor, weaponId as WeaponId, 1);
 
       result.push({
         weapon: weaponId as WeaponId,
-        price: vendorAvail.price,
+        price: weaponData.cost,
         available: canPurchase.valid,
         reason: canPurchase.reason,
+        weaponData,
       });
     }
+
+    // Sort by unlock requirement (cheaper/easier first)
+    result.sort((a, b) => a.weaponData.unlockRequirement - b.weaponData.unlockRequirement);
 
     return result;
   },

@@ -1,0 +1,227 @@
+# ============================================
+# Image Specifications for Pre-Generation
+# ============================================
+# Theme: Retro School Computer / Military Briefing / 1990s PC Strategy
+#
+# Consistent Style Tokens:
+# - "1-bit dithered pixel art" OR "vector line art on beige paper"
+# - "Monochrome or limited palette (Black, Red, Green on Beige)"
+# - "High contrast, thick outlines"
+
+global_style:
+  base: >
+    retro 1990s PC strategy game asset, pixel art style or low-fi digitized photograph style. 
+    Displayed on a beige paper texture background (#F3F3E8). 
+    Stark black outlines, high contrast. 
+    Military briefing aesthetic. 
+    No text, no labels.
+  
+  # Category-specific overrides to ensure consistency within groups
+  categories:
+    weapons: "technical line-art illustration, side profile, black ink on beige paper, blueprint style"
+    leaders: "digitized low-res portrait, 1990s VGA style, dithered shading, serious expression, passport photo composition"
+    maps: "tactical military map, top-down view, simple geographic outlines, NATO operational symbols"
+    news: "grainy black and white newspaper photo, halftone pattern, dramatic lighting"
+
+# ============================================
+# WEAPONS (26 images)
+# ============================================
+weapons:
+  size: { width: 512, height: 256 }
+  format: png
+  items:
+    # USA Vendor
+    - id: m60a3_patton
+      name: "M60A3 Patton"
+      vendor: usa
+      prompt: "M60A3 Patton tank, side profile"
+    - id: m1a1_abrams
+      name: "M1A1 Abrams"
+      vendor: usa
+      prompt: "M1A1 Abrams tank, side profile"
+    - id: f4_phantom
+      name: "F-4 Phantom"
+      vendor: usa
+      prompt: "F-4 Phantom fighter jet, side profile"
+    - id: f15_eagle
+      name: "F-15 Eagle"
+      vendor: usa
+      prompt: "F-15 Eagle fighter jet, side profile"
+    - id: f16_falcon
+      name: "F-16 Falcon"
+      vendor: usa
+      prompt: "F-16 Falcon fighter jet, side profile"
+    - id: e2c_hawkeye
+      name: "E-2C Hawkeye"
+      vendor: usa
+      prompt: "E-2C Hawkeye AWACS aircraft with radar dish, side profile"
+    - id: m109_howitzer
+      name: "M109 Howitzer"
+      vendor: usa
+      prompt: "M109 Self-Propelled Howitzer, side profile"
+
+    # France Vendor
+    - id: mirage_f1
+      name: "Mirage F1"
+      vendor: france
+      prompt: "Dassault Mirage F1 fighter, side profile"
+    - id: mirage_2000
+      name: "Mirage 2000"
+      vendor: france
+      prompt: "Mirage 2000 fighter jet, side profile"
+    - id: amx30
+      name: "AMX-30"
+      vendor: france
+      prompt: "AMX-30 main battle tank, side profile"
+    - id: sa321_superfrelon
+      name: "Super Frelon"
+      vendor: france
+      prompt: "SA 321 Super Frelon helicopter, side profile"
+    - id: exocet_system
+      name: "Exocet"
+      vendor: france
+      prompt: "Truck mounted Exocet missile launcher system, side profile"
+
+    # UK Vendor
+    - id: chieftain
+      name: "Chieftain"
+      vendor: uk
+      prompt: "Chieftain main battle tank, side profile"
+    - id: challenger
+      name: "Challenger 1"
+      vendor: uk
+      prompt: "Challenger 1 main battle tank, side profile"
+    - id: tornado
+      name: "Tornado"
+      vendor: uk
+      prompt: "Panavia Tornado fighter jet, side profile"
+    - id: rapier
+      name: "Rapier SAM"
+      vendor: uk
+      prompt: "Rapier surface-to-air missile system launcher, side profile"
+    - id: jaguar
+      name: "Jaguar"
+      vendor: uk
+      prompt: "SEPECAT Jaguar attack aircraft, side profile"
+
+    # Soviet/Russian Vendor
+    - id: t55
+      name: "T-55"
+      vendor: ussr
+      prompt: "T-55 tank, side profile"
+    - id: t62
+      name: "T-62"
+      vendor: ussr
+      prompt: "T-62 tank, side profile"
+    - id: t72
+      name: "T-72"
+      vendor: ussr
+      prompt: "T-72 main battle tank, side profile"
+    - id: mig21
+      name: "MiG-21"
+      vendor: ussr
+      prompt: "MiG-21 Fishbed fighter, side profile"
+    - id: mig23
+      name: "MiG-23"
+      vendor: ussr
+      prompt: "MiG-23 Flogger fighter, side profile"
+    - id: mig29
+      name: "MiG-29"
+      vendor: ussr
+      prompt: "MiG-29 Fulcrum fighter, side profile"
+    - id: su24
+      name: "Su-24"
+      vendor: ussr
+      prompt: "Su-24 Fencer attack aircraft, side profile"
+    - id: scud_b
+      name: "Scud-B"
+      vendor: ussr
+      prompt: "MAZ-543 Scud-B missile transporter erector launcher, side profile"
+    - id: sa6_gainful
+      name: "SA-6 Gainful"
+      vendor: ussr
+      prompt: "2K12 Kub (SA-6) SAM system on tracked chassis, side profile"
+
+# ============================================
+# LEADERS (13 images)
+# ============================================
+leaders:
+  size: { width: 300, height: 400 }
+  format: png
+  items:
+    - id: pm_israel
+      prompt: "Portrait of Israeli Prime Minister Benjamin Netanyahu circa 1996, suit and tie"
+    - id: pres_egypt
+      prompt: "Portrait of Egyptian President Hosni Mubarak, military uniform or suit"
+    - id: pres_syria
+      prompt: "Portrait of Syrian President Hafez al-Assad, suit and tie"
+    - id: king_jordan
+      prompt: "Portrait of King Hussein of Jordan, traditional keffiyeh or suit"
+    - id: pres_iraq
+      prompt: "Portrait of Iraqi President Saddam Hussein, military uniform and beret"
+    - id: leader_iran
+      prompt: "Portrait of Iranian Supreme Leader Ali Khamenei, cleric robes and turban"
+    - id: pres_lebanon
+      prompt: "Portrait of Lebanese President Elias Hrawi, suit and tie"
+    - id: leader_palestinian
+      prompt: "Portrait of Yasser Arafat, military uniform and keffiyeh"
+    - id: pres_libya
+      prompt: "Portrait of Muammar Gaddafi, military uniform"
+    - id: un_secgen
+      prompt: "Portrait of UN Secretary General Kofi Annan, suit and tie"
+    - id: us_president
+      prompt: "Portrait of US President Bill Clinton, suit and tie"
+    - id: pres_russia
+      prompt: "Portrait of Russian President Boris Yeltsin, suit and tie"
+    - id: pres_france
+      prompt: "Portrait of French President Jacques Chirac, suit and tie"
+
+# ============================================
+# MAPS (9 images)
+# ============================================
+maps:
+  size: { width: 800, height: 600 }
+  format: png
+  items:
+    - id: region_political
+      prompt: "Political map of the Middle East showing borders of Israel, Egypt, Jordan, Syria, Lebanon, Iraq, Iran"
+    - id: region_satellite
+      prompt: "Satellite terrain view of the Middle East, desert textures, Mediterranean sea"
+    - id: israel_detail
+      prompt: "Detailed map of Israel including West Bank and Gaza borders"
+    - id: golan_sector
+      prompt: "Tactical map of the Golan Heights region, terrain contours"
+    - id: sinai_sector
+      prompt: "Tactical map of the Sinai Peninsula"
+    - id: west_bank_sector
+      prompt: "Tactical map of the West Bank region"
+    - id: lebanon_border
+      prompt: "Tactical map of the Israel-Lebanon border region"
+    - id: nuclear_sites
+      prompt: "Map of Middle East highlighting strategic facility locations"
+    - id: world_map_flat
+      prompt: "Simple flat world map projection centered on Middle East/Europe"
+
+# ============================================
+# NEWS / EVENTS (Generic)
+# ============================================
+news_generic:
+  size: { width: 640, height: 480 }
+  format: png
+  items:
+    - id: diplomatic_handshake
+      prompt: "Two diplomats shaking hands in front of flags, black and white grainy photo"
+    - id: military_parade
+      prompt: "Military parade with tanks and soldiers, black and white grainy photo"
+    - id: unsc_meeting
+      prompt: "UN Security Council meeting chamber, wide shot"
+    - id: protests
+      prompt: "Crowd of protesters with signs in city street, grainy photo"
+    - id: airstrike_aftermath
+      prompt: "Smoke rising from a distant building, aerial view, grainy reconnaissance photo"
+    - id: peace_treaty
+      prompt: "Signing a document at a table, close up on hands and pen"
+    - id: oil_refinery
+      prompt: "Industrial oil refinery complex, silhouettes against sky"
+    - id: terrorist_attack
+      prompt: "Chaotic street scene with emergency vehicles, grainy photo"

@@ -13,8 +13,8 @@ import type {
   RelationshipLevel,
 } from '../types/game';
 
-// Combat value per weapon type
-const COMBAT_VALUES: Record<WeaponId, number> = {
+// Combat value per weapon type (legacy generic types for combat calculations)
+const COMBAT_VALUES: Partial<Record<WeaponId, number>> = {
   light_tank: 1,
   main_battle_tank: 3,
   anti_tank_helicopter: 4,
@@ -352,7 +352,7 @@ export const CombatEngine = {
    * Calculate combat phase result
    */
   resolveCombatPhase: (
-    playerArsenal: Record<WeaponId, number>,
+    playerArsenal: Partial<Record<WeaponId, number>>,
     enemyStrength: number,
     attackerWeapons: WeaponId[],
     defenderWeapons: WeaponId[],
@@ -369,7 +369,7 @@ export const CombatEngine = {
 
     for (const weapon of relevantWeapons) {
       const count = playerArsenal[weapon] || 0;
-      const combatValue = COMBAT_VALUES[weapon];
+      const combatValue = COMBAT_VALUES[weapon] || 0;
       playerStrength += count * combatValue;
     }
 

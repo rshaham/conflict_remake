@@ -74,7 +74,40 @@ export type NeighborCountryId = 'egypt' | 'syria' | 'jordan' | 'lebanon';
 
 export type VendorId = 'usa' | 'uk' | 'france' | 'black_market';
 
+// All 26 specific weapons from the catalog + legacy generic types
 export type WeaponId =
+  // USA Vendor (7)
+  | 'm60a3_patton'
+  | 'm1a1_abrams'
+  | 'ah64_apache'
+  | 'mim104_patriot'
+  | 'f15c_eagle'
+  | 'f16c_falcon'
+  | 'f4g_wild_weasel'
+  // UK Vendor (5)
+  | 'chieftain_mk11'
+  | 'challenger_1'
+  | 'lynx_ah7'
+  | 'rapier_fsc'
+  | 'tornado_gr1'
+  // France Vendor (6)
+  | 'amx30b2'
+  | 'leclerc'
+  | 'gazelle_hot'
+  | 'crotale_ng'
+  | 'mirage_2000c'
+  | 'mirage_f1'
+  // Black Market / Soviet (6)
+  | 't62m'
+  | 't72m'
+  | 'mi24v_hind'
+  | 's300pmu'
+  | 'mig29_fulcrum'
+  | 'su24_fencer'
+  // Israeli Domestic (2)
+  | 'merkava_mk3'
+  | 'iai_kfir'
+  // Legacy generic types (for combat calculations and starting arsenals)
   | 'light_tank'
   | 'main_battle_tank'
   | 'anti_tank_helicopter'
@@ -83,7 +116,14 @@ export type WeaponId =
   | 'anti_sam_helicopter'
   | 'infantry_brigade';
 
-export type WeaponCategory = 'armor' | 'aircraft' | 'air_defense' | 'infantry';
+export type WeaponCategory =
+  | 'light_armor'
+  | 'main_battle_tank'
+  | 'attack_helicopter'
+  | 'sam_battery'
+  | 'fighter_aircraft'
+  | 'sead_aircraft'
+  | 'infantry';
 
 export type DifficultyId = 'easy' | 'normal' | 'hard' | 'impossible';
 
@@ -141,7 +181,7 @@ export interface PlayerState {
   policingTactic: PolicingTactic;
 
   // Military
-  arsenal: Record<WeaponId, number>;
+  arsenal: Partial<Record<WeaponId, number>>;
   nuclearStage: NuclearStage;
   nuclearProgress: number; // Months of progress in current stage
   deployedTroops: Record<CountryId, number>; // Brigades on each border

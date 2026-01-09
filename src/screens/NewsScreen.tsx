@@ -5,6 +5,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Panel } from '../components/ui/Panel';
 import { Scanlines } from '../components/ui/Scanlines';
+import { NewsImage } from '../components/ui/GameImage';
 import { useGameStore } from '../store/gameStore';
 import type { GameState } from '../types/game';
 
@@ -66,6 +67,14 @@ export function NewsScreen() {
           <h2 className="font-pixel text-3xl leading-tight mb-3 bg-gray-100 p-2 border-l-4 border-black">
             {mainHeadline.title.toUpperCase()}
           </h2>
+
+          {/* News illustration */}
+          <div className="mb-4">
+            <NewsImage
+              topic={game.wars.length > 0 ? 'war' : 'diplomatic'}
+              className="w-full max-w-sm mx-auto"
+            />
+          </div>
 
           <p className="font-mono text-[11px] leading-relaxed mb-4">
             <span className="float-left text-4xl font-pixel mr-2 mt-[-2px]">
