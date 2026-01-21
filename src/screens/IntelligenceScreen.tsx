@@ -4,8 +4,7 @@
 // Mossad operations and intelligence actions
 // Retro terminal-heavy styling
 
-import { useNavigate } from 'react-router-dom';
-import { Scanlines } from '../components/ui/Scanlines';
+import { GameLayout } from '../components/game/GameLayout';
 import { useGameStore } from '../store/gameStore';
 import { IntelligenceEngine } from '../engine/IntelligenceEngine';
 import { COUNTRY_NAMES, COUNTRY_FLAGS } from '../utils/countryData';
@@ -31,17 +30,18 @@ const STABILITY_STYLES: Record<string, string> = {
 };
 
 export function IntelligenceScreen() {
-  const navigate = useNavigate();
   const game = useGameStore((state) => state.game);
   const setIntelligenceAction = useGameStore((state) => state.setIntelligenceAction);
   const attemptExtremeMeasure = useGameStore((state) => state.attemptExtremeMeasure);
+  const advancePhase = useGameStore((state) => state.advancePhase);
 
   if (!game) {
     return (
-      <div className="min-h-screen bg-retro-bg flex items-center justify-center">
-        <Scanlines />
-        <p className="font-mono text-retro-text-dim">No game in progress</p>
-      </div>
+      <GameLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <p className="font-mono text-retro-text-dim">No game in progress</p>
+        </div>
+      </GameLayout>
     );
   }
 
@@ -59,22 +59,11 @@ export function IntelligenceScreen() {
   const activeOps = Object.values(intelligenceActions).filter(a => a !== 'do_nothing').length;
 
   return (
-    <div className="min-h-screen flex flex-col bg-retro-bg">
-      <Scanlines />
-
-      {/* Header with back button */}
-      <div className="shrink-0 p-3 bg-white border-b-2 border-black flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => navigate('/game/hub')}
-          className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white retro-shadow-sm hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
-        >
-          ←
-        </button>
-        <div>
-          <h1 className="font-pixel text-lg leading-none">COVERT OPERATIONS</h1>
-          <div className="font-mono text-[8px] text-gray-500 uppercase tracking-wider">Intelligence Division</div>
-        </div>
+    <GameLayout>
+      {/* Header */}
+      <div className="shrink-0 p-3 bg-white border-b-2 border-black">
+        <h1 className="font-pixel text-lg leading-none">COVERT OPERATIONS</h1>
+        <div className="font-mono text-[8px] text-gray-500 uppercase tracking-wider">Intelligence Division</div>
       </div>
 
       {/* Terminal-style status display */}
@@ -262,12 +251,16 @@ export function IntelligenceScreen() {
 
       </div>
 
-      {/* Footer */}
+      {/* Footer with Continue */}
       <div className="shrink-0 p-3 bg-white border-t-2 border-black">
-        <div className="font-mono text-[9px] text-center text-gray-500 uppercase">
-          Intelligence Phase — Operations execute at end of turn
-        </div>
+        <button
+          type="button"
+          onClick={() => advancePhase()}
+          className="w-full py-3 bg-black text-white font-mono font-bold text-xs uppercase border-2 border-black retro-shadow-sm hover:bg-gray-800 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
+        >
+          CONTINUE → MILITARY
+        </button>
       </div>
-    </div>
+    </GameLayout>
   );
 }
