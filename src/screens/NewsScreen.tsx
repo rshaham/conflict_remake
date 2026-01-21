@@ -2,9 +2,8 @@
 // News Screen - Dot Matrix Bulletin Style
 // ============================================
 
-import { useNavigate } from 'react-router-dom';
 import { Panel } from '../components/ui/Panel';
-import { Scanlines } from '../components/ui/Scanlines';
+import { GameLayout } from '../components/game/GameLayout';
 import { NewsImage } from '../components/ui/GameImage';
 import { useGameStore } from '../store/gameStore';
 import type { GameState } from '../types/game';
@@ -15,16 +14,17 @@ const MONTH_NAMES = [
 ];
 
 export function NewsScreen() {
-  const navigate = useNavigate();
   const game = useGameStore((state) => state.game);
+  const advancePhase = useGameStore((state) => state.advancePhase);
 
   // If no game is loaded, show placeholder
   if (!game) {
     return (
-      <div className="min-h-screen bg-retro-bg flex items-center justify-center">
-        <Scanlines />
-        <p className="font-mono text-retro-text-dim">No game in progress</p>
-      </div>
+      <GameLayout>
+        <div className="flex-1 flex items-center justify-center">
+          <p className="font-mono text-retro-text-dim">No game in progress</p>
+        </div>
+      </GameLayout>
     );
   }
 
@@ -40,13 +40,11 @@ export function NewsScreen() {
   const ticker = generateTicker(game);
 
   const handleProceed = () => {
-    navigate('/game/hub');
+    advancePhase();
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-retro-bg">
-      <Scanlines />
-
+    <GameLayout>
       {/* Header bar */}
       <div className="shrink-0 p-3 bg-white border-b-2 border-black flex justify-between items-center">
         <span className="font-pixel text-2xl">THE CONFLICT</span>
@@ -129,7 +127,7 @@ export function NewsScreen() {
               onClick={handleProceed}
               className="w-full py-2 bg-red-600 text-white font-mono font-bold text-xs uppercase border-2 border-black retro-shadow-sm hover:bg-red-700 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
             >
-              PROCEED TO COMMAND CENTER
+              CONTINUE &rarr;
             </button>
           </div>
         </Panel>
@@ -167,7 +165,7 @@ export function NewsScreen() {
           </div>
         </Panel>
       </div>
-    </div>
+    </GameLayout>
   );
 }
 
