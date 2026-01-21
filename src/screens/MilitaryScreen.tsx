@@ -6,8 +6,7 @@
 // Nuclear program moved to NuclearScreen
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Scanlines } from '../components/ui/Scanlines';
+import { GameLayout } from '../components/game/GameLayout';
 import { HatchedBar } from '../components/ui/HatchedBar';
 import { useGameStore } from '../store/gameStore';
 import { COUNTRY_NAMES, COUNTRY_FLAGS } from '../utils/countryData';
@@ -25,32 +24,34 @@ const AIRSTRIKE_TARGET_TYPES: { id: AirstrikeTarget; name: string; desc: string;
   { id: 'nuclear', name: 'NUCLEAR', desc: 'Nuclear facilities', warning: 'Severe diplomatic fallout' },
 ];
 
-// Unit type display data
+// Unit type display data - using correct weapon IDs
 const UNIT_TYPES: { id: string; name: string; icon: string }[] = [
   { id: 'infantry_brigade', name: 'Infantry', icon: '🚶' },
-  { id: 'armor_brigade', name: 'Armor', icon: '🛡️' },
+  { id: 'light_tank', name: 'Lt Tank', icon: '🛡️' },
+  { id: 'main_battle_tank', name: 'MBT', icon: '🛡️' },
   { id: 'fighter_aircraft', name: 'Fighters', icon: '✈️' },
-  { id: 'bomber_aircraft', name: 'Bombers', icon: '💣' },
-  { id: 'attack_helicopter', name: 'Helos', icon: '🚁' },
-  { id: 'naval_vessel', name: 'Navy', icon: '🚢' },
+  { id: 'anti_tank_helicopter', name: 'AT Helo', icon: '🚁' },
+  { id: 'anti_sam_helicopter', name: 'SEAD', icon: '🚁' },
   { id: 'sam_battery', name: 'SAM', icon: '🚀' },
-  { id: 'artillery', name: 'Artillery', icon: '💥' },
 ];
 
 export function MilitaryScreen() {
-  const navigate = useNavigate();
-  const { game, deployTroops, orderAirstrike, cancelAirstrike } = useGameStore();
+  const { game, deployTroops, orderAirstrike, cancelAirstrike, declareWar, endTurn, advancePhase } = useGameStore();
 
   // Airstrike state
   const [selectedAirstrikeCountry, setSelectedAirstrikeCountry] = useState<CountryId>('syria');
   const [selectedAirstrikeType, setSelectedAirstrikeType] = useState<AirstrikeTarget>('military');
 
+  // War confirmation dialog state
+  const [showWarConfirm, setShowWarConfirm] = useState<CountryId | null>(null);
+
   if (!game) {
     return (
-      <div className="min-h-screen bg-retro-bg flex items-center justify-center">
-        <Scanlines />
-        <p className="font-mono text-retro-text-dim">No game in progress</p>
-      </div>
+      <GameLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <p className="font-mono text-retro-text-dim">No game in progress</p>
+        </div>
+      </GameLayout>
     );
   }
 
@@ -58,6 +59,17 @@ export function MilitaryScreen() {
     const current = game.player.deployedTroops[country] || 0;
     const newValue = Math.max(0, current + delta);
     deployTroops(country, newValue);
+  };
+
+  const handleDeclareWar = (country: CountryId) => {
+    setShowWarConfirm(country);
+  };
+
+  const confirmDeclareWar = () => {
+    if (showWarConfirm) {
+      declareWar(showWarConfirm);
+      setShowWarConfirm(null);
+    }
   };
 
   // Calculate available brigades
@@ -72,22 +84,11 @@ export function MilitaryScreen() {
   const fighters = game.player.arsenal.fighter_aircraft || 0;
 
   return (
-    <div className="min-h-screen flex flex-col bg-retro-bg">
-      <Scanlines />
-
-      {/* Header with back button */}
-      <div className="shrink-0 p-3 bg-white border-b-2 border-black flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => navigate('/game/hub')}
-          className="w-8 h-8 flex items-center justify-center border-2 border-black bg-white retro-shadow-sm hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
-        >
-          ←
-        </button>
-        <div>
-          <h1 className="font-pixel text-lg leading-none">STRATEGIC COMMAND</h1>
-          <div className="font-mono text-[8px] text-gray-500 uppercase tracking-wider">Military Operations</div>
-        </div>
+    <GameLayout>
+      {/* Header */}
+      <div className="shrink-0 p-3 bg-white border-b-2 border-black">
+        <h1 className="font-pixel text-lg leading-none">STRATEGIC COMMAND</h1>
+        <div className="font-mono text-[8px] text-gray-500 uppercase tracking-wider">Military Operations</div>
       </div>
 
       {/* Terminal-style readiness display */}
@@ -144,42 +145,55 @@ export function MilitaryScreen() {
               const deployed = game.player.deployedTroops[country] || 0;
               const countryState = game.countries[country];
               const isAtWar = countryState.relationship === 'war';
+              const isHostile = countryState.relationship === 'hostile';
 
               return (
-                <div
-                  key={country}
-                  className={`flex items-center justify-between p-2 border-2 ${
-                    isAtWar ? 'border-red-600 bg-red-50' : 'border-gray-300 bg-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{COUNTRY_FLAGS[country]}</span>
-                    <div>
-                      <div className="font-mono font-bold text-xs">{COUNTRY_NAMES[country].toUpperCase()}</div>
-                      {isAtWar && (
-                        <div className="font-mono text-[8px] text-red-600 font-bold">⚔ AT WAR</div>
-                      )}
+                <div key={country}>
+                  <div
+                    className={`flex items-center justify-between p-2 border-2 ${
+                      isAtWar ? 'border-red-600 bg-red-50' : 'border-gray-300 bg-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{COUNTRY_FLAGS[country]}</span>
+                      <div>
+                        <div className="font-mono font-bold text-xs">{COUNTRY_NAMES[country].toUpperCase()}</div>
+                        {isAtWar && (
+                          <div className="font-mono text-[8px] text-red-600 font-bold">AT WAR</div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        className="w-7 h-7 border-2 border-black bg-white font-mono font-bold text-sm retro-shadow-sm hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={() => handleDeploymentChange(country, -1)}
+                        disabled={deployed === 0}
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center font-mono font-bold text-sm">{deployed}</span>
+                      <button
+                        type="button"
+                        className="w-7 h-7 border-2 border-black bg-white font-mono font-bold text-sm retro-shadow-sm hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={() => handleDeploymentChange(country, 1)}
+                        disabled={availableBrigades === 0}
+                      >
+                        +
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
+
+                  {/* Declare War Button - only show if hostile and troops deployed */}
+                  {isHostile && deployed > 0 && (
                     <button
                       type="button"
-                      className="w-7 h-7 border-2 border-black bg-white font-mono font-bold text-sm retro-shadow-sm hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
-                      onClick={() => handleDeploymentChange(country, -1)}
-                      disabled={deployed === 0}
+                      onClick={() => handleDeclareWar(country)}
+                      className="mt-2 w-full py-2 bg-red-600 text-white font-mono font-bold text-[10px] uppercase border-2 border-black retro-shadow-sm hover:bg-red-700"
                     >
-                      -
+                      DECLARE WAR
                     </button>
-                    <span className="w-8 text-center font-mono font-bold text-sm">{deployed}</span>
-                    <button
-                      type="button"
-                      className="w-7 h-7 border-2 border-black bg-white font-mono font-bold text-sm retro-shadow-sm hover:bg-gray-100 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
-                      onClick={() => handleDeploymentChange(country, 1)}
-                      disabled={availableBrigades === 0}
-                    >
-                      +
-                    </button>
-                  </div>
+                  )}
                 </div>
               );
             })}
@@ -253,7 +267,7 @@ export function MilitaryScreen() {
           {/* Warning for risky strikes */}
           {(selectedAirstrikeType === 'nuclear' || selectedAirstrikeType === 'civilian') && (
             <div className="mb-3 p-2 border-2 border-red-600 bg-red-50 font-mono text-[9px] text-red-700">
-              ⚠ {AIRSTRIKE_TARGET_TYPES.find(t => t.id === selectedAirstrikeType)?.warning}
+              WARNING: {AIRSTRIKE_TARGET_TYPES.find(t => t.id === selectedAirstrikeType)?.warning}
             </div>
           )}
 
@@ -339,12 +353,42 @@ export function MilitaryScreen() {
 
       </div>
 
-      {/* Footer */}
+      {/* Footer - End Turn Button */}
       <div className="shrink-0 p-3 bg-white border-t-2 border-black">
-        <div className="font-mono text-[9px] text-center text-gray-500 uppercase">
-          Military Phase — Actions execute at end of turn
-        </div>
+        <button
+          type="button"
+          onClick={() => endTurn()}
+          className="w-full py-3 bg-red-700 text-white font-mono font-bold text-xs uppercase border-2 border-black retro-shadow-sm hover:bg-red-800 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
+        >
+          END TURN - RESOLVE ACTIONS
+        </button>
+        <p className="font-mono text-[8px] text-center text-red-600 mt-2 uppercase">
+          Point of no return - All actions will be executed
+        </p>
       </div>
-    </div>
+
+      {/* War Confirmation Dialog */}
+      {showWarConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white border-4 border-red-600 p-4 max-w-sm w-full">
+            <h3 className="font-pixel text-lg text-red-700 mb-3">DECLARE WAR?</h3>
+            <p className="font-mono text-[11px] mb-4">
+              This will begin military operations against {COUNTRY_NAMES[showWarConfirm]}.
+              This action cannot be undone.
+            </p>
+            <div className="flex gap-2">
+              <button type="button" onClick={() => setShowWarConfirm(null)}
+                className="flex-1 py-2 border-2 border-black bg-white font-mono font-bold text-xs">
+                CANCEL
+              </button>
+              <button type="button" onClick={confirmDeclareWar}
+                className="flex-1 py-2 border-2 border-red-600 bg-red-600 text-white font-mono font-bold text-xs">
+                DECLARE WAR
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </GameLayout>
   );
 }
