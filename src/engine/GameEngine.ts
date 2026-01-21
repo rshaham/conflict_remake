@@ -19,6 +19,7 @@ import type {
   NuclearStage,
   DiplomaticStance,
 } from '../types/game';
+import type { GameData } from '../types/data';
 
 import { DiplomacyEngine } from './DiplomacyEngine';
 import { EconomyEngine } from './EconomyEngine';
@@ -109,31 +110,116 @@ export const GameEngine = {
   },
 
   /**
-   * Advance phase (only used for UN summit → news transition)
-   * With free navigation, this is mostly a no-op except for special phases
+   * Advance to the next phase in the turn flow
+   * Flow: news → events? → diplomatic → intelligence → military → war? → resolution...
    */
   advancePhase: (state: GameState): GameState => {
-    // UN summit transitions to news phase for new year
-    if (state.phase === 'un_summit') {
+    const currentPhase = state.phase;
+
+    // Determine next phase based on current phase and game state
+    let nextPhase: GamePhase;
+
+    switch (currentPhase) {
+      case 'news':
+        // Check for pending events
+        nextPhase = state.pendingEvents.length > 0 ? 'events' : 'diplomatic';
+        break;
+
+      case 'events':
+        nextPhase = 'diplomatic';
+        break;
+
+      case 'diplomatic':
+        nextPhase = 'intelligence';
+        break;
+
+      case 'intelligence':
+        nextPhase = 'military';
+        break;
+
+      case 'military':
+        // Military is point of no return - don't auto-advance
+        // End turn button handles resolution flow
+        return state;
+
+      case 'war':
+        // After war management, continue to resolution
+        nextPhase = 'airstrike_report';
+        break;
+
+      case 'airstrike_report':
+        // If there were wars, show war report
+        nextPhase = state.wars.length > 0 || (state.lastTurnResults?.wars?.length ?? 0) > 0
+          ? 'war_report'
+          : 'monthly_summary';
+        break;
+
+      case 'war_report':
+        nextPhase = 'monthly_summary';
+        break;
+
+      case 'monthly_summary':
+        // Check for UN Summit (December)
+        nextPhase = state.month === 12 ? 'un_summit' : 'news';
+        break;
+
+      case 'un_summit':
+        nextPhase = 'news';
+        break;
+
+      case 'game_over':
+        // No advancement from game over
+        return state;
+
+      default:
+        nextPhase = 'news';
+    }
+
+    return {
+      ...state,
+      phase: nextPhase,
+    };
+  },
+
+  /**
+   * Start the end-of-turn resolution flow
+   * Called when player clicks "End Turn" in military phase
+   */
+  startResolution: (state: GameState): GameState => {
+    // If there are active wars, go to war phase first
+    if (state.wars.length > 0) {
       return {
         ...state,
-        phase: 'news',
+        phase: 'war',
       };
     }
 
-    // All other phases: no automatic progression (free navigation)
-    return state;
+    // Otherwise skip to airstrike report (or further if no airstrikes)
+    const hasAirstrikes = state.player.turnActions.airstrikes.length > 0;
+    return {
+      ...state,
+      phase: hasAirstrikes ? 'airstrike_report' : 'monthly_summary',
+    };
   },
 
   /**
    * Initialize a new game from scenario data
+   * @param gameData - Optional YAML data (for future data-driven initialization)
    */
   initializeGame: (
     difficulty: DifficultyId,
-    scenario: ScenarioId
+    scenario: ScenarioId,
+    gameData?: GameData
   ): GameState => {
-    // Get difficulty settings
-    const difficultySettings = getDifficultySettings(difficulty);
+    // Get difficulty settings - use YAML data if available, otherwise use hardcoded
+    const difficultySettings = gameData?.settings?.difficulties?.[difficulty]
+      ? {
+          startingBudget: gameData.settings.difficulties[difficulty].startingBudget,
+          usAttitudeStart: gameData.settings.difficulties[difficulty].usAttitudeStart,
+          aiAggressionModifier: gameData.settings.difficulties[difficulty].aiAggressionModifier,
+          relationshipModifier: gameData.settings.difficulties[difficulty].relationshipModifier,
+        }
+      : getDifficultySettings(difficulty);
 
     // Create initial state based on classic 1997 scenario
     const initialState: GameState = {
@@ -239,8 +325,12 @@ export const GameEngine = {
       diplomatic: 'Diplomatic',
       intelligence: 'Intelligence',
       military: 'Military',
+      war: 'War',
       palestinian: 'Palestinian',
       resolution: 'Resolution',
+      airstrike_report: 'Airstrike Report',
+      war_report: 'War Report',
+      monthly_summary: 'Monthly Summary',
       un_summit: 'UN Summit',
       game_over: 'Game Over',
     };
