@@ -2,12 +2,11 @@
 // Diplomatic Screen - Retro Style
 // ============================================
 
-import { useNavigate } from 'react-router-dom';
 import { Panel } from '../components/ui/Panel';
-import { Scanlines } from '../components/ui/Scanlines';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { StabilityBar } from '../components/ui/HatchedBar';
 import { LeaderPortrait } from '../components/ui/GameImage';
+import { GameLayout } from '../components/game/GameLayout';
 import { useGameStore } from '../store/gameStore';
 import { COUNTRY_NAMES, COUNTRY_FLAGS, COUNTRY_CODES } from '../utils/countryData';
 import type { CountryId, CountryState, DiplomaticAction } from '../types/game';
@@ -138,15 +137,16 @@ function RetroCountryCard({ country, currentAction, onActionChange }: RetroCount
 }
 
 export function DiplomaticScreen() {
-  const navigate = useNavigate();
   const { game, setDiplomaticAction } = useGameStore();
+  const advancePhase = useGameStore((state) => state.advancePhase);
 
   if (!game) {
     return (
-      <div className="min-h-screen bg-retro-bg flex items-center justify-center">
-        <Scanlines />
-        <p className="font-mono text-retro-text-dim">No game in progress</p>
-      </div>
+      <GameLayout>
+        <div className="flex-1 flex items-center justify-center">
+          <p className="font-mono text-retro-text-dim">No game in progress</p>
+        </div>
+      </GameLayout>
     );
   }
 
@@ -156,23 +156,10 @@ export function DiplomaticScreen() {
     setDiplomaticAction(countryId, action);
   };
 
-  const handleBack = () => {
-    navigate('/game/hub');
-  };
-
   return (
-    <div className="min-h-screen flex flex-col bg-retro-bg">
-      <Scanlines />
-
+    <GameLayout>
       {/* Header */}
       <div className="shrink-0 p-3 bg-white border-b-2 border-black flex items-center gap-3">
-        <button
-          type="button"
-          onClick={handleBack}
-          className="font-mono text-[10px] hover:underline"
-        >
-          ← BACK
-        </button>
         <span className="font-pixel text-xl">DIPLOMATIC CORPS</span>
       </div>
 
@@ -251,6 +238,17 @@ export function DiplomaticScreen() {
           </p>
         </Panel>
       </div>
-    </div>
+
+      {/* Footer with Continue */}
+      <div className="shrink-0 p-3 bg-white border-t-2 border-black">
+        <button
+          type="button"
+          onClick={() => advancePhase()}
+          className="w-full py-3 bg-black text-white font-mono font-bold text-xs uppercase border-2 border-black retro-shadow-sm hover:bg-gray-800 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
+        >
+          CONTINUE → INTELLIGENCE
+        </button>
+      </div>
+    </GameLayout>
   );
 }
