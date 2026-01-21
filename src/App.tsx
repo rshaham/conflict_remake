@@ -20,9 +20,9 @@ import { PalestinianScreen } from './screens/PalestinianScreen';
 import { WarScreen } from './screens/WarScreen';
 import { UNSummitScreen } from './screens/UNSummitScreen';
 import { GameOverScreen } from './screens/GameOverScreen';
+import { AirstrikeReportScreen } from './screens/AirstrikeReportScreen';
 // New screens will be added as we create them
 // import { EventsScreen } from './screens/EventsScreen';
-// import { AirstrikeReportScreen } from './screens/AirstrikeReportScreen';
 // import { WarReportScreen } from './screens/WarReportScreen';
 // import { MonthlySummaryScreen } from './screens/MonthlySummaryScreen';
 
@@ -54,7 +54,7 @@ function App() {
             <Route path="/game/war" element={<WarScreen />} />
 
             {/* Resolution Interstitials */}
-            {/* <Route path="/game/airstrike-report" element={<AirstrikeReportScreen />} /> */}
+            <Route path="/game/airstrike-report" element={<AirstrikeReportScreen />} />
             {/* <Route path="/game/war-report" element={<WarReportScreen />} /> */}
             {/* <Route path="/game/monthly-summary" element={<MonthlySummaryScreen />} /> */}
 
