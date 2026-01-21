@@ -11,6 +11,8 @@ import type {
   Airstrike,
   StabilityLevel,
   RelationshipLevel,
+  AirstrikeResult,
+  WarTurnResult,
 } from '../types/game';
 
 // Combat value per weapon type (legacy generic types for combat calculations)
@@ -349,6 +351,172 @@ export const CombatEngine = {
   },
 
   /**
+   * Resolve one turn of an active war and return result
+   */
+  resolveWarTurnWithResult: (state: GameState, warId: string): { state: GameState; result: WarTurnResult } => {
+    const warIndex = state.wars.findIndex(w => w.id === warId);
+    if (warIndex === -1) {
+      return {
+        state,
+        result: {
+          warId,
+          enemy: 'egypt', // Placeholder for invalid war
+          progressChange: 0,
+          newProgress: 0,
+          playerLosses: {},
+          enemyDamage: 0,
+          outcome: 'ongoing',
+        },
+      };
+    }
+
+    const war = state.wars[warIndex];
+    const isPlayerAttacker = war.attacker === 'israel';
+    const enemyId = isPlayerAttacker ? war.defender : war.attacker;
+
+    // Get forces for both sides
+    const playerArsenal = state.player.arsenal;
+    const enemyCountry = state.countries[enemyId];
+    const enemyStrength = enemyCountry.militaryStrength;
+
+    // Calculate total combat for each phase
+    let totalPlayerDamageDealt = 0;
+    let totalPlayerDamageTaken = 0;
+    const playerLosses: Partial<Record<WeaponId, number>> = {};
+    let enemyDamage = 0;
+
+    for (const phase of COMBAT_PHASES) {
+      const phaseResult = CombatEngine.resolveCombatPhase(
+        playerArsenal,
+        enemyStrength,
+        phase.attackers,
+        phase.defenders,
+        isPlayerAttacker
+      );
+
+      totalPlayerDamageDealt += phaseResult.playerDamageDealt;
+      totalPlayerDamageTaken += phaseResult.playerDamageTaken;
+      enemyDamage += phaseResult.enemyDamage;
+
+      // Apply player losses
+      for (const [weapon, loss] of Object.entries(phaseResult.playerLosses)) {
+        playerLosses[weapon as WeaponId] = (playerLosses[weapon as WeaponId] || 0) + loss;
+      }
+    }
+
+    // Calculate war progress change
+    let progressChange = 0;
+    const damageRatio = totalPlayerDamageDealt / Math.max(1, totalPlayerDamageTaken);
+
+    if (damageRatio > 5) progressChange = isPlayerAttacker ? 3 : -3;
+    else if (damageRatio > 2) progressChange = isPlayerAttacker ? 2 : -2;
+    else if (damageRatio > 1) progressChange = isPlayerAttacker ? 1 : -1;
+    else if (damageRatio > 0.5) progressChange = 0;
+    else if (damageRatio > 0.2) progressChange = isPlayerAttacker ? -1 : 1;
+    else progressChange = isPlayerAttacker ? -2 : 2;
+
+    const newProgress = Math.max(DEFEAT_THRESHOLD, Math.min(VICTORY_THRESHOLD, war.progress + progressChange));
+
+    // Apply losses to player arsenal
+    const newArsenal = { ...playerArsenal };
+    for (const [weapon, loss] of Object.entries(playerLosses)) {
+      const weaponId = weapon as WeaponId;
+      newArsenal[weaponId] = Math.max(0, (newArsenal[weaponId] || 0) - loss);
+    }
+
+    // Reduce enemy military strength
+    const newEnemyStrength = Math.max(0, enemyCountry.militaryStrength - enemyDamage);
+
+    // Update war
+    const updatedWar: War = {
+      ...war,
+      progress: newProgress,
+      attackerLosses: isPlayerAttacker
+        ? { ...war.attackerLosses, ...playerLosses }
+        : war.attackerLosses,
+      defenderLosses: !isPlayerAttacker
+        ? { ...war.defenderLosses, ...playerLosses }
+        : war.defenderLosses,
+    };
+
+    // Determine outcome and apply end-of-war effects
+    let newWars = [...state.wars];
+    const newCountries = { ...state.countries };
+    let newPlayer = { ...state.player, arsenal: newArsenal };
+    let outcome: WarTurnResult['outcome'] = 'ongoing';
+
+    if (newProgress >= VICTORY_THRESHOLD) {
+      if (isPlayerAttacker) {
+        // Player wins as attacker - enemy defeated
+        newCountries[enemyId] = {
+          ...enemyCountry,
+          militaryStrength: newEnemyStrength,
+          stability: 'critical' as StabilityLevel,
+          isDefeated: true,
+          defeatedBy: 'israel',
+          defeatedOnTurn: state.turn,
+          relationship: 'hostile' as RelationshipLevel,
+        };
+        newPlayer = {
+          ...newPlayer,
+          prestige: Math.min(10, newPlayer.prestige + 2),
+        };
+        outcome = 'victory';
+      } else {
+        // Player loses as defender
+        outcome = 'defeat';
+      }
+      newWars = newWars.filter(w => w.id !== warId);
+    } else if (newProgress <= DEFEAT_THRESHOLD) {
+      if (!isPlayerAttacker) {
+        // Player wins as defender - enemy defeated
+        newCountries[enemyId] = {
+          ...state.countries[enemyId],
+          stability: 'critical' as StabilityLevel,
+          isDefeated: true,
+          defeatedBy: 'israel',
+          defeatedOnTurn: state.turn,
+          relationship: 'hostile' as RelationshipLevel,
+        };
+        outcome = 'victory';
+      } else {
+        // Player loses as attacker
+        newPlayer = {
+          ...newPlayer,
+          knessetDisapproval: Math.min(10, newPlayer.knessetDisapproval + 3),
+        };
+        outcome = 'defeat';
+      }
+      newWars = newWars.filter(w => w.id !== warId);
+    } else {
+      // War continues
+      newWars[warIndex] = updatedWar;
+      newCountries[enemyId] = {
+        ...enemyCountry,
+        militaryStrength: newEnemyStrength,
+      };
+    }
+
+    return {
+      state: {
+        ...state,
+        wars: newWars,
+        countries: newCountries,
+        player: newPlayer,
+      },
+      result: {
+        warId,
+        enemy: enemyId,
+        progressChange,
+        newProgress,
+        playerLosses,
+        enemyDamage,
+        outcome,
+      },
+    };
+  },
+
+  /**
    * Calculate combat phase result
    */
   resolveCombatPhase: (
@@ -521,6 +689,140 @@ export const CombatEngine = {
       ...newState,
       countries: newCountries,
       player: newPlayer,
+    };
+  },
+
+  /**
+   * Execute a single airstrike and return result
+   */
+  executeAirstrikeWithResult: (state: GameState, airstrike: Airstrike): { state: GameState; result: AirstrikeResult } => {
+    const target = state.countries[airstrike.target];
+    if (!target || target.isDefeated) {
+      return {
+        state,
+        result: {
+          target: airstrike.target,
+          type: airstrike.type,
+          success: false,
+          damage: 'Target not available',
+          fightersLost: 0,
+          fightersUsed: airstrike.fightersUsed,
+        },
+      };
+    }
+
+    // Check if we have enough fighters
+    const fighters = state.player.arsenal.fighter_aircraft || 0;
+    if (fighters < airstrike.fightersUsed) {
+      return {
+        state,
+        result: {
+          target: airstrike.target,
+          type: airstrike.type,
+          success: false,
+          damage: 'Insufficient aircraft',
+          fightersLost: 0,
+          fightersUsed: airstrike.fightersUsed,
+        },
+      };
+    }
+
+    const newCountries = { ...state.countries };
+    const newPlayer = { ...state.player };
+    const newArsenal = { ...state.player.arsenal };
+
+    // Calculate losses (based on enemy SAMs)
+    const enemySAMs = target.militaryStrength * 0.1;
+    const lossChance = 0.1 + (enemySAMs * 0.05);
+    let fighterLosses = 0;
+    for (let i = 0; i < airstrike.fightersUsed; i++) {
+      if (Math.random() < lossChance) {
+        fighterLosses++;
+      }
+    }
+    newArsenal.fighter_aircraft = Math.max(0, fighters - fighterLosses);
+
+    let success = true;
+    let damage = '';
+
+    // Apply airstrike effects
+    switch (airstrike.type) {
+      case 'military': {
+        const damageAmount = 5 + Math.floor(Math.random() * 10);
+        newCountries[airstrike.target] = {
+          ...target,
+          militaryStrength: Math.max(0, target.militaryStrength - damageAmount),
+        };
+        newPlayer.violencePoints += 2;
+        damage = `Enemy military strength reduced by ${damageAmount}`;
+        break;
+      }
+
+      case 'civilian': {
+        const currentStabilityIndex = STABILITY_ORDER.indexOf(target.stability);
+        const newStabilityIndex = Math.min(STABILITY_ORDER.length - 1, currentStabilityIndex + 1);
+        newCountries[airstrike.target] = {
+          ...target,
+          stability: STABILITY_ORDER[newStabilityIndex],
+        };
+        newPlayer.violencePoints += 2;
+        newPlayer.usAttitude = Math.max(-100, newPlayer.usAttitude - 10);
+        damage = `Enemy stability reduced to ${STABILITY_ORDER[newStabilityIndex]}`;
+        break;
+      }
+
+      case 'industrial': {
+        newCountries[airstrike.target] = {
+          ...target,
+          militaryStrength: Math.max(0, Math.floor(target.militaryStrength * 0.8)),
+        };
+        newPlayer.violencePoints += 2;
+        damage = 'Industrial capacity damaged, military strength reduced by 20%';
+        break;
+      }
+
+      case 'nuclear': {
+        if (target.nuclearStage !== 'none' && target.nuclearStage !== 'operational') {
+          success = Math.random() < 0.65;
+          if (success) {
+            newCountries[airstrike.target] = {
+              ...target,
+              nuclearStage: 'none',
+              nuclearProgress: 0,
+            };
+            damage = 'Nuclear program destroyed';
+          } else {
+            damage = 'Strike failed to destroy nuclear facilities';
+          }
+        } else if (target.nuclearStage === 'operational') {
+          success = false;
+          damage = 'Nuclear program already operational - strike ineffective';
+        } else {
+          success = false;
+          damage = 'No nuclear program to target';
+        }
+        newPlayer.violencePoints += 4;
+        newPlayer.usAttitude = Math.max(-100, newPlayer.usAttitude - 20);
+        break;
+      }
+    }
+
+    newPlayer.arsenal = newArsenal;
+
+    return {
+      state: {
+        ...state,
+        countries: newCountries,
+        player: newPlayer,
+      },
+      result: {
+        target: airstrike.target,
+        type: airstrike.type,
+        success,
+        damage,
+        fightersLost: fighterLosses,
+        fightersUsed: airstrike.fightersUsed,
+      },
     };
   },
 
