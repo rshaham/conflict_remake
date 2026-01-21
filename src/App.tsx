@@ -21,10 +21,10 @@ import { WarScreen } from './screens/WarScreen';
 import { UNSummitScreen } from './screens/UNSummitScreen';
 import { GameOverScreen } from './screens/GameOverScreen';
 import { AirstrikeReportScreen } from './screens/AirstrikeReportScreen';
+import { MonthlySummaryScreen } from './screens/MonthlySummaryScreen';
+import { WarReportScreen } from './screens/WarReportScreen';
 // New screens will be added as we create them
 // import { EventsScreen } from './screens/EventsScreen';
-// import { WarReportScreen } from './screens/WarReportScreen';
-// import { MonthlySummaryScreen } from './screens/MonthlySummaryScreen';
 
 // Create a client for TanStack Query
 const queryClient = new QueryClient({
@@ -55,8 +55,8 @@ function App() {
 
             {/* Resolution Interstitials */}
             <Route path="/game/airstrike-report" element={<AirstrikeReportScreen />} />
-            {/* <Route path="/game/war-report" element={<WarReportScreen />} /> */}
-            {/* <Route path="/game/monthly-summary" element={<MonthlySummaryScreen />} /> */}
+            <Route path="/game/war-report" element={<WarReportScreen />} />
+            <Route path="/game/monthly-summary" element={<MonthlySummaryScreen />} />
 
             {/* Special Phases */}
             <Route path="/game/summit" element={<UNSummitScreen />} />
