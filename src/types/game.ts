@@ -49,8 +49,12 @@ export type GamePhase =
   | 'diplomatic'
   | 'intelligence'
   | 'military'
+  | 'war'
   | 'palestinian'
   | 'resolution'
+  | 'airstrike_report'
+  | 'war_report'
+  | 'monthly_summary'
   | 'un_summit'
   | 'game_over';
 
@@ -161,6 +165,9 @@ export interface GameState {
 
   // End state (if game over)
   endState?: EndState;
+
+  // Results from last turn resolution (for display)
+  lastTurnResults?: TurnResults;
 }
 
 export interface PlayerState {
@@ -359,4 +366,48 @@ export interface GameStatistics {
   totalAirstrikes: number;
   peakPrestige: number;
   peakKnessetDisapproval: number;
+}
+
+// === Turn Resolution Result Types ===
+
+export interface AirstrikeResult {
+  target: CountryId;
+  type: AirstrikeTarget;
+  success: boolean;
+  damage: string;
+  fightersLost: number;
+  fightersUsed: number;
+}
+
+export interface WarTurnResult {
+  warId: string;
+  enemy: CountryId;
+  progressChange: number;
+  newProgress: number;
+  playerLosses: Partial<Record<WeaponId, number>>;
+  enemyDamage: number;
+  outcome: 'ongoing' | 'victory' | 'defeat' | 'ceasefire';
+}
+
+export interface EconomyChanges {
+  startingBudget: number;
+  income: number;
+  expenses: number;
+  endingBudget: number;
+  details: string[];
+}
+
+export interface DiplomaticShift {
+  country: CountryId;
+  from: RelationshipLevel;
+  to: RelationshipLevel;
+}
+
+export interface TurnResults {
+  airstrikes: AirstrikeResult[];
+  wars: WarTurnResult[];
+  economy: EconomyChanges;
+  diplomaticShifts: DiplomaticShift[];
+  nuclearProgress?: { stage: NuclearStage; monthsComplete: number; monthsRequired: number };
+  palestinianChange?: { from: PalestinianLevel; to: PalestinianLevel };
 }
