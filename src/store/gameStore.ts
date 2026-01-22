@@ -184,21 +184,30 @@ export const useGameStore = create<GameStore>()(
         const { game, gameData } = get();
         if (!game) return;
 
-        // Validate purchase - pass YAML weapons data if available
+        // Validate purchase
         const validation = EconomyEngine.canPurchase(game, vendor, weapon, quantity, gameData?.weapons);
         if (!validation.valid) {
           console.warn(`Cannot purchase: ${validation.reason}`);
           return;
         }
 
-        // Create purchase order and add to turn actions
+        // Calculate cost - deduct immediately but weapons arrive at end of turn
+        const cost = EconomyEngine.calculatePurchaseCost(vendor, weapon, quantity, gameData?.weapons);
+
+        // Create purchase order for end-of-turn processing
         const purchase = EconomyEngine.createPurchaseOrder(vendor, weapon, quantity, gameData?.weapons);
 
+        // Update vendor purchase count and deduct cost immediately
         set({
           game: {
             ...game,
             player: {
               ...game.player,
+              budget: game.player.budget - cost,
+              vendorPurchases: {
+                ...game.player.vendorPurchases,
+                [vendor]: (game.player.vendorPurchases[vendor] || 0) + quantity,
+              },
               turnActions: {
                 ...game.player.turnActions,
                 weaponPurchases: [

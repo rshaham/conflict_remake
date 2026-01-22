@@ -4,7 +4,6 @@
 // Purchase weapons from international vendors
 // Redesigned with GameShell for consistent navigation
 
-import { useEffect } from 'react';
 import { GameShell } from '../components/layout/GameShell';
 import { useGameStore } from '../store/gameStore';
 import { useUIStore } from '../store/uiStore';
@@ -40,27 +39,22 @@ function formatCurrency(amount: number): string {
 }
 
 export function ArmsScreen() {
-  const { game, gameData, purchaseWeapon, loadGameData } = useGameStore();
+  const { game, purchaseWeapon } = useGameStore();
   const selectedVendor = useUIStore((state) => state.selectedVendor);
   const selectVendor = useUIStore((state) => state.selectVendor);
-
-  // Ensure game data is loaded (it's not persisted, so may be null after refresh)
-  useEffect(() => {
-    if (!gameData) {
-      loadGameData();
-    }
-  }, [gameData, loadGameData]);
 
   if (!game) {
     return null;
   }
 
   const currentVendor = selectedVendor || 'usa';
-  const vendorWeapons = EconomyEngine.getVendorWeapons(game, currentVendor, gameData?.weapons);
+  // Use hardcoded weapon data for now - YAML integration needs debugging
+  const vendorWeapons = EconomyEngine.getVendorWeapons(game, currentVendor);
   const isVendorEmbargoed = game.player.embargoedBy.includes(currentVendor);
 
-  // Get queued purchases for this turn
-  const queuedPurchases = game.player.turnActions.weaponPurchases;
+  // Get purchases made this turn (paid for but not yet delivered)
+  const purchasesThisTurn = game.player.turnActions.weaponPurchases;
+
 
   const handlePurchase = (weaponId: WeaponId, quantity: number) => {
     purchaseWeapon(currentVendor, weaponId, quantity);
@@ -215,15 +209,15 @@ export function ArmsScreen() {
           })}
         </div>
 
-        {/* Queued Purchases (this turn) */}
-        {queuedPurchases.length > 0 && (
+        {/* Purchases This Turn (paid, awaiting delivery at end of turn) */}
+        {purchasesThisTurn.length > 0 && (
           <div className="bg-white border-2 border-green-600 p-4">
             <div className="font-mono font-bold text-xs uppercase mb-3 pb-2 border-b border-green-300 text-green-700">
-              QUEUED THIS TURN
+              ORDERED THIS TURN
             </div>
             <div className="space-y-2">
-              {queuedPurchases.map((purchase, index) => {
-                const weaponInfo = EconomyEngine.getWeaponData(purchase.weaponId, gameData?.weapons);
+              {purchasesThisTurn.map((purchase, index) => {
+                const weaponInfo = EconomyEngine.getWeaponData(purchase.weaponId);
                 const name = weaponInfo?.name || purchase.weaponId;
                 return (
                   <div
@@ -240,13 +234,13 @@ export function ArmsScreen() {
                 );
               })}
               <div className="mt-2 pt-2 border-t border-green-200 font-mono text-[10px] text-green-600">
-                Will be processed at end of turn
+                Arrives at end of turn
               </div>
             </div>
           </div>
         )}
 
-        {/* Pending Deliveries */}
+        {/* Pending Deliveries (black market - multiple turns) */}
         {game.player.pendingDeliveries.length > 0 && (
           <div className="bg-white border-2 border-black p-4">
             <div className="font-mono font-bold text-xs uppercase mb-3 pb-2 border-b border-gray-300">
@@ -254,7 +248,7 @@ export function ArmsScreen() {
             </div>
             <div className="space-y-2">
               {game.player.pendingDeliveries.map((delivery, index) => {
-                const weaponInfo = EconomyEngine.getWeaponData(delivery.weaponId, gameData?.weapons);
+                const weaponInfo = EconomyEngine.getWeaponData(delivery.weaponId);
                 const name = weaponInfo?.name || delivery.weaponId;
                 return (
                   <div

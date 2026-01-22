@@ -392,38 +392,23 @@ export const EconomyEngine = {
 
   /**
    * Process weapon purchases from turn actions
+   * Note: Cost and vendor counts are already deducted at purchase time
+   * This just delivers the weapons (to arsenal or pending deliveries)
    */
   processPurchases: (state: GameState): GameState => {
     const purchases = state.player.turnActions.weaponPurchases;
     if (purchases.length === 0) return state;
 
-    let newBudget = state.player.budget;
     const newPendingDeliveries = [...state.player.pendingDeliveries];
-    const newVendorPurchases = { ...state.player.vendorPurchases };
     const newArsenal = { ...state.player.arsenal };
 
     for (const purchase of purchases) {
-      const cost = EconomyEngine.calculatePurchaseCost(
-        purchase.vendor,
-        purchase.weaponId,
-        purchase.quantity
-      );
-
-      if (cost > newBudget) continue; // Skip if can't afford
-
-      // Deduct cost
-      newBudget -= cost;
-
-      // Update vendor purchase count
-      newVendorPurchases[purchase.vendor] =
-        (newVendorPurchases[purchase.vendor] || 0) + purchase.quantity;
-
-      // Check for delivery delay
+      // Check for delivery delay (black market has delay)
       const vendorData = VENDOR_DATA[purchase.vendor];
       const deliveryDelay = vendorData.deliveryDelay || 0;
 
       if (deliveryDelay > 0) {
-        // Add to pending deliveries
+        // Add to pending deliveries (black market)
         newPendingDeliveries.push({
           weaponId: purchase.weaponId,
           quantity: purchase.quantity,
@@ -431,7 +416,7 @@ export const EconomyEngine = {
           turnsRemaining: deliveryDelay,
         });
       } else {
-        // Immediate delivery
+        // Immediate delivery - add to arsenal
         newArsenal[purchase.weaponId] =
           (newArsenal[purchase.weaponId] || 0) + purchase.quantity;
       }
@@ -441,9 +426,7 @@ export const EconomyEngine = {
       ...state,
       player: {
         ...state.player,
-        budget: newBudget,
         arsenal: newArsenal,
-        vendorPurchases: newVendorPurchases,
         pendingDeliveries: newPendingDeliveries,
       },
     };
