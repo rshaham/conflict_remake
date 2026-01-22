@@ -11,17 +11,17 @@ import type {
   StabilityLevel,
 } from '../types/game';
 
-// Insurgency levels in order from none to worst
+// Fallback insurgency levels in order from none to worst
 const INSURGENCY_ORDER: InsurgencyLevel[] = [
   'none', 'scattered', 'organized', 'armed', 'guerilla_force', 'open_revolt'
 ];
 
-// Stability levels in order from best to worst
+// Fallback stability levels in order from best to worst
 const STABILITY_ORDER: StabilityLevel[] = [
   'very_solid', 'solid', 'good', 'weak', 'critical', 'collapse'
 ];
 
-// Monthly destabilization per insurgency level
+// Fallback monthly destabilization per insurgency level
 const INSURGENCY_DESTABILIZATION: Record<InsurgencyLevel, number> = {
   none: 0,
   scattered: 0.02,
@@ -29,6 +29,21 @@ const INSURGENCY_DESTABILIZATION: Record<InsurgencyLevel, number> = {
   armed: 0.1,
   guerilla_force: 0.15,
   open_revolt: 0.25,
+};
+
+// Helper to get insurgency index (can use YAML data in future)
+const getInsurgencyIndex = (level: InsurgencyLevel): number => {
+  return INSURGENCY_ORDER.indexOf(level);
+};
+
+// Helper to get stability index (can use YAML data in future)
+const getStabilityIndex = (level: StabilityLevel): number => {
+  return STABILITY_ORDER.indexOf(level);
+};
+
+// Get destabilization rate for insurgency level
+const getDestabilizationRate = (level: InsurgencyLevel): number => {
+  return INSURGENCY_DESTABILIZATION[level] || 0;
 };
 
 /**
@@ -55,7 +70,7 @@ export const IntelligenceEngine = {
       switch (action) {
         case 'support_insurgents': {
           // Increase insurgency in target country
-          const currentInsurgencyIndex = INSURGENCY_ORDER.indexOf(country.insurgency);
+          const currentInsurgencyIndex = getInsurgencyIndex(country.insurgency);
           if (currentInsurgencyIndex < INSURGENCY_ORDER.length - 1) {
             // 40% base chance to increase insurgency
             if (Math.random() < 0.4) {
@@ -94,10 +109,10 @@ export const IntelligenceEngine = {
       if (countryId === 'israel' || country.isDefeated) continue;
 
       // Get destabilization rate from insurgency
-      const destabilizationRate = INSURGENCY_DESTABILIZATION[country.insurgency];
+      const destabilizationRate = getDestabilizationRate(country.insurgency);
 
       if (destabilizationRate > 0 && Math.random() < destabilizationRate) {
-        const currentStabilityIndex = STABILITY_ORDER.indexOf(country.stability);
+        const currentStabilityIndex = getStabilityIndex(country.stability);
         if (currentStabilityIndex < STABILITY_ORDER.length - 1) {
           newCountries[countryId] = {
             ...country,
@@ -136,7 +151,7 @@ export const IntelligenceEngine = {
 
     // For coup, need organized insurgency or higher
     if (type === 'coup') {
-      const insurgencyIndex = INSURGENCY_ORDER.indexOf(countryState.insurgency);
+      const insurgencyIndex = getInsurgencyIndex(countryState.insurgency);
       if (insurgencyIndex < 2) return false; // Need at least "organized"
     }
 
@@ -259,7 +274,7 @@ export const IntelligenceEngine = {
 
     // Insurgency affects coup success
     if (type === 'coup') {
-      const insurgencyIndex = INSURGENCY_ORDER.indexOf(targetInsurgency);
+      const insurgencyIndex = getInsurgencyIndex(targetInsurgency);
       baseChance += insurgencyIndex * 0.05;
     }
 

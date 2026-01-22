@@ -10,9 +10,9 @@ import type {
   WeaponPurchase,
   PendingDelivery,
 } from '../types/game';
+import type { WeaponsData, WeaponConfig, VendorConfig } from '../types/data';
 
-// Weapon data - 26 specific weapons from catalog
-// Each weapon belongs to a single vendor
+// Local interface for backwards compatibility
 interface WeaponData {
   name: string;
   vendor: VendorId;
@@ -485,20 +485,23 @@ export const EconomyEngine = {
 
   /**
    * Check if a weapon purchase is valid
+   * @param weaponsData - Optional YAML weapons data
    */
   canPurchase: (
     state: GameState,
     vendor: VendorId,
     weapon: WeaponId,
-    quantity: number
+    quantity: number,
+    weaponsData?: WeaponsData
   ): { valid: boolean; reason?: string } => {
     // Check vendor availability (embargo)
     if (!EconomyEngine.isVendorAvailable(state, vendor)) {
       return { valid: false, reason: 'Vendor has embargoed you' };
     }
 
-    // Check weapon availability from this vendor
-    const weaponData = WEAPON_DATA[weapon];
+    // Check weapon availability from this vendor - use YAML if available
+    const weaponsSource = weaponsData?.weapons || WEAPON_DATA;
+    const weaponData = weaponsSource[weapon];
     if (!weaponData || weaponData.vendor !== vendor) {
       return { valid: false, reason: 'Weapon not available from this vendor' };
     }
@@ -513,7 +516,7 @@ export const EconomyEngine = {
     }
 
     // Check budget
-    const cost = EconomyEngine.calculatePurchaseCost(vendor, weapon, quantity);
+    const cost = EconomyEngine.calculatePurchaseCost(vendor, weapon, quantity, weaponsData);
     if (cost > state.player.budget) {
       return { valid: false, reason: 'Insufficient budget' };
     }
@@ -528,13 +531,19 @@ export const EconomyEngine = {
 
   /**
    * Calculate cost for a weapon purchase
+   * @param weaponsData - Optional YAML weapons data
    */
   calculatePurchaseCost: (
     vendor: VendorId,
     weapon: WeaponId,
-    quantity: number
+    quantity: number,
+    weaponsData?: WeaponsData
   ): number => {
-    const weaponData = WEAPON_DATA[weapon];
+    // Use YAML data if available
+    const weaponsSource = weaponsData?.weapons || WEAPON_DATA;
+    const vendorsSource = weaponsData?.vendors || VENDOR_DATA;
+
+    const weaponData = weaponsSource[weapon];
     if (!weaponData || weaponData.vendor !== vendor) {
       return Infinity;
     }
@@ -542,8 +551,8 @@ export const EconomyEngine = {
     let unitPrice = weaponData.cost;
 
     // Apply vendor price modifier (e.g., black market 1.2x)
-    const vendorData = VENDOR_DATA[vendor];
-    if (vendorData.priceModifier) {
+    const vendorData = vendorsSource[vendor];
+    if (vendorData?.priceModifier) {
       unitPrice *= vendorData.priceModifier;
     }
 
@@ -590,13 +599,15 @@ export const EconomyEngine = {
 
   /**
    * Create a weapon purchase order
+   * @param weaponsData - Optional YAML weapons data
    */
   createPurchaseOrder: (
     vendor: VendorId,
     weaponId: WeaponId,
-    quantity: number
+    quantity: number,
+    weaponsData?: WeaponsData
   ): WeaponPurchase => {
-    const totalCost = EconomyEngine.calculatePurchaseCost(vendor, weaponId, quantity);
+    const totalCost = EconomyEngine.calculatePurchaseCost(vendor, weaponId, quantity, weaponsData);
     return {
       weaponId,
       vendor,
@@ -606,31 +617,57 @@ export const EconomyEngine = {
   },
 
   /**
-   * Get weapon data
+   * Get weapon data (from YAML if provided, otherwise hardcoded)
    */
-  getWeaponData: (weapon: WeaponId) => WEAPON_DATA[weapon],
+  getWeaponData: (weapon: WeaponId, weaponsData?: WeaponsData): WeaponData | WeaponConfig | undefined => {
+    if (weaponsData?.weapons?.[weapon]) {
+      return weaponsData.weapons[weapon];
+    }
+    return WEAPON_DATA[weapon];
+  },
 
   /**
-   * Get vendor data
+   * Get vendor data (from YAML if provided, otherwise hardcoded)
    */
-  getVendorData: (vendor: VendorId) => VENDOR_DATA[vendor],
+  getVendorData: (vendor: VendorId, weaponsData?: WeaponsData): VendorConfig | { name: string; willEmbargo: boolean; deliveryDelay?: number; priceModifier?: number } | undefined => {
+    if (weaponsData?.vendors?.[vendor]) {
+      return weaponsData.vendors[vendor];
+    }
+    return VENDOR_DATA[vendor];
+  },
 
   /**
    * Get all weapons available from a vendor
+   * @param weaponsData - Optional YAML weapons data
    */
   getVendorWeapons: (
     state: GameState,
-    vendor: VendorId
+    vendor: VendorId,
+    weaponsData?: WeaponsData
   ): { weapon: WeaponId; price: number; available: boolean; reason?: string; weaponData: WeaponData }[] => {
     const result: { weapon: WeaponId; price: number; available: boolean; reason?: string; weaponData: WeaponData }[] = [];
 
-    for (const [weaponId, weaponData] of Object.entries(WEAPON_DATA)) {
+    // Use YAML data if provided, otherwise hardcoded
+    const weaponsSource = weaponsData?.weapons || WEAPON_DATA;
+
+    for (const [weaponId, weaponConfig] of Object.entries(weaponsSource)) {
+      // Convert to local WeaponData format for consistency
+      const weaponData: WeaponData = {
+        name: weaponConfig.name,
+        vendor: weaponConfig.vendor as VendorId,
+        category: weaponConfig.category,
+        cost: weaponConfig.cost,
+        combatValue: weaponConfig.combatValue,
+        unlockRequirement: weaponConfig.unlockRequirement,
+        image: weaponConfig.image,
+      };
+
       // Filter weapons by vendor
       if (weaponData.vendor !== vendor) continue;
-      // Skip Israeli domestic weapons (not purchasable)
-      if (weaponData.unlockRequirement >= 999) continue;
+      // Skip Israeli domestic weapons (not purchasable - unlockRequirement < 0 or >= 999)
+      if (weaponData.unlockRequirement < 0 || weaponData.unlockRequirement >= 999) continue;
 
-      const canPurchase = EconomyEngine.canPurchase(state, vendor, weaponId as WeaponId, 1);
+      const canPurchase = EconomyEngine.canPurchase(state, vendor, weaponId as WeaponId, 1, weaponsData);
 
       result.push({
         weapon: weaponId as WeaponId,

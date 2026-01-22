@@ -18,6 +18,8 @@ import type {
   AirstrikeTarget,
   Airstrike,
 } from '../types/game';
+import type { GameData } from '../types/data';
+import { loadAllGameData } from '../data/loader';
 import { GameEngine } from '../engine/GameEngine';
 import { EconomyEngine } from '../engine/EconomyEngine';
 import { CombatEngine } from '../engine/CombatEngine';
@@ -26,10 +28,12 @@ import { IntelligenceEngine } from '../engine/IntelligenceEngine';
 interface GameStore {
   // State
   game: GameState | null;
+  gameData: GameData | null;
   isLoading: boolean;
   error: string | null;
 
   // Game Lifecycle
+  loadGameData: () => Promise<GameData>;
   newGame: (difficulty: DifficultyId, scenario: ScenarioId) => Promise<void>;
   loadGame: (saveData: string) => void;
   saveGame: () => string;
@@ -74,15 +78,30 @@ export const useGameStore = create<GameStore>()(
     (set, get) => ({
       // Initial State
       game: null,
+      gameData: null,
       isLoading: false,
       error: null,
 
       // Game Lifecycle
+      loadGameData: async () => {
+        // Return cached data if available
+        const existing = get().gameData;
+        if (existing) return existing;
+
+        // Load all YAML data files
+        const data = await loadAllGameData();
+        set({ gameData: data });
+        return data;
+      },
+
       newGame: async (difficulty, scenario) => {
         set({ isLoading: true, error: null });
         try {
-          // Initialize game state using GameEngine
-          const initialState = GameEngine.initializeGame(difficulty, scenario);
+          // Load game data first
+          const gameData = await get().loadGameData();
+
+          // Initialize game state using GameEngine with loaded data
+          const initialState = GameEngine.initializeGame(difficulty, scenario, gameData);
           set({ game: initialState, isLoading: false });
         } catch (e) {
           set({ error: (e as Error).message, isLoading: false });

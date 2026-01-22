@@ -10,8 +10,9 @@ import type {
   RelationshipLevel,
   DiplomaticStance,
 } from '../types/game';
+import type { EnumsData } from '../types/data';
 
-// Relationship levels in order from best to worst
+// Fallback relationship levels in order from best to worst
 const RELATIONSHIP_ORDER: RelationshipLevel[] = [
   'military_pact',
   'profitable',
@@ -24,15 +25,26 @@ const RELATIONSHIP_ORDER: RelationshipLevel[] = [
   'war',
 ];
 
+// Get relationship order - use YAML if available, otherwise fallback
+const getRelationshipOrder = (enumsData?: EnumsData): RelationshipLevel[] => {
+  if (enumsData?.relationshipLevels) {
+    // Extract ordered list from YAML relationshipLevels
+    return Object.keys(enumsData.relationshipLevels) as RelationshipLevel[];
+  }
+  return RELATIONSHIP_ORDER;
+};
+
 // Get numeric index for a relationship level
-const getRelationshipIndex = (level: RelationshipLevel): number => {
-  return RELATIONSHIP_ORDER.indexOf(level);
+const getRelationshipIndex = (level: RelationshipLevel, enumsData?: EnumsData): number => {
+  const order = getRelationshipOrder(enumsData);
+  return order.indexOf(level);
 };
 
 // Get relationship level from index (clamped to valid range)
-const getRelationshipFromIndex = (index: number): RelationshipLevel => {
-  const clampedIndex = Math.max(0, Math.min(index, RELATIONSHIP_ORDER.length - 1));
-  return RELATIONSHIP_ORDER[clampedIndex];
+const getRelationshipFromIndex = (index: number, enumsData?: EnumsData): RelationshipLevel => {
+  const order = getRelationshipOrder(enumsData);
+  const clampedIndex = Math.max(0, Math.min(index, order.length - 1));
+  return order[clampedIndex];
 };
 
 /**

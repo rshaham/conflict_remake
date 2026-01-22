@@ -42,7 +42,7 @@ function formatCurrency(amount: number): string {
 
 export function ArmsScreen() {
   const navigate = useNavigate();
-  const { game, purchaseWeapon } = useGameStore();
+  const { game, gameData, purchaseWeapon } = useGameStore();
   const selectedVendor = useUIStore((state) => state.selectedVendor);
   const selectVendor = useUIStore((state) => state.selectVendor);
 
@@ -56,7 +56,8 @@ export function ArmsScreen() {
   }
 
   const currentVendor = selectedVendor || 'usa';
-  const vendorWeapons = EconomyEngine.getVendorWeapons(game, currentVendor);
+  // Pass YAML weapons data to engine - will use it if available, otherwise fall back to hardcoded
+  const vendorWeapons = EconomyEngine.getVendorWeapons(game, currentVendor, gameData?.weapons);
   const isVendorEmbargoed = game.player.embargoedBy.includes(currentVendor);
 
   const handlePurchase = (weaponId: WeaponId, quantity: number) => {
