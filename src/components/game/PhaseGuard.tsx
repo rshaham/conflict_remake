@@ -52,8 +52,9 @@ export function PhaseGuard({ children }: PhaseGuardProps) {
     const expectedRoute = PHASE_ROUTES[game.phase];
     const currentPath = location.pathname;
 
-    // Allow arsenal overlay routes (they don't change phase)
-    if (currentPath === '/game/arsenal') {
+    // Allow sub-screens that don't change phase
+    const allowedSubRoutes = ['/game/arsenal', '/game/arms', '/game/nuclear'];
+    if (allowedSubRoutes.includes(currentPath)) {
       return;
     }
 
