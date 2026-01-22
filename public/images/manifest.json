@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-01-08T11:43:10.556771",
-  "total_specs": 56,
-  "successful": 56,
+  "generated_at": "2026-01-22T09:56:25.084822",
+  "total_specs": 36,
+  "successful": 66,
   "failed": 0,
   "results": [
     {
@@ -506,6 +506,96 @@
       "output_path": "public\\images\\maps\\world_map_flat.png",
       "error": null,
       "timestamp": "2026-01-08T11:42:50.502628",
+      "retries": 0
+    },
+    {
+      "id": "ah64_apache",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\ah64_apache.png",
+      "error": null,
+      "timestamp": "2026-01-22T09:52:50.792681",
+      "retries": 0
+    },
+    {
+      "id": "mim104_patriot",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\mim104_patriot.png",
+      "error": null,
+      "timestamp": "2026-01-22T09:53:12.985670",
+      "retries": 0
+    },
+    {
+      "id": "leclerc",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\leclerc.png",
+      "error": null,
+      "timestamp": "2026-01-22T09:53:33.843653",
+      "retries": 0
+    },
+    {
+      "id": "tiger_hap",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\tiger_hap.png",
+      "error": null,
+      "timestamp": "2026-01-22T09:53:55.286173",
+      "retries": 0
+    },
+    {
+      "id": "crotale_ng",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\crotale_ng.png",
+      "error": null,
+      "timestamp": "2026-01-22T09:54:17.294191",
+      "retries": 0
+    },
+    {
+      "id": "lynx_ah7",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\lynx_ah7.png",
+      "error": null,
+      "timestamp": "2026-01-22T09:54:38.649803",
+      "retries": 0
+    },
+    {
+      "id": "mi24v_hind",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\mi24v_hind.png",
+      "error": null,
+      "timestamp": "2026-01-22T09:55:00.427994",
+      "retries": 0
+    },
+    {
+      "id": "s300pmu",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\s300pmu.png",
+      "error": null,
+      "timestamp": "2026-01-22T09:55:20.809671",
+      "retries": 0
+    },
+    {
+      "id": "merkava_mk3",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\merkava_mk3.png",
+      "error": null,
+      "timestamp": "2026-01-22T09:55:42.532309",
+      "retries": 0
+    },
+    {
+      "id": "iai_kfir",
+      "category": "weapons",
+      "success": true,
+      "output_path": "public\\images\\weapons\\iai_kfir.png",
+      "error": null,
+      "timestamp": "2026-01-22T09:56:03.494516",
       "retries": 0
     }
   ]

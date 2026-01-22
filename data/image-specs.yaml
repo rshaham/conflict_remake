@@ -59,6 +59,14 @@ weapons:
       name: "M109 Howitzer"
       vendor: usa
       prompt: "M109 Self-Propelled Howitzer, side profile"
+    - id: ah64_apache
+      name: "AH-64A Apache"
+      vendor: usa
+      prompt: "AH-64 Apache attack helicopter, side profile"
+    - id: mim104_patriot
+      name: "MIM-104 Patriot"
+      vendor: usa
+      prompt: "MIM-104 Patriot missile launcher system on truck, side profile"
 
     # France Vendor
     - id: mirage_f1
@@ -81,6 +89,18 @@ weapons:
       name: "Exocet"
       vendor: france
       prompt: "Truck mounted Exocet missile launcher system, side profile"
+    - id: leclerc
+      name: "AMX-56 Leclerc"
+      vendor: france
+      prompt: "AMX-56 Leclerc main battle tank, side profile"
+    - id: tiger_hap
+      name: "Eurocopter Tiger HAP"
+      vendor: france
+      prompt: "Eurocopter Tiger HAP attack helicopter, side profile"
+    - id: crotale_ng
+      name: "Crotale NG"
+      vendor: france
+      prompt: "Crotale NG surface-to-air missile system, side profile"
 
     # UK Vendor
     - id: chieftain
@@ -103,6 +123,10 @@ weapons:
       name: "Jaguar"
       vendor: uk
       prompt: "SEPECAT Jaguar attack aircraft, side profile"
+    - id: lynx_ah7
+      name: "Westland Lynx AH.7"
+      vendor: uk
+      prompt: "Westland Lynx AH.7 attack helicopter, side profile"
 
     # Soviet/Russian Vendor
     - id: t55
@@ -141,6 +165,24 @@ weapons:
       name: "SA-6 Gainful"
       vendor: ussr
       prompt: "2K12 Kub (SA-6) SAM system on tracked chassis, side profile"
+    - id: mi24v_hind
+      name: "Mi-24V Hind"
+      vendor: ussr
+      prompt: "Mi-24 Hind attack helicopter, side profile"
+    - id: s300pmu
+      name: "S-300PMU"
+      vendor: ussr
+      prompt: "S-300PMU surface-to-air missile system launcher on truck, side profile"
+
+    # Israeli Domestic
+    - id: merkava_mk3
+      name: "Merkava Mk.3"
+      vendor: israel
+      prompt: "Merkava Mk.3 main battle tank, side profile"
+    - id: iai_kfir
+      name: "IAI Kfir C.7"
+      vendor: israel
+      prompt: "IAI Kfir C.7 fighter jet, side profile"
 
 # ============================================
 # LEADERS (13 images)
