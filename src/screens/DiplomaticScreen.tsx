@@ -6,9 +6,10 @@ import { Panel } from '../components/ui/Panel';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { StabilityBar } from '../components/ui/HatchedBar';
 import { LeaderPortrait } from '../components/ui/GameImage';
+import { FlagImage } from '../components/ui/FlagImage';
 import { GameShell } from '../components/layout/GameShell';
 import { useGameStore } from '../store/gameStore';
-import { COUNTRY_NAMES, COUNTRY_FLAGS, COUNTRY_CODES } from '../utils/countryData';
+import { COUNTRY_NAMES, COUNTRY_CODES } from '../utils/countryData';
 import type { CountryId, CountryState, DiplomaticAction } from '../types/game';
 
 // The four neighboring countries (primary focus)
@@ -39,7 +40,7 @@ function RetroCountryCard({ country, currentAction, onActionChange }: RetroCount
         {/* Header row */}
         <div className="flex justify-between items-start mb-3">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">{COUNTRY_FLAGS[country.id]}</span>
+            <FlagImage id={country.id} size="lg" />
             <h3 className="font-pixel text-2xl">{COUNTRY_NAMES[country.id]}</h3>
           </div>
           <StatusBadge status={country.relationship} defeated={isDefeated} />

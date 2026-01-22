@@ -130,6 +130,7 @@ def parse_specs(raw_specs: Dict[str, Any]) -> List[ImageSpec]:
         'ui': {'size_key': None, 'items_key': 'items'},    # Size per item
         'icons': {'size_key': 'size', 'items_key': 'items'},
         'endgame': {'size_key': 'size', 'items_key': 'items'},
+        'flags': {'size_key': 'size', 'items_key': 'items'},
     }
 
     for category, config in category_configs.items():

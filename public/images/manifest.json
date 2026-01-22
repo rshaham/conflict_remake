@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-01-22T09:56:25.084822",
-  "total_specs": 36,
-  "successful": 66,
+  "generated_at": "2026-01-22T14:44:26.163101",
+  "total_specs": 12,
+  "successful": 78,
   "failed": 0,
   "results": [
     {
@@ -596,6 +596,114 @@
       "output_path": "public\\images\\weapons\\iai_kfir.png",
       "error": null,
       "timestamp": "2026-01-22T09:56:03.494516",
+      "retries": 0
+    },
+    {
+      "id": "israel",
+      "category": "flags",
+      "success": true,
+      "output_path": "public\\images\\flags\\israel.png",
+      "error": null,
+      "timestamp": "2026-01-22T14:40:30.009204",
+      "retries": 0
+    },
+    {
+      "id": "egypt",
+      "category": "flags",
+      "success": true,
+      "output_path": "public\\images\\flags\\egypt.png",
+      "error": null,
+      "timestamp": "2026-01-22T14:40:49.897599",
+      "retries": 0
+    },
+    {
+      "id": "syria",
+      "category": "flags",
+      "success": true,
+      "output_path": "public\\images\\flags\\syria.png",
+      "error": null,
+      "timestamp": "2026-01-22T14:41:09.793688",
+      "retries": 0
+    },
+    {
+      "id": "jordan",
+      "category": "flags",
+      "success": true,
+      "output_path": "public\\images\\flags\\jordan.png",
+      "error": null,
+      "timestamp": "2026-01-22T14:41:30.124557",
+      "retries": 0
+    },
+    {
+      "id": "lebanon",
+      "category": "flags",
+      "success": true,
+      "output_path": "public\\images\\flags\\lebanon.png",
+      "error": null,
+      "timestamp": "2026-01-22T14:41:49.813883",
+      "retries": 0
+    },
+    {
+      "id": "iraq",
+      "category": "flags",
+      "success": true,
+      "output_path": "public\\images\\flags\\iraq.png",
+      "error": null,
+      "timestamp": "2026-01-22T14:42:09.634086",
+      "retries": 0
+    },
+    {
+      "id": "iran",
+      "category": "flags",
+      "success": true,
+      "output_path": "public\\images\\flags\\iran.png",
+      "error": null,
+      "timestamp": "2026-01-22T14:42:28.403584",
+      "retries": 0
+    },
+    {
+      "id": "libya",
+      "category": "flags",
+      "success": true,
+      "output_path": "public\\images\\flags\\libya.png",
+      "error": null,
+      "timestamp": "2026-01-22T14:42:46.928623",
+      "retries": 0
+    },
+    {
+      "id": "usa",
+      "category": "flags",
+      "success": true,
+      "output_path": "public\\images\\flags\\usa.png",
+      "error": null,
+      "timestamp": "2026-01-22T14:43:06.427649",
+      "retries": 0
+    },
+    {
+      "id": "uk",
+      "category": "flags",
+      "success": true,
+      "output_path": "public\\images\\flags\\uk.png",
+      "error": null,
+      "timestamp": "2026-01-22T14:43:27.630724",
+      "retries": 0
+    },
+    {
+      "id": "france",
+      "category": "flags",
+      "success": true,
+      "output_path": "public\\images\\flags\\france.png",
+      "error": null,
+      "timestamp": "2026-01-22T14:43:46.534385",
+      "retries": 0
+    },
+    {
+      "id": "black_market",
+      "category": "flags",
+      "success": true,
+      "output_path": "public\\images\\flags\\black_market.png",
+      "error": null,
+      "timestamp": "2026-01-22T14:44:06.530474",
       "retries": 0
     }
   ]

@@ -9,8 +9,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GameShell } from '../components/layout/GameShell';
 import { HatchedBar } from '../components/ui/HatchedBar';
+import { FlagImage } from '../components/ui/FlagImage';
 import { useGameStore } from '../store/gameStore';
-import { COUNTRY_NAMES, COUNTRY_FLAGS } from '../utils/countryData';
+import { COUNTRY_NAMES } from '../utils/countryData';
 import type { CountryId, AirstrikeTarget } from '../types/game';
 
 const NEIGHBOR_BORDERS: CountryId[] = ['egypt', 'syria', 'jordan', 'lebanon'];
@@ -165,7 +166,7 @@ export function MilitaryScreen() {
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-lg">{COUNTRY_FLAGS[country]}</span>
+                      <FlagImage id={country} size="lg" />
                       <div>
                         <div className="font-mono font-bold text-xs">{COUNTRY_NAMES[country].toUpperCase()}</div>
                         {isAtWar && (
@@ -238,7 +239,7 @@ export function MilitaryScreen() {
                       : 'border-gray-300 bg-white text-gray-700 hover:border-gray-500'
                   }`}
                 >
-                  {COUNTRY_FLAGS[country]} {COUNTRY_NAMES[country].toUpperCase()}
+                  <FlagImage id={country} size="sm" className="mr-1" /> {COUNTRY_NAMES[country].toUpperCase()}
                 </button>
               ))}
             </div>

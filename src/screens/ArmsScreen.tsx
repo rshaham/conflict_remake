@@ -10,13 +10,14 @@ import { useGameStore } from '../store/gameStore';
 import { useUIStore } from '../store/uiStore';
 import { EconomyEngine } from '../engine/EconomyEngine';
 import { GameImage } from '../components/ui/GameImage';
+import { FlagImage } from '../components/ui/FlagImage';
 import type { VendorId, WeaponId } from '../types/game';
 
-const VENDORS: { id: VendorId; name: string; flag: string; country: string }[] = [
-  { id: 'usa', name: 'USA', flag: '🇺🇸', country: 'United States' },
-  { id: 'uk', name: 'UK', flag: '🇬🇧', country: 'United Kingdom' },
-  { id: 'france', name: 'FRA', flag: '🇫🇷', country: 'France' },
-  { id: 'black_market', name: 'BLK', flag: '🏴', country: 'Black Market' },
+const VENDORS: { id: VendorId; name: string; country: string }[] = [
+  { id: 'usa', name: 'USA', country: 'United States' },
+  { id: 'uk', name: 'UK', country: 'United Kingdom' },
+  { id: 'france', name: 'FRA', country: 'France' },
+  { id: 'black_market', name: 'BLK', country: 'Black Market' },
 ];
 
 const CATEGORY_NAMES: Record<string, string> = {
@@ -109,7 +110,7 @@ export function ArmsScreen() {
                 }`}
               >
                 <div className="flex flex-col items-center gap-1">
-                  <span className="text-lg">{vendor.flag}</span>
+                  <FlagImage id={vendor.id} size="lg" />
                   <span>{vendor.name}</span>
                   {isEmbargoed && <span className="text-[8px] text-red-500">EMBARGO</span>}
                 </div>

@@ -4,7 +4,8 @@
 
 import { GameLayout } from '../components/game/GameLayout';
 import { useGameStore } from '../store/gameStore';
-import { COUNTRY_NAMES, COUNTRY_FLAGS } from '../utils/countryData';
+import { FlagImage } from '../components/ui/FlagImage';
+import { COUNTRY_NAMES } from '../utils/countryData';
 
 export function AirstrikeReportScreen() {
   const game = useGameStore((state) => state.game);
@@ -50,7 +51,7 @@ export function AirstrikeReportScreen() {
               }`}
             >
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xl">{COUNTRY_FLAGS[strike.target]}</span>
+                <FlagImage id={strike.target} size="lg" />
                 <div>
                   <div className="font-mono font-bold text-xs">
                     TARGET: {COUNTRY_NAMES[strike.target].toUpperCase()}

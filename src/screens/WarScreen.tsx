@@ -6,9 +6,10 @@
 import { useNavigate } from 'react-router-dom';
 import { Scanlines } from '../components/ui/Scanlines';
 import { HatchedBar } from '../components/ui/HatchedBar';
+import { FlagImage } from '../components/ui/FlagImage';
 import { useGameStore } from '../store/gameStore';
 import { CombatEngine } from '../engine/CombatEngine';
-import { COUNTRY_NAMES, COUNTRY_FLAGS } from '../utils/countryData';
+import { COUNTRY_NAMES } from '../utils/countryData';
 import type { CountryId, War } from '../types/game';
 
 interface WarCardProps {
@@ -43,7 +44,7 @@ function WarCard({
       {/* War Header */}
       <div className="flex items-center justify-between mb-3 pb-2 border-b-2 border-dashed border-red-300">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">{COUNTRY_FLAGS[enemyId]}</span>
+          <FlagImage id={enemyId} size="lg" />
           <div>
             <div className="font-mono font-bold text-xs text-red-700">
               WAR: {COUNTRY_NAMES[enemyId].toUpperCase()}
@@ -95,8 +96,8 @@ function WarCard({
       {/* Force Comparison */}
       <div className="grid grid-cols-2 gap-2 mb-3">
         <div className="p-2 border border-green-400 bg-green-50">
-          <div className="font-mono text-[9px] text-green-700 font-bold mb-1">
-            {COUNTRY_FLAGS.israel} ISRAEL FORCES
+          <div className="font-mono text-[9px] text-green-700 font-bold mb-1 flex items-center gap-1">
+            <FlagImage id="israel" size="sm" /> ISRAEL FORCES
           </div>
           <div className="font-mono text-[8px] text-gray-600 space-y-0.5">
             <p>Tanks: {(playerArsenal.light_tank || 0) + (playerArsenal.main_battle_tank || 0)}</p>
@@ -106,8 +107,8 @@ function WarCard({
           </div>
         </div>
         <div className="p-2 border border-red-400 bg-red-50">
-          <div className="font-mono text-[9px] text-red-700 font-bold mb-1">
-            {COUNTRY_FLAGS[enemyId]} {COUNTRY_NAMES[enemyId].toUpperCase()}
+          <div className="font-mono text-[9px] text-red-700 font-bold mb-1 flex items-center gap-1">
+            <FlagImage id={enemyId} size="sm" /> {COUNTRY_NAMES[enemyId].toUpperCase()}
           </div>
           <div className="font-mono text-[8px] text-gray-600">
             <p>Military Strength: {enemyStrength}</p>

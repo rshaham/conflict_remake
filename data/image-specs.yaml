@@ -267,3 +267,38 @@ news_generic:
       prompt: "Industrial oil refinery complex, silhouettes against sky"
     - id: terrorist_attack
       prompt: "Chaotic street scene with emergency vehicles, grainy photo"
+
+# ============================================
+# FLAGS (12 images)
+# ============================================
+flags:
+  size: { width: 64, height: 48 }
+  format: png
+  style: "clean national flag, simple flat design, no embellishments"
+  items:
+    # Countries
+    - id: israel
+      prompt: "Flag of Israel, white with two blue stripes and Star of David"
+    - id: egypt
+      prompt: "Flag of Egypt, red white black horizontal stripes with golden eagle"
+    - id: syria
+      prompt: "Flag of Syria, red white black with two green stars"
+    - id: jordan
+      prompt: "Flag of Jordan, black white green stripes with red triangle and star"
+    - id: lebanon
+      prompt: "Flag of Lebanon, red white red with green cedar tree"
+    - id: iraq
+      prompt: "Flag of Iraq, red white black with green Arabic text"
+    - id: iran
+      prompt: "Flag of Iran, green white red with emblem"
+    - id: libya
+      prompt: "Flag of Libya, red black green with crescent and star"
+    # Vendors
+    - id: usa
+      prompt: "Flag of United States, stars and stripes"
+    - id: uk
+      prompt: "Flag of United Kingdom, Union Jack"
+    - id: france
+      prompt: "Flag of France, blue white red vertical stripes"
+    - id: black_market
+      prompt: "Black pirate flag with white skull and crossbones"

@@ -4,7 +4,8 @@
 // Modal component for analyzing combat strength before war
 
 import { useGameStore } from '../../store/gameStore';
-import { COUNTRY_NAMES, COUNTRY_FLAGS } from '../../utils/countryData';
+import { COUNTRY_NAMES } from '../../utils/countryData';
+import { FlagImage } from '../ui/FlagImage';
 import type { CountryId, WeaponId } from '../../types/game';
 
 interface ForceComparisonProps {
@@ -109,8 +110,8 @@ export function ForceComparison({ enemyId, isOpen, onClose }: ForceComparisonPro
 
               <div className="grid grid-cols-2 gap-2 mb-2">
                 <div>
-                  <div className="font-mono text-[8px] text-green-700 font-bold mb-1">
-                    {COUNTRY_FLAGS.israel} ISRAEL
+                  <div className="font-mono text-[8px] text-green-700 font-bold mb-1 flex items-center gap-1">
+                    <FlagImage id="israel" size="sm" /> ISRAEL
                   </div>
                   {phase.playerUnits.map((unit) => (
                     <div key={unit} className="font-mono text-[10px]">
@@ -119,8 +120,8 @@ export function ForceComparison({ enemyId, isOpen, onClose }: ForceComparisonPro
                   ))}
                 </div>
                 <div>
-                  <div className="font-mono text-[8px] text-red-700 font-bold mb-1">
-                    {COUNTRY_FLAGS[enemyId]} {COUNTRY_NAMES[enemyId].toUpperCase()}
+                  <div className="font-mono text-[8px] text-red-700 font-bold mb-1 flex items-center gap-1">
+                    <FlagImage id={enemyId} size="sm" /> {COUNTRY_NAMES[enemyId].toUpperCase()}
                   </div>
                   <div className="font-mono text-[10px] text-gray-600">
                     Est. Strength: ~{Math.round(enemyStrength * 0.25)}

@@ -7,7 +7,8 @@
 import { GameShell } from '../components/layout/GameShell';
 import { useGameStore } from '../store/gameStore';
 import { IntelligenceEngine } from '../engine/IntelligenceEngine';
-import { COUNTRY_NAMES, COUNTRY_FLAGS } from '../utils/countryData';
+import { FlagImage } from '../components/ui/FlagImage';
+import { COUNTRY_NAMES } from '../utils/countryData';
 import type { CountryId, IntelligenceAction, ExtremeMeasureType } from '../types/game';
 
 // Target countries for intelligence operations
@@ -107,7 +108,7 @@ export function IntelligenceScreen() {
               {/* Country Header */}
               <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-300">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl">{COUNTRY_FLAGS[countryId]}</span>
+                  <FlagImage id={countryId} size="lg" />
                   <div>
                     <div className="font-mono font-bold text-xs">{COUNTRY_NAMES[countryId].toUpperCase()}</div>
                     <div className="font-mono text-[8px] text-gray-500">

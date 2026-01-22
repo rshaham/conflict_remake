@@ -8,7 +8,8 @@ import type {
   DiplomaticAction,
   RelationshipLevel,
 } from '../../types/game';
-import { COUNTRY_NAMES, COUNTRY_FLAGS } from '../../utils/countryData';
+import { COUNTRY_NAMES } from '../../utils/countryData';
+import { FlagImage } from '../ui/FlagImage';
 
 // Relationship level colors matching tailwind.config.js
 const RELATIONSHIP_COLORS: Record<RelationshipLevel, string> = {
@@ -64,9 +65,7 @@ export function CountryCard({
     >
       {/* Header Row */}
       <div className="flex items-center gap-3 mb-3">
-        <span className="text-3xl" role="img" aria-label={COUNTRY_NAMES[country.id]}>
-          {COUNTRY_FLAGS[country.id]}
-        </span>
+        <FlagImage id={country.id} size="lg" className="w-10 h-8" />
         <div className="flex-1">
           <h3 className="font-medium text-game-text-primary">
             {COUNTRY_NAMES[country.id]}

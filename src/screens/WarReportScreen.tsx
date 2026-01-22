@@ -4,7 +4,8 @@
 
 import { GameLayout } from '../components/game/GameLayout';
 import { useGameStore } from '../store/gameStore';
-import { COUNTRY_NAMES, COUNTRY_FLAGS } from '../utils/countryData';
+import { FlagImage } from '../components/ui/FlagImage';
+import { COUNTRY_NAMES } from '../utils/countryData';
 
 export function WarReportScreen() {
   const game = useGameStore((state) => state.game);
@@ -47,7 +48,7 @@ export function WarReportScreen() {
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl">{COUNTRY_FLAGS[war.enemy]}</span>
+                  <FlagImage id={war.enemy} size="lg" />
                   <div className="font-mono font-bold text-xs">
                     {COUNTRY_NAMES[war.enemy].toUpperCase()} FRONT
                   </div>

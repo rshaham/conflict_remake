@@ -6,7 +6,9 @@
 import { useNavigate } from 'react-router-dom';
 import { Scanlines } from '../components/ui/Scanlines';
 import { useGameStore } from '../store/gameStore';
-import { COUNTRY_NAMES, COUNTRY_FLAGS } from '../utils/countryData';
+import { FlagImage } from '../components/ui/FlagImage';
+import { COUNTRY_NAMES } from '../utils/countryData';
+import type { CountryId } from '../types/game';
 
 export function GameOverScreen() {
   const navigate = useNavigate();
@@ -121,9 +123,9 @@ export function GameOverScreen() {
               {statistics.countriesDefeated.map((country) => (
                 <span
                   key={country}
-                  className="px-2 py-1 border-2 border-green-600 bg-green-100 font-mono text-[10px] font-bold text-green-700"
+                  className="px-2 py-1 border-2 border-green-600 bg-green-100 font-mono text-[10px] font-bold text-green-700 flex items-center gap-1"
                 >
-                  {COUNTRY_FLAGS[country as keyof typeof COUNTRY_FLAGS]} {COUNTRY_NAMES[country as keyof typeof COUNTRY_NAMES]?.toUpperCase()}
+                  <FlagImage id={country as CountryId} size="sm" /> {COUNTRY_NAMES[country as keyof typeof COUNTRY_NAMES]?.toUpperCase()}
                 </span>
               ))}
             </div>

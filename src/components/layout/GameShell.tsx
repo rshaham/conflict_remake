@@ -7,9 +7,12 @@
 // - Scrollable content area
 // - Optional footer action
 
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Scanlines } from '../ui/Scanlines';
 import { useGameStore } from '../../store/gameStore';
+import { ArsenalButton } from '../game/ArsenalButton';
+import { ArsenalOverlay } from '../game/ArsenalOverlay';
 
 const MONTH_NAMES = [
   'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
@@ -40,6 +43,7 @@ export function GameShell({ children, showBack = true, footer, statusOverride }:
   const navigate = useNavigate();
   const location = useLocation();
   const game = useGameStore((state) => state.game);
+  const [arsenalOpen, setArsenalOpen] = useState(false);
 
   const screenMeta = SCREEN_META[location.pathname] || {
     title: 'CONFLICT',
@@ -137,6 +141,14 @@ export function GameShell({ children, showBack = true, footer, statusOverride }:
         <div className="shrink-0 bg-white border-t-2 border-black p-3">
           {footer}
         </div>
+      )}
+
+      {/* === ARSENAL BUTTON & OVERLAY === */}
+      {game && (
+        <>
+          <ArsenalButton onClick={() => setArsenalOpen(true)} />
+          <ArsenalOverlay isOpen={arsenalOpen} onClose={() => setArsenalOpen(false)} />
+        </>
       )}
     </div>
   );
