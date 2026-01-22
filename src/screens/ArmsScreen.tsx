@@ -4,6 +4,7 @@
 // Purchase weapons from international vendors
 // Redesigned with GameShell for consistent navigation
 
+import { useEffect } from 'react';
 import { GameShell } from '../components/layout/GameShell';
 import { useGameStore } from '../store/gameStore';
 import { useUIStore } from '../store/uiStore';
@@ -39,9 +40,16 @@ function formatCurrency(amount: number): string {
 }
 
 export function ArmsScreen() {
-  const { game, gameData, purchaseWeapon } = useGameStore();
+  const { game, gameData, purchaseWeapon, loadGameData } = useGameStore();
   const selectedVendor = useUIStore((state) => state.selectedVendor);
   const selectVendor = useUIStore((state) => state.selectVendor);
+
+  // Ensure game data is loaded (it's not persisted, so may be null after refresh)
+  useEffect(() => {
+    if (!gameData) {
+      loadGameData();
+    }
+  }, [gameData, loadGameData]);
 
   if (!game) {
     return null;
@@ -50,6 +58,9 @@ export function ArmsScreen() {
   const currentVendor = selectedVendor || 'usa';
   const vendorWeapons = EconomyEngine.getVendorWeapons(game, currentVendor, gameData?.weapons);
   const isVendorEmbargoed = game.player.embargoedBy.includes(currentVendor);
+
+  // Get queued purchases for this turn
+  const queuedPurchases = game.player.turnActions.weaponPurchases;
 
   const handlePurchase = (weaponId: WeaponId, quantity: number) => {
     purchaseWeapon(currentVendor, weaponId, quantity);
@@ -112,6 +123,11 @@ export function ArmsScreen() {
 
         {/* Weapon Catalog */}
         <div className="space-y-3">
+          {vendorWeapons.length === 0 && (
+            <div className="p-4 bg-gray-100 border-2 border-gray-300 text-center">
+              <div className="font-mono text-sm text-gray-600">Loading weapons...</div>
+            </div>
+          )}
           {vendorWeapons.map(({ weapon, price, available, reason, weaponData }) => {
             const canPurchase = available && !isVendorEmbargoed;
             const categoryName = CATEGORY_NAMES[weaponData.category] || weaponData.category.toUpperCase();
@@ -199,6 +215,37 @@ export function ArmsScreen() {
           })}
         </div>
 
+        {/* Queued Purchases (this turn) */}
+        {queuedPurchases.length > 0 && (
+          <div className="bg-white border-2 border-green-600 p-4">
+            <div className="font-mono font-bold text-xs uppercase mb-3 pb-2 border-b border-green-300 text-green-700">
+              QUEUED THIS TURN
+            </div>
+            <div className="space-y-2">
+              {queuedPurchases.map((purchase, index) => {
+                const weaponInfo = EconomyEngine.getWeaponData(purchase.weaponId, gameData?.weapons);
+                const name = weaponInfo?.name || purchase.weaponId;
+                return (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-2 bg-green-50 border border-green-200"
+                  >
+                    <div className="font-mono text-xs">
+                      <span className="font-bold">{purchase.quantity}x</span> {name}
+                    </div>
+                    <div className="font-mono text-xs text-green-700 font-bold">
+                      {formatCurrency(purchase.totalCost)}
+                    </div>
+                  </div>
+                );
+              })}
+              <div className="mt-2 pt-2 border-t border-green-200 font-mono text-[10px] text-green-600">
+                Will be processed at end of turn
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Pending Deliveries */}
         {game.player.pendingDeliveries.length > 0 && (
           <div className="bg-white border-2 border-black p-4">
@@ -207,7 +254,7 @@ export function ArmsScreen() {
             </div>
             <div className="space-y-2">
               {game.player.pendingDeliveries.map((delivery, index) => {
-                const weaponInfo = EconomyEngine.getWeaponData(delivery.weaponId);
+                const weaponInfo = EconomyEngine.getWeaponData(delivery.weaponId, gameData?.weapons);
                 const name = weaponInfo?.name || delivery.weaponId;
                 return (
                   <div
