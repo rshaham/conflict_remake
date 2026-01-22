@@ -212,7 +212,7 @@ weapons:
     canAirstrike: true
     counters: ["fighter_aircraft", "attack_helicopter", "mig29_fulcrum"]
     counteredBy: ["sam_battery", "s300pmu"]
-    image: "/images/weapons/f15c_eagle.png"
+    image: "/images/weapons/f15_eagle.png"
     wikipediaUrl: "https://en.wikipedia.org/wiki/McDonnell_Douglas_F-15_Eagle"
     summary: "Undefeated air superiority fighter (104 kills, 0 losses). Israel has achieved more F-15 kills than any other nation."
     specs:
@@ -239,7 +239,7 @@ weapons:
     canAirstrike: true
     counters: ["attack_helicopter", "light_armor"]
     counteredBy: ["sam_battery", "f15c_eagle"]
-    image: "/images/weapons/f16c_falcon.png"
+    image: "/images/weapons/f16_falcon.png"
     wikipediaUrl: "https://en.wikipedia.org/wiki/General_Dynamics_F-16_Fighting_Falcon"
     summary: "World's most successful 4th-gen fighter. Israel operates the largest fleet outside the US. Destroyed Osirak reactor in 1981."
     specs:
@@ -266,7 +266,7 @@ weapons:
     counters: ["sam_battery", "s300pmu"]
     counteredBy: ["fighter_aircraft"]
     bonusVsSAM: 2.0
-    image: "/images/weapons/f4g_wild_weasel.png"
+    image: "/images/weapons/f4_phantom.png"
     wikipediaUrl: "https://en.wikipedia.org/wiki/McDonnell_Douglas_F-4_Phantom_II"
     summary: "Specialized SEAD aircraft designed to destroy enemy radar and SAM sites. Among the most dangerous missions in aerial warfare."
     specs:
@@ -295,7 +295,7 @@ weapons:
     combatValue: 2
     counters: []
     counteredBy: ["main_battle_tank", "attack_helicopter"]
-    image: "/images/weapons/chieftain_mk11.png"
+    image: "/images/weapons/chieftain.png"
     wikipediaUrl: "https://en.wikipedia.org/wiki/Chieftain_(tank)"
     summary: "Britain's MBT from 1960s-1990s, renowned for its powerful 120mm gun. Iran and Jordan operated them extensively."
     specs:
@@ -321,7 +321,7 @@ weapons:
     combatValue: 5
     counters: ["light_armor", "t72m"]
     counteredBy: ["ah64_apache"]
-    image: "/images/weapons/challenger_1.png"
+    image: "/images/weapons/challenger.png"
     wikipediaUrl: "https://en.wikipedia.org/wiki/Challenger_1"
     summary: "Featured Chobham composite armor. Achieved the longest tank-on-tank kill (4.7 km) during the 1991 Gulf War."
     specs:
@@ -371,7 +371,7 @@ weapons:
     combatValue: 3
     counters: ["attack_helicopter", "fighter_aircraft"]
     counteredBy: ["sead_aircraft"]
-    image: "/images/weapons/rapier_fsc.png"
+    image: "/images/weapons/rapier.png"
     wikipediaUrl: "https://en.wikipedia.org/wiki/Rapier_(missile)"
     summary: "Short-range SAM for point defense. Used by British forces in the Falklands War. Operated by several Middle Eastern nations."
     specs:
@@ -397,7 +397,7 @@ weapons:
     bonusVsGround: 1.5
     counters: ["ground_targets"]
     counteredBy: ["sam_battery", "fighter_aircraft"]
-    image: "/images/weapons/tornado_gr1.png"
+    image: "/images/weapons/tornado.png"
     wikipediaUrl: "https://en.wikipedia.org/wiki/Panavia_Tornado"
     summary: "Multinational swing-wing strike aircraft. Conducted dangerous low-level attacks on Iraqi airfields during Gulf War."
     specs:
@@ -425,7 +425,7 @@ weapons:
     combatValue: 2
     counters: []
     counteredBy: ["main_battle_tank", "attack_helicopter"]
-    image: "/images/weapons/amx30b2.png"
+    image: "/images/weapons/amx30.png"
     wikipediaUrl: "https://en.wikipedia.org/wiki/AMX-30"
     summary: "France's MBT since 1966, prioritizing mobility over armor. Operated by Saudi Arabia, UAE, and other Gulf states."
     specs:
@@ -525,7 +525,7 @@ weapons:
     canAirstrike: true
     counters: ["attack_helicopter"]
     counteredBy: ["f15c_eagle", "sam_battery"]
-    image: "/images/weapons/mirage_2000c.png"
+    image: "/images/weapons/mirage_2000.png"
     wikipediaUrl: "https://en.wikipedia.org/wiki/Dassault_Mirage_2000"
     summary: "Fourth-gen delta-wing fighter. France's willingness to sell without political strings made it popular worldwide."
     specs:
@@ -579,7 +579,7 @@ weapons:
     combatValue: 2
     counters: []
     counteredBy: ["m1a1_abrams", "ah64_apache", "main_battle_tank"]
-    image: "/images/weapons/t62m.png"
+    image: "/images/weapons/t62.png"
     wikipediaUrl: "https://en.wikipedia.org/wiki/T-62"
     summary: "Soviet MBT from 1961 with world's first smoothbore tank gun. Exported massively - huge stockpiles make them extremely cheap."
     specs:
@@ -605,7 +605,7 @@ weapons:
     combatValue: 4
     counters: ["light_armor"]
     counteredBy: ["m1a1_abrams", "challenger_1", "ah64_apache"]
-    image: "/images/weapons/t72m.png"
+    image: "/images/weapons/t72.png"
     wikipediaUrl: "https://en.wikipedia.org/wiki/T-72"
     summary: "Most-produced post-WWII tank. Export 'monkey model' with downgraded armor. Performed poorly against M1s in Gulf War."
     specs:
@@ -685,7 +685,7 @@ weapons:
     canAirstrike: false
     counters: ["attack_helicopter"]
     counteredBy: ["f15c_eagle", "sam_battery"]
-    image: "/images/weapons/mig29_fulcrum.png"
+    image: "/images/weapons/mig29.png"
     wikipediaUrl: "https://en.wikipedia.org/wiki/Mikoyan_MiG-29"
     summary: "Soviet answer to F-15/F-16 with exceptional close-range capability. Limited range made it inferior in beyond-visual-range combat."
     specs:
@@ -712,7 +712,7 @@ weapons:
     bonusVsGround: 1.4
     counters: ["ground_targets"]
     counteredBy: ["f15c_eagle", "sam_battery"]
-    image: "/images/weapons/su24_fencer.png"
+    image: "/images/weapons/su24.png"
     wikipediaUrl: "https://en.wikipedia.org/wiki/Sukhoi_Su-24"
     summary: "Soviet equivalent to F-111 strike aircraft. Excellent ground attack platform but vulnerable in air combat."
     specs:
