@@ -2,6 +2,7 @@
 // News Screen - Dot Matrix Bulletin Style
 // ============================================
 
+import { useNavigate } from 'react-router-dom';
 import { Panel } from '../components/ui/Panel';
 import { GameLayout } from '../components/game/GameLayout';
 import { NewsImage } from '../components/ui/GameImage';
@@ -14,8 +15,9 @@ const MONTH_NAMES = [
 ];
 
 export function NewsScreen() {
+  const navigate = useNavigate();
   const game = useGameStore((state) => state.game);
-  const advancePhase = useGameStore((state) => state.advancePhase);
+  const setPhase = useGameStore((state) => state.setPhase);
 
   // If no game is loaded, show placeholder
   if (!game) {
@@ -40,7 +42,8 @@ export function NewsScreen() {
   const ticker = generateTicker(game);
 
   const handleProceed = () => {
-    advancePhase();
+    setPhase('hub');
+    navigate('/game/hub');
   };
 
   return (

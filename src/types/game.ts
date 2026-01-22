@@ -45,6 +45,7 @@ export type PolicingTactic = 'none' | 'soft' | 'hard';
 
 export type GamePhase =
   | 'news'
+  | 'hub'  // Main turn phase - free navigation
   | 'events'
   | 'diplomatic'
   | 'intelligence'

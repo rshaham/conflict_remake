@@ -6,7 +6,8 @@
 // Nuclear program moved to NuclearScreen
 
 import { useState } from 'react';
-import { GameLayout } from '../components/game/GameLayout';
+import { useNavigate } from 'react-router-dom';
+import { GameShell } from '../components/layout/GameShell';
 import { HatchedBar } from '../components/ui/HatchedBar';
 import { useGameStore } from '../store/gameStore';
 import { COUNTRY_NAMES, COUNTRY_FLAGS } from '../utils/countryData';
@@ -36,7 +37,8 @@ const UNIT_TYPES: { id: string; name: string; icon: string }[] = [
 ];
 
 export function MilitaryScreen() {
-  const { game, deployTroops, orderAirstrike, cancelAirstrike, declareWar, endTurn, advancePhase } = useGameStore();
+  const navigate = useNavigate();
+  const { game, deployTroops, orderAirstrike, cancelAirstrike, declareWar, endTurn } = useGameStore();
 
   // Airstrike state
   const [selectedAirstrikeCountry, setSelectedAirstrikeCountry] = useState<CountryId>('syria');
@@ -46,13 +48,7 @@ export function MilitaryScreen() {
   const [showWarConfirm, setShowWarConfirm] = useState<CountryId | null>(null);
 
   if (!game) {
-    return (
-      <GameLayout>
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="font-mono text-retro-text-dim">No game in progress</p>
-        </div>
-      </GameLayout>
-    );
+    return null;
   }
 
   const handleDeploymentChange = (country: CountryId, delta: number) => {
@@ -83,25 +79,39 @@ export function MilitaryScreen() {
 
   const fighters = game.player.arsenal.fighter_aircraft || 0;
 
+  // Status override for header - show readiness
+  const statusOverride = (
+    <div className="flex items-center gap-2 text-white/80">
+      <span className={`w-2 h-2 ${readiness >= 50 ? 'bg-green-400' : 'bg-red-400'} animate-pulse rounded-full`} />
+      <span className="font-mono text-[10px]">
+        {readiness}% READY
+      </span>
+    </div>
+  );
+
+  // Footer with end turn button
+  const footer = (
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          endTurn();
+          navigate('/game/news');
+        }}
+        className="w-full py-3 bg-red-700 text-white font-mono font-bold text-xs uppercase border-2 border-black retro-shadow-sm hover:bg-red-800 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
+      >
+        END TURN - RESOLVE ACTIONS
+      </button>
+      <p className="font-mono text-[8px] text-center text-red-600 mt-2 uppercase">
+        Point of no return - All actions will be executed
+      </p>
+    </>
+  );
+
   return (
-    <GameLayout>
-      {/* Header */}
-      <div className="shrink-0 p-3 bg-white border-b-2 border-black">
-        <h1 className="font-pixel text-lg leading-none">STRATEGIC COMMAND</h1>
-        <div className="font-mono text-[8px] text-gray-500 uppercase tracking-wider">Military Operations</div>
-      </div>
-
-      {/* Terminal-style readiness display */}
-      <div className="shrink-0 px-3 py-2 bg-black text-green-500 font-mono text-[10px] flex justify-between items-center">
-        <span>READINESS: {readiness}%</span>
-        <span className="flex items-center gap-2">
-          <span className={`w-2 h-2 ${readiness >= 50 ? 'bg-green-500' : 'bg-red-500'} animate-pulse`} />
-          {game.wars.length > 0 ? 'COMBAT OPS ACTIVE' : 'PEACETIME STATUS'}
-        </span>
-      </div>
-
+    <GameShell statusOverride={statusOverride} footer={footer}>
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+      <div className="p-3 space-y-3">
 
         {/* Force Overview */}
         <div className="bg-white border-2 border-black retro-shadow p-3">
@@ -353,20 +363,6 @@ export function MilitaryScreen() {
 
       </div>
 
-      {/* Footer - End Turn Button */}
-      <div className="shrink-0 p-3 bg-white border-t-2 border-black">
-        <button
-          type="button"
-          onClick={() => endTurn()}
-          className="w-full py-3 bg-red-700 text-white font-mono font-bold text-xs uppercase border-2 border-black retro-shadow-sm hover:bg-red-800 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
-        >
-          END TURN - RESOLVE ACTIONS
-        </button>
-        <p className="font-mono text-[8px] text-center text-red-600 mt-2 uppercase">
-          Point of no return - All actions will be executed
-        </p>
-      </div>
-
       {/* War Confirmation Dialog */}
       {showWarConfirm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -389,6 +385,6 @@ export function MilitaryScreen() {
           </div>
         </div>
       )}
-    </GameLayout>
+    </GameShell>
   );
 }

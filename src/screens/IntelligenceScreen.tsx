@@ -4,7 +4,7 @@
 // Mossad operations and intelligence actions
 // Retro terminal-heavy styling
 
-import { GameLayout } from '../components/game/GameLayout';
+import { GameShell } from '../components/layout/GameShell';
 import { useGameStore } from '../store/gameStore';
 import { IntelligenceEngine } from '../engine/IntelligenceEngine';
 import { COUNTRY_NAMES, COUNTRY_FLAGS } from '../utils/countryData';
@@ -33,16 +33,9 @@ export function IntelligenceScreen() {
   const game = useGameStore((state) => state.game);
   const setIntelligenceAction = useGameStore((state) => state.setIntelligenceAction);
   const attemptExtremeMeasure = useGameStore((state) => state.attemptExtremeMeasure);
-  const advancePhase = useGameStore((state) => state.advancePhase);
 
   if (!game) {
-    return (
-      <GameLayout>
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="font-mono text-retro-text-dim">No game in progress</p>
-        </div>
-      </GameLayout>
-    );
+    return null;
   }
 
   const intelligenceActions = game.player.turnActions.intelligenceActions;
@@ -58,25 +51,20 @@ export function IntelligenceScreen() {
   // Count active operations
   const activeOps = Object.values(intelligenceActions).filter(a => a !== 'do_nothing').length;
 
+  // Status override for header
+  const statusOverride = (
+    <div className="flex items-center gap-2 text-white/80">
+      <span className="w-2 h-2 bg-green-400 animate-pulse rounded-full" />
+      <span className="font-mono text-[10px]">
+        {activeOps > 0 ? `${activeOps} ACTIVE OPS` : 'AWAITING ORDERS'}
+      </span>
+    </div>
+  );
+
   return (
-    <GameLayout>
-      {/* Header */}
-      <div className="shrink-0 p-3 bg-white border-b-2 border-black">
-        <h1 className="font-pixel text-lg leading-none">COVERT OPERATIONS</h1>
-        <div className="font-mono text-[8px] text-gray-500 uppercase tracking-wider">Intelligence Division</div>
-      </div>
-
-      {/* Terminal-style status display */}
-      <div className="shrink-0 px-3 py-2 bg-black text-green-500 font-mono text-[10px] flex justify-between items-center">
-        <span>MOSSAD OPERATIONS CENTER</span>
-        <span className="flex items-center gap-2">
-          <span className="w-2 h-2 bg-green-500 animate-pulse" />
-          {activeOps > 0 ? `${activeOps} ACTIVE OPS` : 'AWAITING ORDERS'}
-        </span>
-      </div>
-
+    <GameShell statusOverride={statusOverride}>
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+      <div className="p-3 space-y-3">
 
         {/* Covert Operations Header */}
         <div className="bg-white border-2 border-black retro-shadow p-3">
@@ -250,17 +238,6 @@ export function IntelligenceScreen() {
         </div>
 
       </div>
-
-      {/* Footer with Continue */}
-      <div className="shrink-0 p-3 bg-white border-t-2 border-black">
-        <button
-          type="button"
-          onClick={() => advancePhase()}
-          className="w-full py-3 bg-black text-white font-mono font-bold text-xs uppercase border-2 border-black retro-shadow-sm hover:bg-gray-800 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
-        >
-          CONTINUE → MILITARY
-        </button>
-      </div>
-    </GameLayout>
+    </GameShell>
   );
 }

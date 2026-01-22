@@ -23,6 +23,7 @@ import { GameOverScreen } from './screens/GameOverScreen';
 import { AirstrikeReportScreen } from './screens/AirstrikeReportScreen';
 import { MonthlySummaryScreen } from './screens/MonthlySummaryScreen';
 import { WarReportScreen } from './screens/WarReportScreen';
+import { HubScreen } from './screens/HubScreen';
 // New screens will be added as we create them
 // import { EventsScreen } from './screens/EventsScreen';
 
@@ -45,8 +46,9 @@ function App() {
             {/* Title / Main Menu */}
             <Route path="/" element={<TitleScreen />} />
 
-            {/* Linear Phase Flow */}
+            {/* Main Game Flow */}
             <Route path="/game/news" element={<NewsScreen />} />
+            <Route path="/game/hub" element={<HubScreen />} />
             {/* <Route path="/game/events" element={<EventsScreen />} /> */}
             <Route path="/game/diplomatic" element={<DiplomaticScreen />} />
             <Route path="/game/intelligence" element={<IntelligenceScreen />} />

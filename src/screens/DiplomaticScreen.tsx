@@ -6,7 +6,7 @@ import { Panel } from '../components/ui/Panel';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { StabilityBar } from '../components/ui/HatchedBar';
 import { LeaderPortrait } from '../components/ui/GameImage';
-import { GameLayout } from '../components/game/GameLayout';
+import { GameShell } from '../components/layout/GameShell';
 import { useGameStore } from '../store/gameStore';
 import { COUNTRY_NAMES, COUNTRY_FLAGS, COUNTRY_CODES } from '../utils/countryData';
 import type { CountryId, CountryState, DiplomaticAction } from '../types/game';
@@ -138,16 +138,9 @@ function RetroCountryCard({ country, currentAction, onActionChange }: RetroCount
 
 export function DiplomaticScreen() {
   const { game, setDiplomaticAction } = useGameStore();
-  const advancePhase = useGameStore((state) => state.advancePhase);
 
   if (!game) {
-    return (
-      <GameLayout>
-        <div className="flex-1 flex items-center justify-center">
-          <p className="font-mono text-retro-text-dim">No game in progress</p>
-        </div>
-      </GameLayout>
-    );
+    return null;
   }
 
   const diplomaticActions = game.player.turnActions.diplomaticActions;
@@ -157,14 +150,9 @@ export function DiplomaticScreen() {
   };
 
   return (
-    <GameLayout>
-      {/* Header */}
-      <div className="shrink-0 p-3 bg-white border-b-2 border-black flex items-center gap-3">
-        <span className="font-pixel text-xl">DIPLOMATIC CORPS</span>
-      </div>
-
+    <GameShell>
       {/* Legend */}
-      <div className="shrink-0 px-3 py-2 bg-gray-100 border-b-2 border-black flex gap-3 font-mono text-[8px]">
+      <div className="px-3 py-2 bg-gray-100 border-b-2 border-black flex gap-3 font-mono text-[8px]">
         <span className="flex items-center gap-1">
           <span className="w-2 h-2 bg-green-600" /> FRIENDLY
         </span>
@@ -177,7 +165,7 @@ export function DiplomaticScreen() {
       </div>
 
       {/* Country list */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-4">
+      <div className="p-3 space-y-4">
         {/* Neighboring Countries */}
         <div className="font-mono text-[9px] font-bold text-gray-500 uppercase mb-2">
           NEIGHBORING COUNTRIES
@@ -238,17 +226,6 @@ export function DiplomaticScreen() {
           </p>
         </Panel>
       </div>
-
-      {/* Footer with Continue */}
-      <div className="shrink-0 p-3 bg-white border-t-2 border-black">
-        <button
-          type="button"
-          onClick={() => advancePhase()}
-          className="w-full py-3 bg-black text-white font-mono font-bold text-xs uppercase border-2 border-black retro-shadow-sm hover:bg-gray-800 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
-        >
-          CONTINUE → INTELLIGENCE
-        </button>
-      </div>
-    </GameLayout>
+    </GameShell>
   );
 }

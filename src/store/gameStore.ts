@@ -60,6 +60,7 @@ interface GameStore {
   respondToEvent: (eventId: string, optionId: string) => void;
 
   // Turn Flow
+  setPhase: (phase: GameState['phase']) => void;
   advancePhase: () => void;
   endTurn: () => Promise<void>;
 
@@ -180,18 +181,18 @@ export const useGameStore = create<GameStore>()(
 
       // Military Actions
       purchaseWeapon: (vendor, weapon, quantity) => {
-        const { game } = get();
+        const { game, gameData } = get();
         if (!game) return;
 
-        // Validate purchase
-        const validation = EconomyEngine.canPurchase(game, vendor, weapon, quantity);
+        // Validate purchase - pass YAML weapons data if available
+        const validation = EconomyEngine.canPurchase(game, vendor, weapon, quantity, gameData?.weapons);
         if (!validation.valid) {
           console.warn(`Cannot purchase: ${validation.reason}`);
           return;
         }
 
         // Create purchase order and add to turn actions
-        const purchase = EconomyEngine.createPurchaseOrder(vendor, weapon, quantity);
+        const purchase = EconomyEngine.createPurchaseOrder(vendor, weapon, quantity, gameData?.weapons);
 
         set({
           game: {
@@ -376,6 +377,13 @@ export const useGameStore = create<GameStore>()(
       },
 
       // Turn Flow
+      setPhase: (phase) => {
+        const { game } = get();
+        if (!game) return;
+
+        set({ game: { ...game, phase } });
+      },
+
       advancePhase: () => {
         const { game } = get();
         if (!game) return;

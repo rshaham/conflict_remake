@@ -321,6 +321,7 @@ export const GameEngine = {
   getPhaseName: (phase: GamePhase): string => {
     const names: Record<GamePhase, string> = {
       news: 'News',
+      hub: 'Command Center',
       events: 'Events',
       diplomatic: 'Diplomatic',
       intelligence: 'Intelligence',
