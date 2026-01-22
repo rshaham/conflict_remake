@@ -4,6 +4,7 @@
 // Purchase weapons from international vendors
 // Redesigned with GameShell for consistent navigation
 
+import { useState, useEffect } from 'react';
 import { GameShell } from '../components/layout/GameShell';
 import { useGameStore } from '../store/gameStore';
 import { useUIStore } from '../store/uiStore';
@@ -39,24 +40,39 @@ function formatCurrency(amount: number): string {
 }
 
 export function ArmsScreen() {
-  const { game, purchaseWeapon } = useGameStore();
+  const { game, gameData, purchaseWeapon, loadGameData } = useGameStore();
   const selectedVendor = useUIStore((state) => state.selectedVendor);
   const selectVendor = useUIStore((state) => state.selectVendor);
+  const [purchaseError, setPurchaseError] = useState<string | null>(null);
+
+  // Load game data if not present (it's not persisted in localStorage)
+  useEffect(() => {
+    if (!gameData) {
+      loadGameData();
+    }
+  }, [gameData, loadGameData]);
 
   if (!game) {
     return null;
   }
 
   const currentVendor = selectedVendor || 'usa';
-  // Use hardcoded weapon data for now - YAML integration needs debugging
-  const vendorWeapons = EconomyEngine.getVendorWeapons(game, currentVendor);
+  // Use YAML data if loaded, otherwise fallback to hardcoded
+  const vendorWeapons = EconomyEngine.getVendorWeapons(game, currentVendor, gameData?.weapons);
   const isVendorEmbargoed = game.player.embargoedBy.includes(currentVendor);
 
   // Get purchases made this turn (paid for but not yet delivered)
   const purchasesThisTurn = game.player.turnActions.weaponPurchases;
 
-
   const handlePurchase = (weaponId: WeaponId, quantity: number) => {
+    // Validate before attempting purchase
+    const validation = EconomyEngine.canPurchase(game, currentVendor, weaponId, quantity, gameData?.weapons);
+    if (!validation.valid) {
+      setPurchaseError(validation.reason || 'Purchase failed');
+      setTimeout(() => setPurchaseError(null), 3000); // Clear after 3s
+      return;
+    }
+    setPurchaseError(null);
     purchaseWeapon(currentVendor, weaponId, quantity);
   };
 
@@ -105,6 +121,13 @@ export function ArmsScreen() {
 
       {/* Content */}
       <div className="p-4 space-y-4">
+        {/* Purchase Error */}
+        {purchaseError && (
+          <div className="p-3 bg-red-100 border-2 border-red-600 text-red-800 font-mono text-sm animate-pulse">
+            {purchaseError}
+          </div>
+        )}
+
         {/* Embargo Warning */}
         {isVendorEmbargoed && (
           <div className="p-4 bg-red-100 border-2 border-red-600 text-red-800">
@@ -217,7 +240,7 @@ export function ArmsScreen() {
             </div>
             <div className="space-y-2">
               {purchasesThisTurn.map((purchase, index) => {
-                const weaponInfo = EconomyEngine.getWeaponData(purchase.weaponId);
+                const weaponInfo = EconomyEngine.getWeaponData(purchase.weaponId, gameData?.weapons);
                 const name = weaponInfo?.name || purchase.weaponId;
                 return (
                   <div
@@ -248,7 +271,7 @@ export function ArmsScreen() {
             </div>
             <div className="space-y-2">
               {game.player.pendingDeliveries.map((delivery, index) => {
-                const weaponInfo = EconomyEngine.getWeaponData(delivery.weaponId);
+                const weaponInfo = EconomyEngine.getWeaponData(delivery.weaponId, gameData?.weapons);
                 const name = weaponInfo?.name || delivery.weaponId;
                 return (
                   <div
