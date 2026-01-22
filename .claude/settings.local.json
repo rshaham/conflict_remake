@@ -15,7 +15,18 @@
       "Bash(git commit:*)",
       "WebFetch(domain:www.mobygames.com)",
       "Bash(npm run lint)",
-      "Skill(frontend-design:frontend-design)"
+      "Skill(frontend-design:frontend-design)",
+      "Skill(superpowers:systematic-debugging)",
+      "Bash(while read img)",
+      "Bash(do)",
+      "Bash(if [ ! -f \"public/images/weapons/$img\" ])",
+      "Bash(then)",
+      "Bash(echo:*)",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(timeout 10 npm run dev:*)",
+      "Bash(git log:*)",
+      "Bash(find:*)"
     ]
   }
 }
