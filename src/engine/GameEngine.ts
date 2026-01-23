@@ -18,6 +18,11 @@ import type {
   InsurgencyLevel,
   NuclearStage,
   DiplomaticStance,
+  TurnResults,
+  AirstrikeResult,
+  WarTurnResult,
+  DiplomaticShift,
+  PalestinianLevel,
 } from '../types/game';
 import type { GameData } from '../types/data';
 
@@ -40,6 +45,21 @@ export const GameEngine = {
   resolveTurn: (state: GameState): GameState => {
     let newState = { ...state };
 
+    // Track results for headlines
+    const airstrikeResults: AirstrikeResult[] = [];
+    const warResults: WarTurnResult[] = [];
+    const diplomaticShifts: DiplomaticShift[] = [];
+
+    // Snapshot relationships before diplomatic actions
+    const relationshipsBefore: Record<CountryId, RelationshipLevel> = {} as Record<CountryId, RelationshipLevel>;
+    for (const [id, country] of Object.entries(state.countries)) {
+      relationshipsBefore[id as CountryId] = country.relationship;
+    }
+
+    // Track economy
+    const startingBudget = newState.player.budget;
+    const economyDetails: string[] = [];
+
     // 1. Apply player diplomatic actions
     newState = DiplomacyEngine.applyPlayerActions(newState);
 
@@ -47,17 +67,43 @@ export const GameEngine = {
     newState = IntelligenceEngine.applyPlayerActions(newState);
 
     // 3. Process weapon purchases and deliveries
+    const purchasesBefore = [...newState.player.turnActions.weaponPurchases];
     newState = EconomyEngine.processPurchases(newState);
     newState = EconomyEngine.processDeliveries(newState);
 
-    // 4. Process airstrikes
-    newState = CombatEngine.processAirstrikes(newState);
+    // Track delivered weapons
+    for (const purchase of purchasesBefore) {
+      economyDetails.push(`Purchased ${purchase.quantity}x ${purchase.weaponId} for $${(purchase.totalCost / 1000000).toFixed(1)}M`);
+    }
 
-    // 5. Resolve active wars
-    newState = CombatEngine.resolveAllWars(newState);
+    // 4. Process airstrikes with results
+    const airstrikes = newState.player.turnActions.airstrikes;
+    for (const airstrike of airstrikes) {
+      const { state: postAirstrikeState, result } = CombatEngine.executeAirstrikeWithResult(newState, airstrike);
+      newState = postAirstrikeState;
+      airstrikeResults.push(result);
+    }
+
+    // 5. Resolve active wars with results
+    for (const war of [...newState.wars]) {
+      const { state: postWarState, result } = CombatEngine.resolveWarTurnWithResult(newState, war.id);
+      newState = postWarState;
+      warResults.push(result);
+    }
 
     // 6. Update relationships (natural drift from stances)
     newState = DiplomacyEngine.updateRelationships(newState);
+
+    // Track all diplomatic shifts (from player actions and natural drift)
+    for (const [id, country] of Object.entries(newState.countries)) {
+      const countryId = id as CountryId;
+      if (countryId === 'israel') continue;
+      const before = relationshipsBefore[countryId];
+      const after = country.relationship;
+      if (before !== after) {
+        diplomaticShifts.push({ country: countryId, from: before, to: after });
+      }
+    }
 
     // 7. Update stability based on insurgency
     newState = IntelligenceEngine.updateStability(newState);
@@ -66,13 +112,49 @@ export const GameEngine = {
     newState = IntelligenceEngine.checkForCollapse(newState);
 
     // 9. Add monthly income
+    const incomeAmount = EconomyEngine.calculateMonthlyIncome(newState);
     newState = EconomyEngine.addMonthlyIncome(newState);
+    economyDetails.push(`Monthly income: $${(incomeAmount / 1000000).toFixed(1)}M`);
 
     // 10. Resolve Palestinian situation
+    const palestinianBefore = newState.player.palestinianLevel;
     newState = PalestinianEngine.resolvePalestinianPhase(newState);
+    const palestinianAfter = newState.player.palestinianLevel;
 
     // 11. Progress nuclear programs (simplified)
     newState = GameEngine.progressNuclearPrograms(newState);
+
+    // Build turn results
+    const turnResults: TurnResults = {
+      airstrikes: airstrikeResults,
+      wars: warResults,
+      economy: {
+        startingBudget,
+        income: incomeAmount,
+        expenses: purchasesBefore.reduce((sum, p) => sum + p.totalCost, 0),
+        endingBudget: newState.player.budget,
+        details: economyDetails,
+      },
+      diplomaticShifts,
+    };
+
+    // Add nuclear progress if player has a program
+    if (newState.player.nuclearStage !== 'none') {
+      const requiredMonths = getNuclearStageRequirement(newState.player.nuclearStage);
+      turnResults.nuclearProgress = {
+        stage: newState.player.nuclearStage,
+        monthsComplete: newState.player.nuclearProgress,
+        monthsRequired: requiredMonths,
+      };
+    }
+
+    // Add Palestinian change if it changed
+    if (palestinianBefore !== palestinianAfter) {
+      turnResults.palestinianChange = {
+        from: palestinianBefore as PalestinianLevel,
+        to: palestinianAfter as PalestinianLevel,
+      };
+    }
 
     // 12. Check win/lose conditions
     const endCondition = ScoringEngine.checkEndConditions(newState);
@@ -81,6 +163,7 @@ export const GameEngine = {
         ...newState,
         endState: ScoringEngine.generateEndState(newState, endCondition),
         phase: 'game_over',
+        lastTurnResults: turnResults,
       };
       return newState;
     }
@@ -96,6 +179,7 @@ export const GameEngine = {
         ...newState.player,
         turnActions: createEmptyTurnActions(),
       },
+      lastTurnResults: turnResults,
     };
 
     // 14. Check for UN Summit (December)
