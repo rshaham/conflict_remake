@@ -7,12 +7,13 @@
 // - Scrollable content area
 // - Optional footer action
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Scanlines } from '../ui/Scanlines';
 import { useGameStore } from '../../store/gameStore';
 import { ArsenalButton } from '../game/ArsenalButton';
 import { ArsenalOverlay } from '../game/ArsenalOverlay';
+import { DebugPanel } from '../debug/DebugPanel';
 
 const MONTH_NAMES = [
   'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
@@ -44,6 +45,23 @@ export function GameShell({ children, showBack = true, footer, statusOverride }:
   const location = useLocation();
   const game = useGameStore((state) => state.game);
   const [arsenalOpen, setArsenalOpen] = useState(false);
+  const [debugOpen, setDebugOpen] = useState(false);
+
+  // Debug panel keyboard shortcut (dev mode only)
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Backtick key or Ctrl+Shift+D
+      if (e.key === '`' || (e.ctrlKey && e.shiftKey && e.key === 'D')) {
+        e.preventDefault();
+        setDebugOpen((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const screenMeta = SCREEN_META[location.pathname] || {
     title: 'CONFLICT',
@@ -149,6 +167,11 @@ export function GameShell({ children, showBack = true, footer, statusOverride }:
           <ArsenalButton onClick={() => setArsenalOpen(true)} />
           <ArsenalOverlay isOpen={arsenalOpen} onClose={() => setArsenalOpen(false)} />
         </>
+      )}
+
+      {/* === DEBUG PANEL (dev mode only) === */}
+      {import.meta.env.DEV && (
+        <DebugPanel isOpen={debugOpen} onClose={() => setDebugOpen(false)} />
       )}
     </div>
   );

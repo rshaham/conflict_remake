@@ -17,6 +17,9 @@ import type {
   PolicingTactic,
   AirstrikeTarget,
   Airstrike,
+  RelationshipLevel,
+  NuclearStage,
+  PalestinianLevel,
 } from '../types/game';
 import type { GameData } from '../types/data';
 import { loadAllGameData } from '../data/loader';
@@ -72,6 +75,20 @@ interface GameStore {
   // UN Summit
   acceptProposal: (proposalId: string) => void;
   rejectProposal: (proposalId: string) => void;
+
+  // Debug Actions (dev mode only)
+  debugAddBudget: (amount: number) => void;
+  debugSetPrestige: (level: number) => void;
+  debugSetKnessetDisapproval: (value: number) => void;
+  debugModifyUSAttitude: (delta: number) => void;
+  debugAddWeapon: (weaponId: WeaponId, quantity: number) => void;
+  debugSetNuclearStage: (stage: NuclearStage) => void;
+  debugSetPalestinianLevel: (level: PalestinianLevel) => void;
+  debugSetRelationship: (country: CountryId, level: RelationshipLevel) => void;
+  debugDefeatCountry: (country: CountryId) => void;
+  debugWinWar: (warId: string) => void;
+  debugLoseWar: (warId: string) => void;
+  debugSkipTurns: (turns: number) => void;
 }
 
 export const useGameStore = create<GameStore>()(
@@ -463,6 +480,236 @@ export const useGameStore = create<GameStore>()(
 
         console.log(`Rejected proposal: ${proposalId}`);
         // TODO: Implement specific proposal handling
+      },
+
+      // Debug Actions (dev mode only)
+      debugAddBudget: (amount) => {
+        const { game } = get();
+        if (!game) return;
+
+        set({
+          game: {
+            ...game,
+            player: {
+              ...game.player,
+              budget: game.player.budget + amount,
+            },
+          },
+        });
+      },
+
+      debugSetPrestige: (level) => {
+        const { game } = get();
+        if (!game) return;
+
+        set({
+          game: {
+            ...game,
+            player: {
+              ...game.player,
+              prestige: Math.max(0, Math.min(10, level)),
+            },
+          },
+        });
+      },
+
+      debugSetKnessetDisapproval: (value) => {
+        const { game } = get();
+        if (!game) return;
+
+        set({
+          game: {
+            ...game,
+            player: {
+              ...game.player,
+              knessetDisapproval: Math.max(0, Math.min(10, value)),
+            },
+          },
+        });
+      },
+
+      debugModifyUSAttitude: (delta) => {
+        const { game } = get();
+        if (!game) return;
+
+        set({
+          game: {
+            ...game,
+            player: {
+              ...game.player,
+              usAttitude: Math.max(0, Math.min(100, game.player.usAttitude + delta)),
+            },
+          },
+        });
+      },
+
+      debugAddWeapon: (weaponId, quantity) => {
+        const { game } = get();
+        if (!game) return;
+
+        set({
+          game: {
+            ...game,
+            player: {
+              ...game.player,
+              arsenal: {
+                ...game.player.arsenal,
+                [weaponId]: (game.player.arsenal[weaponId] || 0) + quantity,
+              },
+            },
+          },
+        });
+      },
+
+      debugSetNuclearStage: (stage) => {
+        const { game } = get();
+        if (!game) return;
+
+        set({
+          game: {
+            ...game,
+            player: {
+              ...game.player,
+              nuclearStage: stage,
+              nuclearProgress: stage === 'operational' ? 12 : 0,
+            },
+          },
+        });
+      },
+
+      debugSetPalestinianLevel: (level) => {
+        const { game } = get();
+        if (!game) return;
+
+        set({
+          game: {
+            ...game,
+            player: {
+              ...game.player,
+              palestinianLevel: level,
+            },
+          },
+        });
+      },
+
+      debugSetRelationship: (country, level) => {
+        const { game } = get();
+        if (!game) return;
+
+        set({
+          game: {
+            ...game,
+            countries: {
+              ...game.countries,
+              [country]: {
+                ...game.countries[country],
+                relationship: level,
+              },
+            },
+          },
+        });
+      },
+
+      debugDefeatCountry: (country) => {
+        const { game } = get();
+        if (!game) return;
+
+        set({
+          game: {
+            ...game,
+            countries: {
+              ...game.countries,
+              [country]: {
+                ...game.countries[country],
+                isDefeated: true,
+                defeatedBy: 'israel',
+                defeatedOnTurn: game.turn,
+                stability: 'collapse' as const,
+              },
+            },
+          },
+        });
+      },
+
+      debugWinWar: (warId) => {
+        const { game } = get();
+        if (!game) return;
+
+        const war = game.wars.find((w) => w.id === warId);
+        if (!war) return;
+
+        // Determine enemy and defeat them
+        const enemy = war.attacker === 'israel' ? war.defender : war.attacker;
+
+        set({
+          game: {
+            ...game,
+            wars: game.wars.filter((w) => w.id !== warId),
+            countries: {
+              ...game.countries,
+              [enemy]: {
+                ...game.countries[enemy],
+                isDefeated: true,
+                defeatedBy: 'israel',
+                defeatedOnTurn: game.turn,
+                stability: 'collapse' as const,
+              },
+            },
+            player: {
+              ...game.player,
+              prestige: Math.min(10, game.player.prestige + 2),
+            },
+          },
+        });
+      },
+
+      debugLoseWar: (warId) => {
+        const { game } = get();
+        if (!game) return;
+
+        // Set game over state
+        set({
+          game: {
+            ...game,
+            wars: game.wars.filter((w) => w.id !== warId),
+            phase: 'game_over',
+            endState: {
+              type: 'defeat',
+              condition: 'military_defeat',
+              finalScore: 0,
+              leadershipStyle: 'Defeated',
+              narrative: 'Israel has fallen to military defeat.',
+              statistics: {
+                turnsPlayed: game.turn,
+                warsWon: 0,
+                warsLost: 1,
+                countriesDefeated: [],
+                totalWeaponsPurchased: 0,
+                totalAirstrikes: 0,
+                peakPrestige: game.player.prestige,
+                peakKnessetDisapproval: game.player.knessetDisapproval,
+              },
+            },
+          },
+        });
+      },
+
+      debugSkipTurns: (turns) => {
+        const { game } = get();
+        if (!game) return;
+
+        const newTurn = game.turn + turns;
+        const newMonth = ((game.month - 1 + turns) % 12) + 1;
+        const yearsToAdd = Math.floor((game.month - 1 + turns) / 12);
+
+        set({
+          game: {
+            ...game,
+            turn: newTurn,
+            month: newMonth,
+            year: game.year + yearsToAdd,
+          },
+        });
       },
     }),
     {
