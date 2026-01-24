@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <!-- Hexagon clip path -->
+    <clipPath id="hexClip">
+      <polygon points="32,2 58,17 58,47 32,62 6,47 6,17"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background hexagon -->
+  <polygon
+    points="32,2 58,17 58,47 32,62 6,47 6,17"
+    fill="#1a1a2e"
+  />
+
+  <!-- Radar sweep (translucent green pie slice) -->
+  <g clip-path="url(#hexClip)">
+    <path
+      d="M32,32 L32,2 A30,30 0 0,1 58,17 Z"
+      fill="#22c55e"
+      opacity="0.35"
+    />
+  </g>
+
+  <!-- Star of David / crosshair grid pattern -->
+  <g stroke="#ffffff" stroke-width="1.5" fill="none" opacity="0.9" clip-path="url(#hexClip)">
+    <!-- Vertical crosshair -->
+    <line x1="32" y1="8" x2="32" y2="56"/>
+    <!-- Horizontal crosshair -->
+    <line x1="10" y1="32" x2="54" y2="32"/>
+
+    <!-- Star of David triangles (upward) -->
+    <polygon points="32,14 44,38 20,38" stroke-width="1.5"/>
+    <!-- Star of David triangles (downward) -->
+    <polygon points="32,50 44,26 20,26" stroke-width="1.5"/>
+  </g>
+
+  <!-- Center dot -->
+  <circle cx="32" cy="32" r="3" fill="#e94560"/>
+
+  <!-- Hexagon border (alert red) -->
+  <polygon
+    points="32,2 58,17 58,47 32,62 6,47 6,17"
+    fill="none"
+    stroke="#e94560"
+    stroke-width="3"
+  />
+</svg>
